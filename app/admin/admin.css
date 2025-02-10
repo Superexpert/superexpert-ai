@@ -52,3 +52,21 @@ label { @apply
   text-gray-700
 }
 
+.btnPrimary { @apply
+    px-4 
+    py-2 
+    bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200
+}
+.btnCancel { @apply
+    px-4 
+    py-2 
+    bg-gray-300 
+    text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-400 focus:ring-2 
+    focus:ring-gray-500 focus:outline-none transition duration-200
+}
+
+h1 {
+    @apply
+    text-3xl font-bold text-gray-900 mb-6
+}
+
