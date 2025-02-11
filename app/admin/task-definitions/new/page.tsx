@@ -1,10 +1,12 @@
 'use client';
 import {useState, useEffect} from "react";
 import Link from "next/link";
-import { z } from 'zod';
+import { set, z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getServerTools } from "@/lib/server/admin-actions";
+import { getServerTools} from "@/lib/server/admin-actions";
+import ListPicker from "@/app/admin/_components/list-picker";
+import { ServerToolMetaData } from "@/lib/task-types";
 
 
 const schema = z.object({
@@ -17,11 +19,20 @@ interface IFormInput {
     instructions: string;
 }
 
-export default function AdminNewTaskDefinition() {
+export default function AdminNewTaskDefinition() {    
+    const [selectedServerToolIds, setSelectedServerToolIds] = useState<string[]>([]);
+    const [serverTools, setServerTools] = useState<{id:string, description:string}[]>([]);
+
+    
+    const handleServerToolSelectionChange = (newSelectedServerToolIds: string[]) => {
+        setSelectedServerToolIds(newSelectedServerToolIds);
+        console.log('Selected Tool IDs:', newSelectedServerToolIds);
+    };
 
     useEffect(() => {
         const fetch = async () => {
             const response = await getServerTools();
+            setServerTools(response);
             console.log(response);
         };
         fetch();
@@ -59,6 +70,11 @@ export default function AdminNewTaskDefinition() {
                     <button className="btnCancel ml-4">Cancel</button>
                 </Link>
             </form>
+
+            <ListPicker
+                items={serverTools}
+                selectedItemIds={selectedServerToolIds}
+                onSelectionChange={handleServerToolSelectionChange} />
 
         </div>
     )
