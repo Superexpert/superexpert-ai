@@ -13,6 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model taskDefinitions {
+  id            Int      @id @default(autoincrement())
+  name          String
+  createdAt     DateTime @default(now())
+  createdBy     String
+  updatedAt     DateTime @default(now())
+  updatedBy     String
+  instructions  String
+  @@map("superexpert_ai_taskDefinitions")
+}
+
+
 model tasks {
   id            Int      @id @default(autoincrement())
   userId        String
@@ -37,4 +49,14 @@ model messages {
   createdAt     DateTime @default(now())
 
   @@map("superexpert_ai_messages")
+}
+
+model memories {
+  id            Int      @id @default(autoincrement())
+  userId        String  
+  content       String
+  expiresInDays Int
+  createdAt     DateTime @default(now())
+
+  @@map("superexpert_ai_memories")
 }

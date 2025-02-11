@@ -1,7 +1,7 @@
 'use client';
 import {useState, useEffect} from "react";
 import Link from "next/link";
-import { doServerAction } from "../server/admin-actions";
+import { doServerAction } from "@/lib/server/admin-actions";
 
 
 export default function AdminTaskDefinitions() {

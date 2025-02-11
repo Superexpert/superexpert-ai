@@ -4,6 +4,7 @@ import Link from "next/link";
 import { z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getServerTools } from "@/lib/server/admin-actions";
 
 
 const schema = z.object({
@@ -20,6 +21,8 @@ export default function AdminNewTaskDefinition() {
 
     useEffect(() => {
         const fetch = async () => {
+            const response = await getServerTools();
+            console.log(response);
         };
         fetch();
     }, []);
