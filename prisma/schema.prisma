@@ -14,28 +14,27 @@ datasource db {
 }
 
 model tasks {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  name      String
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        String
+  name          String
+  thread        String
+  createdAt     DateTime @default(now())
+  lastUpdatedAt DateTime @default(now())
+  status        String
 
   @@map("superexpert_ai_tasks")
 }
 
-model taskDefinitions {
+model messages {
   id            Int      @id @default(autoincrement())
-  name          String
-  instructions  String
-  createdAt     DateTime @default(now())
-
-  @@map("superexpert_ai_taskDefinitions")
-}
-
-model tasksDefinitionsBase {
-  id            Int      @id @default(autoincrement())
+  userId        String
   task          String
-  instructions  String
+  thread        String
+  role          String
+  content       String
+  tool_calls    Json?
+  tool_call_id  String?
   createdAt     DateTime @default(now())
 
-  @@map("superexpert_ai_taskDefinitionsBase")
+  @@map("superexpert_ai_messages")
 }

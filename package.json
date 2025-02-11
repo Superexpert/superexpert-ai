@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "npx prisma generate --schema ./superexpert-ai/db/schema.prisma && npx prisma  db push --schema ./superexpert-ai/db/schema.prisma"
+    "migrate": "npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

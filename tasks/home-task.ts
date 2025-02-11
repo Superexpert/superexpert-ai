@@ -1,15 +1,12 @@
-import ServerTask from '@/lib/types/server-task';
-
+import { TaskDefinition } from '@/lib/task-types';
 
 const instructions = `
-Work on code.
+Ask the user for their name.
 `;
 
+export default new (class ShirtSizeTask extends TaskDefinition {
+    name = "home";
+    instructions = instructions;
 
-const homeTask:ServerTask = {
-    name: "Home",
-    instructions,
-};
 
-export default homeTask;
-
+})();

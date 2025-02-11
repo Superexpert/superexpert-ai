@@ -1,18 +1,15 @@
-import BaseServerTask from '@/lib/types/base-server-task';
+import { TaskDefinition, ServerTool } from '@/lib/task-types';
 
 const instructions = `
-Work on code.
+Ask the user for their shirt size.
 `;
 
-@ServerTask()
-class ShirtSizeTask extends BaseServerTask {
-  name = "shirt size";
-  instructions = instructions;
+export default new (class ShirtSizeTask extends TaskDefinition {
+    name = "shirt size";
+    instructions = instructions;
 
-  @ServerTool()
-  async saveShirtSize() {
-    console.log("Saving shirt size...");
-  }
-}
-
-export default new ShirtSizeTask(); // Export as a singleton if needed
+    @ServerTool()
+    async saveShirtSize() {
+        console.log("Saving shirt size...");
+    }
+})();

@@ -1,15 +1,9 @@
 'use server';
-import { DbService } from '@/superexpert-ai/db/db-service';
-import { getFunctionsFromFolder } from "@/lib/generate-tools";
+import taskMachine from '@/tasks/task-machine';
 
 
-export async function getTaskDefinitions() {
-    const db = new DbService();
-    const taskDefinitions = await db.getTaskDefinitions();
-    return taskDefinitions;   
-}
-
-export async function generateTools() {
-    const tools = await getFunctionsFromFolder("./superexpert-ai/tasks/home/functions");
-    console.log(JSON.stringify(tools, null, 2));        
+export async function doServerAction() {
+    console.log("Server action");
+    const result = taskMachine.getAIPayload("123", "UTC", []);
+    return "world";
 }

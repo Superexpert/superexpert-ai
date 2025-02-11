@@ -1,8 +1,6 @@
 'use client';
 import {useState, useEffect} from "react";
 import Link from "next/link";
-import {getTaskDefinitions, generateTools} from "@/app/server/admin-actions";
-import TaskDefinition from "@/lib/types/task-definition";
 import { z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +20,6 @@ export default function AdminNewTaskDefinition() {
 
     useEffect(() => {
         const fetch = async () => {
-            const tools = await generateTools();
         };
         fetch();
     }, []);
