@@ -12,6 +12,6 @@ export class GlobalClientTools {
         transitionData: any
     ) {
         console.log('transition is awesome');
-        return `Transitioning to ${task}`;
+        return `Successfully transitioned to ${task}`;
     }
 }
