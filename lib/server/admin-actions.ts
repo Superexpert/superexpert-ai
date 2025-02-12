@@ -16,13 +16,18 @@ export async function getServerTools() {
 export async function saveTaskDefinition(data: TaskDefinition) {
   const db = new DBService();
   const result = await db.saveTaskDefinition(data);
-      // Redirect after submission
-      redirect("/admin");
+  redirect("/admin");
 }
 
 export async function getTaskDefinitionList() {
   const db = new DBService();
   const result = await db.getTaskDefinitionList();
+  return result;
+}
+
+export async function getTaskDefinitionById(id: number) {
+  const db = new DBService();
+  const result = await db.getTaskDefinitionById(id);
   return result;
 }
 

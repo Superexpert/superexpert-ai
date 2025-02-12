@@ -6,6 +6,32 @@ import {prisma} from './prisma';
 export class DBService {
 
     public async saveTaskDefinition(data: TaskDefinition) {
+        // Update existing
+        if (data.id) {
+            const existingTaskDefinition = await prisma.taskDefinitions.findUnique({
+                where: {
+                    id: data.id
+                }
+            });
+            if (!existingTaskDefinition) {
+                throw new Error('Task Definition not found');
+            }
+
+            await prisma.taskDefinitions.update({
+                where: {
+                    id: data.id
+                },
+                data: {
+                    name: data.name,
+                    instructions: data.instructions,
+                    serverToolIds: data.serverToolIds.join(','),
+                    updatedBy: "bob"
+                }
+            });
+
+            return existingTaskDefinition;
+        }
+        // save new
         const newTaskDefinition = await prisma.taskDefinitions.create({
             data: {
                 name: data.name,
@@ -17,6 +43,23 @@ export class DBService {
         });
 
         return newTaskDefinition;
+    }
+
+    public async getTaskDefinitionById(id: number) {
+        const td = await prisma.taskDefinitions.findUnique({
+            where: {
+                id: id
+            }
+        });
+        if (!td) {
+            throw new Error('Task Definition not found');
+        }
+        return {
+            id: td.id,
+            name: td.name,
+            instructions: td.instructions,
+            serverToolIds: td.serverToolIds.split(','),
+        };
     }
 
     public async getTaskDefinitionList() {
