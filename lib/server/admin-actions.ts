@@ -1,14 +1,14 @@
 'use server';
 import {ServerTools} from '@/task-definitions/server-tools';
-import {getServerToolList} from '@/lib/task-types';
+import {ServerToolsBuilder} from '@/lib/server-tools-builder';
 import {TaskDefinition} from '@/lib/task-definition';
 import {DBAdminService} from '@/lib/db/db-admin-service';
 import {redirect} from "next/navigation";
 
 
 export async function getServerTools() {
-  new ServerTools();
-  const result = getServerToolList();
+  const builder = new ServerToolsBuilder();
+  const result = builder.getServerToolList();
   return result;
 }
 

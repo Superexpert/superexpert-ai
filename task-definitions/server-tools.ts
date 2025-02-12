@@ -1,4 +1,4 @@
-import {ServerTool, ServerToolParameter} from '@/lib/task-types';
+import {ServerTool, ServerToolParameter} from '@/lib/server-tools-builder';
 
 
 export class ServerTools {

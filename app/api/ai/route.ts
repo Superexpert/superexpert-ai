@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { MessageAI, ToolCall } from "@/lib/message";
-import { TaskMachine } from "@/lib/taskMachine";
+import { TaskMachine } from "@/lib/task-machine";
 
 interface RequestBody {
     nowString: string;
@@ -37,8 +37,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         messages,
     );
 
-    console.log("currentMessages:");
-    console.dir(currentMessages, { depth: null });
+    // console.log("currentMessages:");
+    // console.dir(currentMessages, { depth: null });
 
 
     const client = new OpenAI();

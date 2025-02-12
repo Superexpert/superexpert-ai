@@ -2,6 +2,7 @@ import { DBService } from '@/lib/db/db-service';
 import { MessageAI} from '@/lib/message';
 import { TaskDefinition } from './task-definition';
 import { ToolAI } from '@/lib/tool-ai';
+import { ServerToolsBuilder } from './server-tools-builder';
 
 export class TaskMachine {
 
@@ -29,12 +30,33 @@ export class TaskMachine {
         const systemMessages = await this.getSystemMessages(taskDefinition);
 
         // Get server tools
-        const allTools:ToolAI[] = [];
+        const serverTools = this.getServerTools();
 
         return {
             currentMessages:[...systemMessages, ...previousMessages], 
-            tools:allTools,
+            tools:serverTools,
         };
+    }
+
+    private getServerTools(): ToolAI[] {
+        const builder = new ServerToolsBuilder();
+        const registry = builder.getServerToolRegistry();
+        console.log("registry", registry);
+
+        const result = Object.keys(registry).map((key) => {
+            const tool = registry[key];
+            return {
+                type: "function" as const,
+                function: {
+                    name: tool.name,
+                    description: tool.description,
+                    //parameters: tool.parameters
+                }
+            }
+        });
+        console.log("server tools");
+        console.dir(result, { depth: null });
+        return result;
     }
 
     private async getSystemMessages(taskDefinition: TaskDefinition):Promise<MessageAI[]>  {
