@@ -40,25 +40,8 @@ export class TaskMachine {
 
     private getServerTools(serverTools:string[]): ToolAI[] {
         const builder = new ServerToolsBuilder();
-        const registry = builder.getTools(serverTools);
-        console.log("registry");
-        console.dir(registry, { depth: null });
-
-        // const result = Object.keys(registry).map((key) => {
-        //     const tool = registry[key];
-        //     return {
-        //         type: "function" as const,
-        //         function: {
-        //             name: tool.name,
-        //             description: tool.description,
-        //             //parameters: tool.parameters
-        //         }
-        //     }
-        // });
-        // console.log("server tools");
-        // console.dir(result, { depth: null });
-        // return result;
-        return [];
+        const tools = builder.getTools(serverTools);
+        return tools;
     }
 
     private async getSystemMessages(taskDefinition: TaskDefinition):Promise<MessageAI[]>  {

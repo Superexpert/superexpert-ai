@@ -6,6 +6,7 @@ import { ThreeDot } from "react-loading-indicators";
 import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 import { Message, MessageProps } from "@/app/_components/message";
 import { MessageAI, ToolCall} from '@/lib/message';
+import { getSessionItem, setSessionItem } from '@/lib/session-storage';
 
 
 const getNow = () => {
@@ -16,6 +17,26 @@ const getTimeZone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
+const getTask = () => {
+  const task = getSessionItem("task");
+  if (task) {
+    return task;
+  }
+  const newTask = "Home";
+  setSessionItem("task", newTask);
+  return newTask;
+};
+
+
+const getThread = (): string => {
+  const thread = getSessionItem("thread");
+  if (thread) {
+    return thread;
+  }
+  const newThread = crypto.randomUUID();
+  setSessionItem("thread", newThread);
+  return newThread;
+};
 
 type ChatProps = {
   functionCallHandler?: (
@@ -48,8 +69,8 @@ const ChatBot = ({
           body: JSON.stringify({
             nowString: getNow().toISOString(),
             timeZone: getTimeZone(),
-            task: "Home",
-            thread: "default",
+            task: getTask(),
+            thread: getThread(),
             messages,
           }),
         }

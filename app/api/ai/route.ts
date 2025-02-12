@@ -47,7 +47,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         model: "gpt-4o",
         stream: true,
         messages: currentMessages,
-        //tools,
+        ...(tools.length > 0 && { tools }) // Only add tools if tools.length > 0
     });
 
     // ReadableStream that will be sent to the client
@@ -80,6 +80,11 @@ export async function POST(request: NextRequest): Promise<Response> {
                                 tool_calls:toolCalls
                             }]
                         );
+
+                        // Perform tool calls
+                        console.log("toolCalls:");
+                        console.dir(toolCalls, { depth: null });
+
                         controller.close();
                         break;
                     }

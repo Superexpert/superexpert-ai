@@ -14,6 +14,7 @@ export class ServerTools {
     )
     {
       console.log('getWeather is awesome');
+      return `The weather in ${location} is god awful`;
     }
 
 
