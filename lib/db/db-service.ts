@@ -1,8 +1,41 @@
 
 import { MessageAI } from '../message-ai';
+import { TaskDefinition } from '../task-definition';
 import {prisma} from './prisma';
 
 export class DBService {
+
+    public async saveTaskDefinition(data: TaskDefinition) {
+        const newTaskDefinition = await prisma.taskDefinitions.create({
+            data: {
+                name: data.name,
+                instructions: data.instructions,
+                serverToolIds: data.serverToolIds.join(','),
+                createdBy: "bob",
+                updatedBy: "bob"
+            }
+        });
+
+        return newTaskDefinition;
+    }
+
+    public async getTaskDefinitionList() {
+        const taskDefinitions = await prisma.taskDefinitions.findMany(
+            {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            }
+        );
+        return taskDefinitions.map(td => {
+            return {
+                id: td.id,
+                description: td.name
+            }});
+    }
+
+
 
     public async getLastTask(userId:string) {
         const lastTask = await prisma.tasks.findFirst({

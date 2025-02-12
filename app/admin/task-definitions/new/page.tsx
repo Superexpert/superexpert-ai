@@ -4,9 +4,9 @@ import Link from "next/link";
 import { set, z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getServerTools} from "@/lib/server/admin-actions";
+import { getServerTools, saveTaskDefinition} from "@/lib/server/admin-actions";
 import ListPicker from "@/app/admin/_components/list-picker";
-import { ServerToolMetaData } from "@/lib/task-types";
+import { TaskDefinition } from "@/lib/task-definition";
 
 
 const schema = z.object({
@@ -14,10 +14,6 @@ const schema = z.object({
     instructions: z.string(),
 });
 
-interface IFormInput {
-    name: string;
-    instructions: string;
-}
 
 export default function AdminNewTaskDefinition() {    
     const [selectedServerToolIds, setSelectedServerToolIds] = useState<string[]>([]);
@@ -40,17 +36,19 @@ export default function AdminNewTaskDefinition() {
 
 
  
-    const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>({
+    const { register, handleSubmit, formState: { errors } } = useForm<TaskDefinition>({
         resolver: zodResolver(schema),
     });
       
-    const onSubmit: SubmitHandler<IFormInput> = (data) => {
-        // Handle form submission
+    const onSubmit: SubmitHandler<TaskDefinition> = async (data) => {
+        data.serverToolIds = selectedServerToolIds;
+        console.log("saving data", data);
+        await saveTaskDefinition(data);
     };
 
     return (
         <div>
-            <h1>Task Definitions</h1>
+            <h1>New Task Definition</h1>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
@@ -65,7 +63,7 @@ export default function AdminNewTaskDefinition() {
                     {errors.instructions && <span>{errors.instructions.message}</span>}
                 </div>
 
-                <button className="btnPrimary" type="submit">Submit</button>
+                <button className="btnPrimary" type="submit">Save</button>
                 <Link href="/admin">
                     <button className="btnCancel ml-4">Cancel</button>
                 </Link>
