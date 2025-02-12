@@ -30,7 +30,7 @@ export class TaskMachine {
         const systemMessages = await this.getSystemMessages(taskDefinition);
 
         // Get server tools
-        const serverTools = this.getServerTools();
+        const serverTools = this.getServerTools(taskDefinition.serverToolIds);
 
         return {
             currentMessages:[...systemMessages, ...previousMessages], 
@@ -38,25 +38,27 @@ export class TaskMachine {
         };
     }
 
-    private getServerTools(): ToolAI[] {
+    private getServerTools(serverTools:string[]): ToolAI[] {
         const builder = new ServerToolsBuilder();
-        const registry = builder.getServerToolRegistry();
-        console.log("registry", registry);
+        const registry = builder.getTools(serverTools);
+        console.log("registry");
+        console.dir(registry, { depth: null });
 
-        const result = Object.keys(registry).map((key) => {
-            const tool = registry[key];
-            return {
-                type: "function" as const,
-                function: {
-                    name: tool.name,
-                    description: tool.description,
-                    //parameters: tool.parameters
-                }
-            }
-        });
-        console.log("server tools");
-        console.dir(result, { depth: null });
-        return result;
+        // const result = Object.keys(registry).map((key) => {
+        //     const tool = registry[key];
+        //     return {
+        //         type: "function" as const,
+        //         function: {
+        //             name: tool.name,
+        //             description: tool.description,
+        //             //parameters: tool.parameters
+        //         }
+        //     }
+        // });
+        // console.log("server tools");
+        // console.dir(result, { depth: null });
+        // return result;
+        return [];
     }
 
     private async getSystemMessages(taskDefinition: TaskDefinition):Promise<MessageAI[]>  {

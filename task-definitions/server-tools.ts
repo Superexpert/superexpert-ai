@@ -1,4 +1,4 @@
-import {ServerTool, ServerToolParameter} from '@/lib/server-tools-builder';
+import {ServerTool, ServerToolParameter} from '@/lib/task-types';
 
 
 export class ServerTools {
@@ -19,7 +19,7 @@ export class ServerTools {
 
     @ServerTool('saveMemory', 'This is a tool to save a memory')
     public async sm(
-      @ServerToolParameter('favColor', 'Your favorite color')
+      @ServerToolParameter('favColor', 'Your favorite color in number form')
       persistance: number,
     )
     {
