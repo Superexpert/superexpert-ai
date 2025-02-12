@@ -1,15 +1,15 @@
-import {ServerTool, ServerToolParameter} from '@/lib/task-types';
+import {Tool, ToolParameter} from '@/lib/task-types';
 
 
 export class ServerTools {
   
-    @ServerTool('getWeather', 'This is a tool to get the weather')
+    @Tool('getWeather', 'This is a tool to get the weather')
     public async gw(
-      @ServerToolParameter('location', 'This is the location')
+      @ToolParameter('location', 'This is the location')
       location:string,
-      @ServerToolParameter('favNumber', 'This is your favorite number')
+      @ToolParameter('favNumber', 'This is your favorite number')
       favNumber:number,
-      @ServerToolParameter('favColor', 'Your favorite color')
+      @ToolParameter('favColor', 'Your favorite color')
       favColor: 'red'|'blue'|'green',
     )
     {
@@ -18,9 +18,9 @@ export class ServerTools {
     }
 
 
-    @ServerTool('saveMemory', 'This is a tool to save a memory')
+    @Tool('saveMemory', 'This is a tool to save a memory')
     public async sm(
-      @ServerToolParameter('favColor', 'Your favorite color in number form')
+      @ToolParameter('favColor', 'Your favorite color in number form')
       persistance: number,
     )
     {

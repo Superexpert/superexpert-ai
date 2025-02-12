@@ -2,7 +2,7 @@ import { DBService } from '@/lib/db/db-service';
 import { MessageAI} from '@/lib/message';
 import { TaskDefinition } from './task-definition';
 import { ToolAI } from '@/lib/tool-ai';
-import { ServerToolsBuilder } from './server-tools-builder';
+import { ToolsBuilder } from './tools-builder';
 
 export class TaskMachine {
 
@@ -23,28 +23,37 @@ export class TaskMachine {
         const previousMessages = await this.getPreviousMessages(userId, thread);
 
         // Get task definition
-        const taskDefinition = await this.getTaskDefinition(task);
-
+        const taskDefinitions = await this.getTaskDefinitions();
+        const taskDefinition = taskDefinitions.find(td => td.name === task);
+        if (!taskDefinition) {
+            throw new Error(`Task definition not found for task: ${task}`);
+        }
+        const globalTaskDefinition = taskDefinitions.find(td => td.name === 'Global');
+        if (!globalTaskDefinition) {
+            throw new Error(`Task definition not found for task: Global`);
+        }
 
         // Get system messages
-        const systemMessages = await this.getSystemMessages(taskDefinition);
+        const systemMessages = await this.getSystemMessages(taskDefinition, globalTaskDefinition);
 
-        // Get server tools
-        const serverTools = this.getServerTools(taskDefinition.serverToolIds);
+        // Get tools
+        const tools = this.getServerTools(taskDefinition.serverToolIds, globalTaskDefinition.serverToolIds);
 
         return {
             currentMessages:[...systemMessages, ...previousMessages], 
-            tools:serverTools,
+            tools:tools,
         };
     }
 
-    private getServerTools(serverTools:string[]): ToolAI[] {
-        const builder = new ServerToolsBuilder();
-        const tools = builder.getTools(serverTools);
+    private getServerTools(customServerToolIds:string[], globalServerToolIds:string[]): ToolAI[] {
+        // merge the two arrays removing duplicates
+        const toolIds: string[] = [...new Set([...customServerToolIds, ...globalServerToolIds])];
+        const builder = new ToolsBuilder();
+        const tools = builder.getTools(toolIds);
         return tools;
     }
 
-    private async getSystemMessages(taskDefinition: TaskDefinition):Promise<MessageAI[]>  {
+    private async getSystemMessages(taskDefinition: TaskDefinition, globalTaskDefinition:TaskDefinition):Promise<MessageAI[]>  {
         return [
             { role: 'system', content: taskDefinition.instructions }
         ];
@@ -66,9 +75,8 @@ export class TaskMachine {
         // ];
     }
 
-
-    private async getTaskDefinition(task:string) {
-        const result = await this.db.getTaskDefinition(task);
+    private async getTaskDefinitions() {
+        const result = await this.db.getTaskDefinitions();
         return result;
     }
 

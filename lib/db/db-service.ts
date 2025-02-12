@@ -48,21 +48,34 @@ export class DBService {
         return resultMessages;
     }
 
-    public async getTaskDefinition(task:string):Promise<TaskDefinition> {
-        const td = await prisma.taskDefinitions.findUnique({
-            where: {
-                name: task
-            }
-        });
-        if (td === null) {
-            throw new Error(`Task definition not found for task: ${task}`);
-        }
-        return {
-            name: td.name,
-            instructions: td.instructions,
-            serverToolIds: td.serverToolIds.split(',')
-        }
+
+    public async getTaskDefinitions() {
+        const taskDefinitions = await prisma.taskDefinitions.findMany();
+        return taskDefinitions.map(td => {
+            return {
+                id: td.id,
+                name: td.name,
+                instructions: td.instructions,
+                serverToolIds: td.serverToolIds.split(','),
+            }});
     }
+
+
+    // public async getTaskDefinition(task:string):Promise<TaskDefinition> {
+    //     const td = await prisma.taskDefinitions.findUnique({
+    //         where: {
+    //             name: task
+    //         }
+    //     });
+    //     if (td === null) {
+    //         throw new Error(`Task definition not found for task: ${task}`);
+    //     }
+    //     return {
+    //         name: td.name,
+    //         instructions: td.instructions,
+    //         serverToolIds: td.serverToolIds.split(',')
+    //     }
+    // }
 
 
 }
