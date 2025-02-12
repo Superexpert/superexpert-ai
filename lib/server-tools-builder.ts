@@ -95,6 +95,20 @@ export class ServerToolsBuilder {
       }
     }
 
+    public async callTool(toolName:string, toolParams:Record<string, any>) {
+      const ServerTools = require('@/task-definitions/server-tools').ServerTools;
+      const prototype = ServerTools.prototype;
+
+      const tools = this.getDecoratedServerToolMethods();
+      const tool = tools.find(tool => tool.metadata.name === toolName);
+      if (!tool) {
+          throw new Error(`Tool ${toolName} not found`);
+      }
+
+      const method = prototype[tool.methodName];
+      const params: any[] = Object.values(toolParams);
+      return await method.apply(prototype, params);
+    }
 
 }
   
