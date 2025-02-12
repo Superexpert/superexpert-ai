@@ -40,7 +40,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     // console.log("currentMessages:");
     // console.dir(currentMessages, { depth: null });
 
-    console.log("tools:");
+    console.log("payload tools according to route:");
     console.dir(tools, { depth: null });
 
 

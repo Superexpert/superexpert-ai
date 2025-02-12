@@ -81,7 +81,7 @@ export class ToolsBuilder {
     }
 
     public getDecoratedGlobalClientToolParameters() {
-      const ClientTools = require('@/lib/task-definitions/global-client-tools').GlobalSClientTools;
+      const ClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
       const clientParams = this.filterParameters(ClientTools);
       return clientParams;
     }
@@ -95,26 +95,37 @@ export class ToolsBuilder {
     }
     
 
-    public getTools(taskServerTools:string[]): ToolAI[] {
-      const tools = [
+    public getTools(taskTools:string[]): ToolAI[] {
+      const customTools = [
         ...this.getDecoratedCustomServerToolMethods(),
-        ...this.getDecoratedGlobalServerToolMethods(),
         ...this.getDecoratedCustomClientToolMethods(),
+      ];
+      const globalTools = [
+        ...this.getDecoratedGlobalServerToolMethods(),
         ...this.getDecoratedGlobalClientToolMethods(),
       ];
       const toolParams = [
-        ...this.getDecoratedCustomServerToolParameters(),
         ...this.getDecoratedGlobalServerToolParameters(),
-        ...this.getDecoratedCustomClientToolParameters(),
         ...this.getDecoratedGlobalClientToolParameters(),
+        ...this.getDecoratedCustomServerToolParameters(),
+        ...this.getDecoratedCustomClientToolParameters(),
       ];
 
-      // Only include tools that are part of the task
-      const filteredTools = tools.filter(tool => taskServerTools.includes(tool.metadata.name));
-      console.log("taskServerTools", taskServerTools);
+      // console.log("global params");
+      // console.dir(this.getDecoratedGlobalClientToolParameters(), {depth: null});
 
-      return filteredTools.map(tool => {
-          const params: { name: string; description: string; type: string }[] = 
+      // Only include tools that are part of the task
+      const filteredCustomTools = customTools.filter(tool => taskTools.includes(tool.metadata.name));
+      //console.log("taskTools", filteredCustomTools);
+
+      // Combine global and custom tools
+      const tools = [
+        ...filteredCustomTools,
+        ...globalTools
+      ];
+
+      return tools.map(tool => {
+          const params: { name: string; description: string; type: string; optional?:boolean }[] = 
             toolParams.find(tp => tp.methodName === tool.methodName)?.parameters || [];
 
           const properties: Record<string, ToolPropertyAI> = {};
@@ -125,7 +136,10 @@ export class ToolsBuilder {
                   type: this.mapType(param.type),
                   description: param.description
               };
-              requiredParams.push(param.name);
+              // Only add to requiredParams if it's not optional
+              if (!param.optional) {
+                requiredParams.push(param.name);
+              } 
           });
 
           return {
@@ -174,114 +188,3 @@ export class ToolsBuilder {
 
 }
 
-
-
-// import 'reflect-metadata';
-// import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
-
-// export class ServerToolsBuilder {
-
-//     public getDecoratedServerToolMethods() {
-//       const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-//       const prototype = ServerTools.prototype;
-
-//       return Object.getOwnPropertyNames(prototype)
-//           .filter(method => method !== 'constructor') // Ignore constructor
-//           .filter(method => Reflect.hasMetadata('server-tool', prototype, method))
-//           .map(method => ({
-//               methodName: method,
-//               metadata: Reflect.getMetadata('server-tool', prototype, method)
-//           }));
-//     }
-
-//     public getDecoratedServerToolParameters() {
-//       const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-//       const prototype = ServerTools.prototype;
-
-//       return Object.getOwnPropertyNames(prototype)
-//           .filter(method => method !== 'constructor')
-//           .filter(method => Reflect.hasMetadata('server-tool-parameters', prototype, method))
-//           .map(method => ({
-//               methodName: method,
-//               parameters: Reflect.getMetadata('server-tool-parameters', prototype, method)
-//       }));
-//     }
-
-
-
-//     public getServerToolList() {
-//         const tools = this.getDecoratedServerToolMethods();
-//         return tools.map(tool => ({
-//             id: tool.metadata.name,
-//             description: `${tool.metadata.name} - ${tool.metadata.description}`,
-//         }));
-//     }
-    
-
-//     public getTools(taskServerTools:string[]): ToolAI[] {
-//       const tools = this.getDecoratedServerToolMethods();
-//       const toolParams = this.getDecoratedServerToolParameters();
-
-//       // Only include tools that are part of the task
-//       const filteredTools = tools.filter(tool => taskServerTools.includes(tool.metadata.name));
-//       console.log("taskServerTools", taskServerTools);
-
-//       return filteredTools.map(tool => {
-//           const params: { name: string; description: string; type: string }[] = 
-//             toolParams.find(tp => tp.methodName === tool.methodName)?.parameters || [];
-
-//           const properties: Record<string, ToolPropertyAI> = {};
-//           const requiredParams: string[] = [];
-
-//           params.forEach(param => {
-//               properties[param.name] = {
-//                   type: this.mapType(param.type),
-//                   description: param.description
-//               };
-//               requiredParams.push(param.name);
-//           });
-
-//           return {
-//               type: 'function',
-//               function: {
-//                   name: tool.metadata.name,
-//                   description: tool.metadata.description,
-//                   parameters: {
-//                       type: 'object',
-//                       properties,
-//                       required: requiredParams.length > 0 ? requiredParams : undefined
-//                   }
-//               }
-//           } as ToolAI;
-//       });
-//     }
-
-//     private mapType(type: string): 'string' | 'integer' {
-//       // Map JavaScript/TypeScript types to OpenAI compatible types
-//       switch (type.toLowerCase()) {
-//           case 'number':
-//           case 'integer':
-//               return 'integer';
-//           default:
-//               return 'string'; // Default to string if type is unknown
-//       }
-//     }
-
-//     public async callTool(toolName:string, toolParams:Record<string, any>) {
-//       const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-//       const prototype = ServerTools.prototype;
-
-//       const tools = this.getDecoratedServerToolMethods();
-//       const tool = tools.find(tool => tool.metadata.name === toolName);
-//       if (!tool) {
-//           throw new Error(`Tool ${toolName} not found`);
-//       }
-
-//       const method = prototype[tool.methodName];
-//       const params: any[] = Object.values(toolParams);
-//       return await method.apply(prototype, params);
-//     }
-
-// }
-  
-  

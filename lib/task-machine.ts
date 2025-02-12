@@ -53,8 +53,12 @@ export class TaskMachine {
         return tools;
     }
 
-    private async getSystemMessages(taskDefinition: TaskDefinition, globalTaskDefinition:TaskDefinition):Promise<MessageAI[]>  {
+    private async getSystemMessages(
+        taskDefinition: TaskDefinition, 
+        globalTaskDefinition:TaskDefinition
+    ):Promise<MessageAI[]>  {
         return [
+            { role: 'system', content: globalTaskDefinition.instructions },
             { role: 'system', content: taskDefinition.instructions }
         ];
 
