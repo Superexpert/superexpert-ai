@@ -14,11 +14,11 @@ datasource db {
 }
 
 model taskDefinitions {
-  id            Int      @id @default(autoincrement())
-  name          String
-  createdAt     DateTime @default(now())
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
+  createdAt     DateTime  @default(now())
   createdBy     String
-  updatedAt     DateTime @default(now())
+  updatedAt     DateTime  @default(now())
   updatedBy     String
   instructions  String
   serverToolIds String
