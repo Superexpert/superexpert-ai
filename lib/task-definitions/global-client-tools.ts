@@ -1,5 +1,5 @@
 import {OptionalToolParameter, Tool, ToolParameter} from '@/lib/task-types';
-
+import {setSessionItem} from '@/lib/session-storage';
 
 
 export class GlobalClientTools {
@@ -8,10 +8,9 @@ export class GlobalClientTools {
     public async transition(
         @ToolParameter('task', 'The task to transition to')
         task: string,
-        @OptionalToolParameter('transitionData', 'Data to pass to the new task')
-        transitionData: any
     ) {
-        console.log('transition is awesome');
+        setSessionItem("task", task);
+        sessionStorage.removeItem("thread");
         return `Successfully transitioned to ${task}`;
     }
 }

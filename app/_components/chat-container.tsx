@@ -17,37 +17,19 @@ export default function ChatContainer() {
 
     console.log('calling function', functionName);
     console.log('function arguments', functionArgs);
-    console.log('function arguments type', typeof functionArgs);
 
     // Execute client tool
     const clientToolsBuilder = new ClientToolsBuilder();
     const clientTool = clientToolsBuilder.getClientTool(functionName);
     if (clientTool) {
       const result = clientToolsBuilder.callClientTool(clientTool.methodName, functionArgs);
+      console.log('client tool result', result);
       return Promise.resolve(result);
     }
 
-
-    // const clientToolsBuilder = new ClientToolsBuilder();
-    // const clientTool = clientToolsBuilder.getClientTool(functionName);
-    // if (clientTool) {
-    //   const methodName = clientTool.methodName as keyof GlobalClientTools;
-    //   const instance = new GlobalClientTools();
-    //   if (methodName in instance && typeof instance[methodName] === "function") {
-    //     const args = Object.values(functionArgs); // Extracts values in object key order
-    //     result = await (instance[methodName] as Function)(...args); // Explicitly cast as Function
-    //     console.log('result', result);
-    //     return Promise.resolve(result);
-    //   } else {
-    //     console.error(`Method ${methodName} does not exist on GlobalClientTools`);
-    //   }
-    // }
-
-
     // Execute server tool
     const result = await executeServerTool(now, timeZone, functionName, functionArgs);
-    console.log('result', result);
-
+    console.log('client tool result', result);
     return Promise.resolve(result);
   };
 

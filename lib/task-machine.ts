@@ -24,10 +24,18 @@ export class TaskMachine {
 
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions();
-        const taskDefinition = taskDefinitions.find(td => td.name === task);
+        let taskDefinition = taskDefinitions.find(td => td.name === task);
+
+        // default task to Home if not found
+        if (!taskDefinition) {
+            task = 'Home';
+            taskDefinition = taskDefinitions.find(td => td.name === task);
+        }
         if (!taskDefinition) {
             throw new Error(`Task definition not found for task: ${task}`);
         }
+
+
         const globalTaskDefinition = taskDefinitions.find(td => td.name === 'Global');
         if (!globalTaskDefinition) {
             throw new Error(`Task definition not found for task: Global`);
