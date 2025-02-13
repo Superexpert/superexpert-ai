@@ -1,6 +1,7 @@
 import { MessageAI } from '../message-ai';
 import { TaskDefinition } from '../task-definition';
 import {prisma} from './prisma';
+import bcrypt from 'bcryptjs';
 
 export class DBService {
 
@@ -61,21 +62,25 @@ export class DBService {
     }
 
 
-    // public async getTaskDefinition(task:string):Promise<TaskDefinition> {
-    //     const td = await prisma.taskDefinitions.findUnique({
-    //         where: {
-    //             name: task
-    //         }
-    //     });
-    //     if (td === null) {
-    //         throw new Error(`Task definition not found for task: ${task}`);
-    //     }
-    //     return {
-    //         name: td.name,
-    //         instructions: td.instructions,
-    //         serverToolIds: td.serverToolIds.split(',')
-    //     }
-    // }
+   public async getUser(email:string) {
+        const user = await prisma.users.findUnique({
+            where: {
+                email: email
+            }
+        });
+        return user;
+    }
+
+    public async createUser(email:string, password:string) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.users.create({
+            data: {
+                email: email,
+                password: hashedPassword
+            }
+        });
+        return user;
+    }
 
 
 }

@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql" 
-  url      = env("DATABASE_URL")
+  url=env("DATABASE_URL")
 }
 
 model taskDefinitions {
@@ -60,4 +60,10 @@ model memories {
   createdAt     DateTime @default(now())
 
   @@map("superexpert_ai_memories")
+}
+
+model users {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
 }
