@@ -23,7 +23,9 @@ model taskDefinitions {
   updatedAt     DateTime  @default(now())
   updatedBy     String
   instructions  String
-  serverToolIds String
+  serverDataIds String[]
+  serverToolIds String[]
+  clientToolIds String[]
   @@map("superexpert_ai_taskDefinitions")
 }
 

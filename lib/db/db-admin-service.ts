@@ -25,7 +25,7 @@ export class DBAdminService {
                     name: data.name,
                     description: data.description,
                     instructions: data.instructions,
-                    serverToolIds: data.serverToolIds.join(','),
+                    serverToolIds: data.serverToolIds,
                     updatedBy: "bob"
                 }
             });
@@ -38,7 +38,7 @@ export class DBAdminService {
                 name: data.name,
                 description: data.description,
                 instructions: data.instructions,
-                serverToolIds: data.serverToolIds.join(','),
+                serverToolIds: data.serverToolIds,
                 createdBy: "bob",
                 updatedBy: "bob"
             }
@@ -62,7 +62,9 @@ export class DBAdminService {
             name: td.name,
             description: td.description,
             instructions: td.instructions,
-            serverToolIds: td.serverToolIds.split(','),
+            serverDataIds: td.serverDataIds,
+            serverToolIds: td.serverToolIds,
+            clientToolIds: td.clientToolIds,
         };
     }
 
@@ -103,13 +105,17 @@ export class DBAdminService {
                 name: 'Home',
                 description: 'The first task when a user starts a new conversation.',
                 instructions: '',
-                serverToolIds: "",
+                serverDataIds: [],
+                serverToolIds: [],
+                clientToolIds: [],
             },
             {
                 name: 'Global',
                 description: 'Instructios, data, and tools applied to all tasks.',
                 instructions: '',
-                serverToolIds: "",
+                serverDataIds: [],
+                serverToolIds: [],
+                clientToolIds: [],
             },
         ];
 
@@ -129,56 +135,6 @@ export class DBAdminService {
     }
 
 
-
-    // public async getLastTask(userId:string) {
-    //     const lastTask = await prisma.tasks.findFirst({
-    //         where: {
-    //             userId: userId,
-    //         },
-    //         orderBy: {
-    //             id: 'desc'
-    //         }
-    //     });
-
-    //     return lastTask;
-    // }
-
-    // public async abandonTask(userId:string, id:number) {
-    //     await prisma.tasks.update({
-    //         where: {
-    //             userId: userId,
-    //             id: id
-    //         },
-    //         data: {
-    //             status: 'abandoned'
-    //         }
-    //     });
-    // }
-
-    // public async createTask(userId:string, thread:string, name:string) {
-    //     const newTask = await prisma.tasks.create({
-    //         data: {
-    //             userId: userId,
-    //             thread: thread,
-    //             name: name,
-    //             status: 'active'
-    //         }
-    //     });
-
-    //     return newTask;
-    // }
-
-    // public async updateTask(userId:string, id:number) {
-    //     await prisma.tasks.update({
-    //         where: {
-    //             userId: userId,
-    //             id: id
-    //         },
-    //         data: {
-    //             lastUpdatedAt: new Date()
-    //         }
-    //     });
-    // }
 
     public async saveMessages(userId:string, task:string, thread:string, messages:MessageAI[]) {
         const fullMessages = messages.map(m => {

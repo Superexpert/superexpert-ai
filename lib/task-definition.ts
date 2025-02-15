@@ -6,5 +6,7 @@ export interface TaskDefinition {
     name: string;
     description: string;
     instructions: string;
+    serverDataIds: string[];
     serverToolIds: string[];
+    clientToolIds: string[];
 }

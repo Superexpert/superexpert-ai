@@ -1,7 +1,7 @@
-import {Tool, ToolParameter} from '@/lib/task-types';
+import {ServerToolsRegistry, ServerToolsBase, Tool, ToolParameter} from '@/lib/task-definition-types';
 
 
-export class ServerTools {
+export class CustomServerTools extends ServerToolsBase {
   
     @Tool('getWeather', 'This is a tool to get the weather')
     public async gw(
@@ -27,6 +27,8 @@ export class ServerTools {
       console.log('saveMemory is awesome');
     }
 
-
 }
+
+ServerToolsRegistry.register("My Server Tools", CustomServerTools);
+
   

@@ -1,8 +1,8 @@
-import {ClientToolsRegistry, ClientToolsBase, Tool, ToolParameter} from '@/lib/task-definition-types';
+import {ServerDataRegistry, ServerDataBase, Tool, ToolParameter} from '@/lib/task-definition-types';
 import {setSessionItem} from '@/lib/session-storage';
 
 
-export class GlobalClientTools extends ClientToolsBase {
+export class GlobalServerData extends ServerDataBase {
 
     @Tool('transition', 'Call this tool to end the current task and transition to a new task')
     public async transition(
@@ -16,4 +16,4 @@ export class GlobalClientTools extends ClientToolsBase {
 }
 
 
-ClientToolsRegistry.register("Global Client Tools", GlobalClientTools);
+ServerDataRegistry.register("Global Server Data", GlobalServerData);

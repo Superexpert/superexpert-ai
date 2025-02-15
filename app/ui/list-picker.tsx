@@ -6,20 +6,14 @@ interface Item {
 }
 
 interface ListPickerProps {
-  items: Item[];
+  name: string;
   selectedItemIds: string[];
-  onSelectionChange: (selectedIds: string[]) => void;
+  items: Item[];
   className?: string;
 }
 
-const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelectionChange, className }) => {
-  const handleCheckboxChange = (itemId: string) => {
-    const newSelectedToolIds = selectedItemIds.includes(itemId)
-      ? selectedItemIds.filter((id) => id !== itemId)
-      : [...selectedItemIds, itemId];
+const ToolList: React.FC<ListPickerProps> = ({ name, items, selectedItemIds, className }) => {
 
-    onSelectionChange(newSelectedToolIds);
-  };
 
   return (
     <div className={`default-styles ${className}`}>
@@ -27,15 +21,14 @@ const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelecti
         {items.map((item) => (
           <li key={item.id} className="flex items-center">
             <input
-              name="serverToolIds"
+              name={name}
               type="checkbox"
               value={item.id}
-              id={item.id}
+              id={`${name}_${item.id}`}
               className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               defaultChecked={selectedItemIds.includes(item.id)}
-              //onChange={() => handleCheckboxChange(item.id)}
             />
-            <label htmlFor={`${item.id}`} className="ml-2 text-gray-700">
+            <label htmlFor={`${name}_${item.id}`} className="ml-2 text-gray-700">
               {item.description}
             </label>
           </li>
