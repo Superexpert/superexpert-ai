@@ -27,13 +27,15 @@ const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelecti
         {items.map((item) => (
           <li key={item.id} className="flex items-center">
             <input
+              name="serverToolIds"
               type="checkbox"
-              id={`tool-${item.id}`}
+              value={item.id}
+              id={item.id}
               className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              checked={selectedItemIds.includes(item.id)}
-              onChange={() => handleCheckboxChange(item.id)}
+              defaultChecked={selectedItemIds.includes(item.id)}
+              //onChange={() => handleCheckboxChange(item.id)}
             />
-            <label htmlFor={`tool-${item.id}`} className="ml-2 text-gray-700">
+            <label htmlFor={`${item.id}`} className="ml-2 text-gray-700">
               {item.description}
             </label>
           </li>
