@@ -5,7 +5,7 @@ import { getTaskDefinitionList } from "@/lib/server/admin-actions";
 
 
 export default function AdminTaskDefinitions() {
-    const [taskDefinitions, setTaskDefinitions] = useState<{id:number, description:string}[]>([]);
+    const [taskDefinitions, setTaskDefinitions] = useState<{id:number, name:string, description:string}[]>([]);
 
     useEffect(() => {
         const doSomething = async () => {
@@ -25,9 +25,12 @@ export default function AdminTaskDefinitions() {
             <div className="space-y-4">
                 {taskDefinitions.map((td) => (
                     <div key={td.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
-                        <span className="text-lg">{td.description}</span>
+                        <div>
+                            <span className="text-lg">{td.name}</span> 
+                            <br /><span>{td.description}</span>
+                            </div>
                         <Link 
-                            href={`/admin/task-definitions/edit/${td.id}`} 
+                            href={`/admin/task-definitions/${td.id}`} 
                             className="btnSecondary"
                         >
                             Edit
@@ -38,7 +41,7 @@ export default function AdminTaskDefinitions() {
 
             <div className="mt-6">
                 <Link 
-                    href="/admin/task-definitions/new"
+                    href="/admin/task-definitions"
                     className="btnPrimary"
                 >
                     New Task Definition

@@ -9,9 +9,10 @@ interface ListPickerProps {
   items: Item[];
   selectedItemIds: string[];
   onSelectionChange: (selectedIds: string[]) => void;
+  className?: string;
 }
 
-const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelectionChange }) => {
+const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelectionChange, className }) => {
   const handleCheckboxChange = (itemId: string) => {
     const newSelectedToolIds = selectedItemIds.includes(itemId)
       ? selectedItemIds.filter((id) => id !== itemId)
@@ -21,7 +22,7 @@ const ToolList: React.FC<ListPickerProps> = ({ items, selectedItemIds, onSelecti
   };
 
   return (
-    <div className="h-96 overflow-y-scroll border border-gray-300 rounded-md p-4">
+    <div className={`default-styles ${className}`}>
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item.id} className="flex items-center">

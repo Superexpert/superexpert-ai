@@ -3,10 +3,7 @@
 @tailwind utilities;
 
 
-body {
-  @apply
-  bg-gray-100
-}
+
 
 input {  @apply
   w-full 
@@ -14,7 +11,8 @@ input {  @apply
   border 
   border-gray-300 
   bg-white 
-  px-4 py-2 
+  px-4 
+  py-2 
   text-gray-900 
   shadow-sm 
   placeholder-gray-400 
@@ -23,6 +21,13 @@ input {  @apply
   focus:ring-blue-500 
   focus:outline-none 
   transition duration-200
+}
+
+input[readonly] { @apply 
+  bg-gray-200
+  border-gray-300
+  focus:border-0
+  focus:ring-0
 }
 
 textarea { @apply 
@@ -43,6 +48,14 @@ textarea { @apply
   focus:outline-none 
   transition 
   duration-200
+}
+
+textarea[readonly] { @apply 
+  bg-gray-200
+  border-gray-300
+  focus:border-0
+  resize-none
+  focus:ring-0
 }
 
 label { @apply
@@ -68,6 +81,11 @@ label { @apply
 .btnSecondary { @apply
   px-4 py-2 text-white  bg-green-600 hover:bg-green-700 rounded-md transition
 }
+
+.btnDanger { @apply
+  px-4 py-2 text-white  bg-red-400 hover:bg-red-500 rounded-md transition
+}
+
 
 h1 {
     @apply

@@ -19,6 +19,12 @@ export async function saveTaskDefinition(data: TaskDefinition) {
   redirect("/admin");
 }
 
+export async function deleteTaskDefinition(id: number) {
+  const db = new DBAdminService();
+  const result = await db.deleteTaskDefinition(id);
+  redirect("/admin");
+}
+
 export async function getTaskDefinitionList() {
   const db = new DBAdminService();
   const result = await db.getTaskDefinitionList();

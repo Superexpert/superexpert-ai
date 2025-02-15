@@ -15,7 +15,9 @@ datasource db {
 
 model taskDefinitions {
   id            Int       @id @default(autoincrement())
+  isSystem      Boolean   @default(false)
   name          String    @unique
+  description   String
   createdAt     DateTime  @default(now())
   createdBy     String
   updatedAt     DateTime  @default(now())
@@ -26,17 +28,7 @@ model taskDefinitions {
 }
 
 
-model tasks {
-  id            Int      @id @default(autoincrement())
-  userId        String
-  name          String
-  thread        String
-  createdAt     DateTime @default(now())
-  lastUpdatedAt DateTime @default(now())
-  status        String
 
-  @@map("superexpert_ai_tasks")
-}
 
 model messages {
   id            Int      @id @default(autoincrement())
@@ -66,4 +58,6 @@ model users {
   id         String   @id @default(uuid())
   email      String   @unique
   password   String
+  @@map("superexpert_ai_users")
+
 }
