@@ -19,8 +19,8 @@ export class ClientToolsBuilder {
 
     private getDecoratedGlobalClientToolMethods() {
         // Get global client tools
-        const GlobalClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-        const globalClientTools = this.filterMethods(GlobalClientTools);
+        const SystemClientTools = require('@/lib/task-definitions/system-client-tools').GlobalClientTools;
+        const globalClientTools = this.filterMethods(SystemClientTools);
         return globalClientTools;
     }
 
@@ -51,21 +51,21 @@ export class ClientToolsBuilder {
 
     public async callClientTool(toolName:string, toolParams:Record<string, any>) {
         // Execute global client tool
-        const GlobalClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-        const globalClientPrototype = GlobalClientTools.prototype;
-        if (toolName in globalClientPrototype) {
-            const method = globalClientPrototype[toolName];
+        const SystemClientTools = require('@/lib/task-definitions/system-client-tools').SystemClientTools;
+        const systemClientPrototype = SystemClientTools.prototype;
+        if (toolName in systemClientPrototype) {
+            const method = systemClientPrototype[toolName];
             const params: any[] = Object.values(toolParams);
-            return await method.apply(globalClientPrototype, params);
+            return await method.apply(systemClientPrototype, params);
         }
 
         // Execute custom client tool
         const ClientTools = require('@/task-definitions/client-tools').ClientTools;
         const customClientPrototype = ClientTools.prototype;
-        if (toolName in globalClientPrototype) {
-            const method = globalClientPrototype[toolName];
+        if (toolName in systemClientPrototype) {
+            const method = systemClientPrototype[toolName];
             const params: any[] = Object.values(toolParams);
-            return await method.apply(globalClientPrototype, params);
+            return await method.apply(systemClientPrototype, params);
         }
 
 

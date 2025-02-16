@@ -1,4 +1,4 @@
-import { ServerToolsRegistry, ServerToolsBase, Tool, ToolParameter} from '@/lib/task-definition-types';
+import { ServerToolsBase, Tool } from '@/lib/task-definition-types';
 
 
 export class SystemServerTools extends ServerToolsBase {

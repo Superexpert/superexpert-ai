@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
-import { ServerToolsRegistry, ClientToolsRegistry, ServerDataRegistry } from './task-definition-types';
 
 
 export class ToolsBuilder {
@@ -97,31 +96,33 @@ export class ToolsBuilder {
       }));
     }
 
-    public getDecoratedServerToolParameters() {
-      const params:any[] = [];
-      ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
-        console.log("toolClass", toolClass);
-        const tools = this.filterParameters(toolClass);
-        params.push(...tools);
-      });
-      return params;
-    }
-
-    // public getDecoratedGlobalServerToolParameters() {
-    //   const ServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
-    //   const serverParams = this.filterParameters(ServerTools);
-    //   return serverParams;
+    // public getDecoratedServerToolParameters() {
+    //   const params:any[] = [];
+    //   ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
+    //     console.log("toolClass", toolClass);
+    //     const tools = this.filterParameters(toolClass);
+    //     params.push(...tools);
+    //   });
+    //   return params;
     // }
+
+    public getDecoratedServerToolParameters() {
+      const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
+      const customParams = this.filterParameters(customServerTools);
+
+      const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
+      const systemParams = this.filterParameters(systemServerTools);
+      return[...customParams, ...systemParams];
+    }
 
 
     public getDecoratedClientToolParameters() {
-      const params:any[] = [];
-      ClientToolsRegistry.getAllClasses().forEach((toolClass) => {
-        console.log("toolClass", toolClass);
-        const tools = this.filterParameters(toolClass);
-        params.push(...tools);
-      });
-      return params;
+      const customClientTools = require('@/task-definitions/client-tools').CustomClientTools;
+      const customParams = this.filterParameters(customClientTools);
+
+      const systemClientTools = require('@/lib/task-definitions/system-server-tools').SystemClientTools;
+      const systemParams = this.filterParameters(systemClientTools);
+      return[...customParams, ...systemParams];
     }
 
     // public getDecoratedGlobalClientToolParameters() {
@@ -166,6 +167,9 @@ export class ToolsBuilder {
         ...this.getDecoratedServerToolParameters(),
         ...this.getDecoratedClientToolParameters(),
       ];
+
+      console.log("IN Get Tools", toolIds);
+      console.log("all tools", allTools);
 
       // console.log("global params");
       // console.dir(this.getDecoratedGlobalClientToolParameters(), {depth: null});

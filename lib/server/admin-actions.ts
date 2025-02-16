@@ -51,7 +51,7 @@ export async function saveTaskDefinitionAction(prevState: any, formData: FormDat
     clientToolIds: formData.getAll("clientToolIds") as string[],
   };
 
-  console.log("newTaskDefinition", formData);
+  console.log("newTaskDefinition", newTaskDefinition);
 
   const result = taskDefinitionSchema.safeParse(newTaskDefinition);
   let errors = {};

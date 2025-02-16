@@ -25,7 +25,9 @@ export class DBAdminService {
                     name: data.name,
                     description: data.description,
                     instructions: data.instructions,
+                    serverDataIds: data.serverDataIds,
                     serverToolIds: data.serverToolIds,
+                    clientToolIds: data.clientToolIds,
                     updatedBy: "bob"
                 }
             });
