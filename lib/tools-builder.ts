@@ -73,13 +73,6 @@ export class ToolsBuilder {
         params.push(...pluginParams);
       });
       return params;
-
-      // const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
-      // const customParams = this.filterParameters(customServerTools);
-
-      // const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
-      // const systemParams = this.filterParameters(systemServerTools);
-      // return[...customParams, ...systemParams];
     }
 
 
@@ -198,17 +191,6 @@ export class ToolsBuilder {
             const method = (toolInstance as any)[methodName];
   
             if (typeof method === 'function') {
-              // // Get method parameters from metadata
-              // const paramTypes: any[] = Reflect.getMetadata('design:paramtypes', ToolClass.prototype, methodName) || [];
-              // const paramNames = this.getParameterNames(method);
-  
-              // // Validate required parameters
-              // const args = paramNames.map((paramName, index) => {
-              //   if (!(paramName in toolParams)) {
-              //     throw new Error(`Missing required parameter: ${paramName}`);
-              //   }
-              //   return this.castParameter(paramTypes[index], toolParams[paramName]);
-              // });
   
               // Call the tool method with arguments
               const args = Object.values(toolParams);
@@ -221,34 +203,35 @@ export class ToolsBuilder {
       throw new Error(`Tool '${toolName}' not found.`);
     }
 
+    public async callServerData(toolName: string) {
+      const serverData = plugins.ServerData;
+  
+      for (const ToolClass of serverData) {
+        const toolInstance = new ToolClass();
+  
+        // Iterate through the methods of the class
+        const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
+          .filter(method => method !== 'constructor');
+  
+        for (const methodName of methodNames) {
+          const metadata = Reflect.getMetadata('tool', ToolClass.prototype, methodName);
+  
+          if (metadata && metadata.name === toolName) {
+            // Get method reference
+            const method = (toolInstance as any)[methodName];
+  
+            if (typeof method === 'function') {
+              // Call the tool method with arguments
+              const result = await method.apply(toolInstance);
+              return String(result); // ensure that result is a string (even nulls and undefineds)
+            }
+          }
+        }
+      }
+  
+      throw new Error(`Tool '${toolName}' not found.`);
+    }
 
-    // public async callServerTool(toolName:string, toolParams:Record<string, any>) {
-    //   const tools = this.getDecoratedServerToolMethods();
-    //   const tool = tools.find(tool => tool.metadata.name === toolName);
-    //   if (!tool) {
-    //       throw new Error(`Tool ${toolName} not found`);
-    //   }
-
-    //   console.log("Executing tool:", tool);
-    //   console.dir(tool, {depth: 5});
-
-    //   const method = tool.methodName;
-    //   const params: any[] = Object.values(toolParams);
-    //   return await method.apply(tool, params);
-
-    //   // const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-    //   // const prototype = ServerTools.prototype;
-
-    //   // const tools = await this.getDecoratedServerToolMethods();
-    //   // const tool = tools.find(tool => tool.metadata.name === toolName);
-    //   // if (!tool) {
-    //   //     throw new Error(`Tool ${toolName} not found`);
-    //   // }
-
-    //   // const method = prototype[tool.methodName];
-    //   // const params: any[] = Object.values(toolParams);
-    //   // return await method.apply(prototype, params);
-    // }
 
 }
 

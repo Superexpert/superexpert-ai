@@ -66,13 +66,34 @@ export class TaskMachine {
         return tools;
     }
 
+    private async getServerData(taskDefinition:TaskDefinition, globalTaskDefinition:TaskDefinition): Promise<string> {
+        // merge server data ids
+        const serverDataIds: string[] = [...new Set([
+            ...taskDefinition.serverDataIds,
+            ...globalTaskDefinition.serverDataIds
+        ])];
+        let result = '';
+        const builder = new ToolsBuilder();
+        for (const serverDataId of serverDataIds) {
+            const serverData = await builder.callServerData(serverDataId);
+            result += `${serverData}\n`;
+        }
+        return result;
+    }
+
     private async getSystemMessages(
         taskDefinition: TaskDefinition, 
         globalTaskDefinition:TaskDefinition
     ):Promise<MessageAI[]>  {
+
+        // Get server data
+        const serverData = await this.getServerData(taskDefinition, globalTaskDefinition);
+
+
         return [
             { role: 'system', content: globalTaskDefinition.instructions },
-            { role: 'system', content: taskDefinition.instructions }
+            { role: 'system', content: taskDefinition.instructions },
+            { role: 'system', content: serverData },
         ];
 
 
