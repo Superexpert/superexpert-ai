@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
+import plugins from '@/superexpert-plugins'; 
 
 
 export class ToolsBuilder {
@@ -21,66 +22,33 @@ export class ToolsBuilder {
 
 
     public getDecoratedServerDataMethods() {
-       // Get custom server data
-       const customServerData = require('@/task-definitions/server-data').CustomServerData;
-       const customData = this.filterMethods(customServerData);
-
-       console.log("yikes", customData);
- 
-       // Get system server data
-       const systemServerData = require('@/lib/task-definitions/system-server-data').SystemServerData;
-       const systemData = this.filterMethods(systemServerData);
- 
-       return [...customData, ...systemData];
+      const methods:any[] = [];
+      plugins.ServerData.forEach((plugin) => {
+        const tools = this.filterMethods(plugin);
+        methods.push(...tools);
+      });
+      return methods;
     }
 
 
     public getDecoratedServerToolMethods() {
-      // Get custom server tools
-      const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
-      const customTools = this.filterMethods(customServerTools);
-
-      // Get system server tools
-      const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
-      const systemTools = this.filterMethods(systemServerTools);
-
-      return [...customTools, ...systemTools];
-      // const methods:any[] = [];
-      // console.log("ServerToolsRegistry.getAllClasses()", ServerToolsRegistry.getAllClasses());
-      // ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
-      //   console.log("toolClass", toolClass);
-      //   const tools = this.filterMethods(toolClass);
-      //   methods.push(...tools);
-      // });
-      // return methods;
+      const methods:any[] = [];
+      plugins.ServerTools.forEach((plugin) => {
+        const tools = this.filterMethods(plugin);
+        methods.push(...tools);
+      });
+      return methods;
     }
-
-    // public getDecoratedGlobalServerToolMethods() {
-    //   // Get global server tools
-    //   const GlobalServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
-    //   const globalServerTools = this.filterMethods(GlobalServerTools);
-    //   return globalServerTools;
-    // }
-
 
     public getDecoratedClientToolMethods() {
-      // Get custom client tools
-      const customClientTools = require('@/task-definitions/client-tools').CustomClientTools;
-      const customTools = this.filterMethods(customClientTools);
-
-      // Get global client tools
-      const systemClientTools = require('@/lib/task-definitions/system-client-tools').SystemClientTools;
-      const systemTools = this.filterMethods(systemClientTools);
-
-      return [...customTools, ...systemTools];
+      const methods:any[] = [];
+      plugins.ClientTools.forEach((plugin) => {
+        const tools = this.filterMethods(plugin);
+        methods.push(...tools);
+      });
+      return methods;
     }
-
-    // public getDecoratedGlobalClientToolMethods() {
-    //   // Get global client tools
-    //   const GlobalClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-    //   const globalClientTools = this.filterMethods(GlobalClientTools);
-    //   return globalClientTools;
-    // }
+  
 
     private filterParameters(targetClass: any) {
       const prototype = targetClass?.prototype;
@@ -96,40 +64,35 @@ export class ToolsBuilder {
       }));
     }
 
-    // public getDecoratedServerToolParameters() {
-    //   const params:any[] = [];
-    //   ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
-    //     console.log("toolClass", toolClass);
-    //     const tools = this.filterParameters(toolClass);
-    //     params.push(...tools);
-    //   });
-    //   return params;
-    // }
+
 
     public getDecoratedServerToolParameters() {
-      const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
-      const customParams = this.filterParameters(customServerTools);
+      const params:any[] = [];
+      plugins.ServerTools.forEach((plugin) => {
+        const pluginParams = this.filterParameters(plugin);
+        params.push(...pluginParams);
+      });
+      return params;
 
-      const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
-      const systemParams = this.filterParameters(systemServerTools);
-      return[...customParams, ...systemParams];
+      // const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
+      // const customParams = this.filterParameters(customServerTools);
+
+      // const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
+      // const systemParams = this.filterParameters(systemServerTools);
+      // return[...customParams, ...systemParams];
     }
 
 
     public getDecoratedClientToolParameters() {
-      const customClientTools = require('@/task-definitions/client-tools').CustomClientTools;
-      const customParams = this.filterParameters(customClientTools);
-
-      const systemClientTools = require('@/lib/task-definitions/system-server-tools').SystemClientTools;
-      const systemParams = this.filterParameters(systemClientTools);
-      return[...customParams, ...systemParams];
+      const params:any[] = [];
+      plugins.ClientTools.forEach((plugin) => {
+        const pluginParams = this.filterParameters(plugin);
+        params.push(...pluginParams);
+      });
+      return params;
     }
 
-    // public getDecoratedGlobalClientToolParameters() {
-    //   const ClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-    //   const clientParams = this.filterParameters(ClientTools);
-    //   return clientParams;
-    // }
+ 
 
     public getServerDataList() {
       const tools = this.getDecoratedServerDataMethods();
@@ -168,16 +131,9 @@ export class ToolsBuilder {
         ...this.getDecoratedClientToolParameters(),
       ];
 
-      console.log("IN Get Tools", toolIds);
-      console.log("all tools", allTools);
-
-      // console.log("global params");
-      // console.dir(this.getDecoratedGlobalClientToolParameters(), {depth: null});
 
       // Only include tools that correspond to the current task or global task
       const filteredTools = allTools.filter(tool => toolIds.includes(tool.metadata.name));
-      //console.log("taskTools", filteredCustomTools);
-
       
 
       return filteredTools.map(tool => {
@@ -224,20 +180,75 @@ export class ToolsBuilder {
       }
     }
 
-    public async callServerTool(toolName:string, toolParams:Record<string, any>) {
-      const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-      const prototype = ServerTools.prototype;
-
-      const tools = this.getDecoratedServerToolMethods();
-      const tool = tools.find(tool => tool.metadata.name === toolName);
-      if (!tool) {
-          throw new Error(`Tool ${toolName} not found`);
+    public async callServerTool(toolName: string, toolParams: Record<string, any>) {
+      const serverTools = plugins.ServerTools;
+  
+      for (const ToolClass of serverTools) {
+        const toolInstance = new ToolClass();
+  
+        // Iterate through the methods of the class
+        const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
+          .filter(method => method !== 'constructor');
+  
+        for (const methodName of methodNames) {
+          const metadata = Reflect.getMetadata('tool', ToolClass.prototype, methodName);
+  
+          if (metadata && metadata.name === toolName) {
+            // Get method reference
+            const method = (toolInstance as any)[methodName];
+  
+            if (typeof method === 'function') {
+              // // Get method parameters from metadata
+              // const paramTypes: any[] = Reflect.getMetadata('design:paramtypes', ToolClass.prototype, methodName) || [];
+              // const paramNames = this.getParameterNames(method);
+  
+              // // Validate required parameters
+              // const args = paramNames.map((paramName, index) => {
+              //   if (!(paramName in toolParams)) {
+              //     throw new Error(`Missing required parameter: ${paramName}`);
+              //   }
+              //   return this.castParameter(paramTypes[index], toolParams[paramName]);
+              // });
+  
+              // Call the tool method with arguments
+              const args = Object.values(toolParams);
+              return await method.apply(toolInstance, args);
+            }
+          }
+        }
       }
-
-      const method = prototype[tool.methodName];
-      const params: any[] = Object.values(toolParams);
-      return await method.apply(prototype, params);
+  
+      throw new Error(`Tool '${toolName}' not found.`);
     }
+
+
+    // public async callServerTool(toolName:string, toolParams:Record<string, any>) {
+    //   const tools = this.getDecoratedServerToolMethods();
+    //   const tool = tools.find(tool => tool.metadata.name === toolName);
+    //   if (!tool) {
+    //       throw new Error(`Tool ${toolName} not found`);
+    //   }
+
+    //   console.log("Executing tool:", tool);
+    //   console.dir(tool, {depth: 5});
+
+    //   const method = tool.methodName;
+    //   const params: any[] = Object.values(toolParams);
+    //   return await method.apply(tool, params);
+
+    //   // const ServerTools = require('@/task-definitions/server-tools').ServerTools;
+    //   // const prototype = ServerTools.prototype;
+
+    //   // const tools = await this.getDecoratedServerToolMethods();
+    //   // const tool = tools.find(tool => tool.metadata.name === toolName);
+    //   // if (!tool) {
+    //   //     throw new Error(`Tool ${toolName} not found`);
+    //   // }
+
+    //   // const method = prototype[tool.methodName];
+    //   // const params: any[] = Object.values(toolParams);
+    //   // return await method.apply(prototype, params);
+    // }
 
 }
 

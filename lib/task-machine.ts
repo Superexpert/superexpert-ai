@@ -45,7 +45,7 @@ export class TaskMachine {
         const systemMessages = await this.getSystemMessages(taskDefinition, globalTaskDefinition);
 
         // Get tools
-        const tools = this.getTools(taskDefinition, globalTaskDefinition);
+        const tools = await this.getTools(taskDefinition, globalTaskDefinition);
 
         return {
             currentMessages:[...systemMessages, ...previousMessages], 
@@ -53,7 +53,7 @@ export class TaskMachine {
         };
     }
 
-    private getTools(taskDefinition:TaskDefinition, globalTaskDefinition:TaskDefinition): ToolAI[] {
+    private async getTools(taskDefinition:TaskDefinition, globalTaskDefinition:TaskDefinition): Promise<ToolAI[]> {
         // merge server, client, task, and global tool ids
         const toolIds: string[] = [...new Set([
             ...taskDefinition.serverToolIds,
@@ -62,7 +62,7 @@ export class TaskMachine {
             ...globalTaskDefinition.clientToolIds
         ])];
         const builder = new ToolsBuilder();
-        const tools = builder.getTools(toolIds);
+        const tools = await builder.getTools(toolIds);
         return tools;
     }
 

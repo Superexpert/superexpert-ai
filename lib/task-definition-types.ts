@@ -1,4 +1,5 @@
 
+import "reflect-metadata";
 
 export function Tool(name: string, description: string) {
   return (target: Object, propertyKey: string) => {

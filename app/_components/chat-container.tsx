@@ -17,6 +17,7 @@ export default function ChatContainer() {
     // Execute client tool
     const clientToolsBuilder = new ClientToolsBuilder();
     const clientTool = clientToolsBuilder.getClientTool(functionName);
+    console.log('client tool found?', clientTool);
     if (clientTool) {
       const result = clientToolsBuilder.callClientTool(clientTool.methodName, functionArgs);
       console.log('client tool result', result);
