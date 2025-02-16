@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
+import { ServerToolsRegistry, ClientToolsRegistry, ServerDataRegistry } from './task-definition-types';
+
 
 export class ToolsBuilder {
 
@@ -18,34 +20,68 @@ export class ToolsBuilder {
     }
 
 
-    public getDecoratedCustomServerToolMethods() {
+
+    public getDecoratedServerDataMethods() {
+       // Get custom server data
+       const customServerData = require('@/task-definitions/server-data').CustomServerData;
+       const customData = this.filterMethods(customServerData);
+
+       console.log("yikes", customData);
+ 
+       // Get system server data
+       const systemServerData = require('@/lib/task-definitions/system-server-data').SystemServerData;
+       const systemData = this.filterMethods(systemServerData);
+ 
+       return [...customData, ...systemData];
+    }
+
+
+    public getDecoratedServerToolMethods() {
       // Get custom server tools
-      const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-      const customServerTools = this.filterMethods(ServerTools);
-      return customServerTools;
+      const customServerTools = require('@/task-definitions/server-tools').CustomServerTools;
+      const customTools = this.filterMethods(customServerTools);
+
+      // Get system server tools
+      const systemServerTools = require('@/lib/task-definitions/system-server-tools').SystemServerTools;
+      const systemTools = this.filterMethods(systemServerTools);
+
+      return [...customTools, ...systemTools];
+      // const methods:any[] = [];
+      // console.log("ServerToolsRegistry.getAllClasses()", ServerToolsRegistry.getAllClasses());
+      // ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
+      //   console.log("toolClass", toolClass);
+      //   const tools = this.filterMethods(toolClass);
+      //   methods.push(...tools);
+      // });
+      // return methods;
     }
 
-    public getDecoratedGlobalServerToolMethods() {
-      // Get global server tools
-      const GlobalServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
-      const globalServerTools = this.filterMethods(GlobalServerTools);
-      return globalServerTools;
-    }
+    // public getDecoratedGlobalServerToolMethods() {
+    //   // Get global server tools
+    //   const GlobalServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
+    //   const globalServerTools = this.filterMethods(GlobalServerTools);
+    //   return globalServerTools;
+    // }
 
 
-    public getDecoratedCustomClientToolMethods() {
+    public getDecoratedClientToolMethods() {
       // Get custom client tools
-      const ClientTools = require('@/task-definitions/client-tools').ClientTools;
-      const customClientTools = this.filterMethods(ClientTools);
-      return customClientTools;
+      const customClientTools = require('@/task-definitions/client-tools').CustomClientTools;
+      const customTools = this.filterMethods(customClientTools);
+
+      // Get global client tools
+      const systemClientTools = require('@/lib/task-definitions/system-client-tools').SystemClientTools;
+      const systemTools = this.filterMethods(systemClientTools);
+
+      return [...customTools, ...systemTools];
     }
 
-    public getDecoratedGlobalClientToolMethods() {
-      // Get global client tools
-      const GlobalClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-      const globalClientTools = this.filterMethods(GlobalClientTools);
-      return globalClientTools;
-    }
+    // public getDecoratedGlobalClientToolMethods() {
+    //   // Get global client tools
+    //   const GlobalClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
+    //   const globalClientTools = this.filterMethods(GlobalClientTools);
+    //   return globalClientTools;
+    // }
 
     private filterParameters(targetClass: any) {
       const prototype = targetClass?.prototype;
@@ -61,72 +97,88 @@ export class ToolsBuilder {
       }));
     }
 
-    public getDecoratedCustomServerToolParameters() {
-      const ServerTools = require('@/task-definitions/server-tools').ServerTools;
-      const serverParams = this.filterParameters(ServerTools);
-      return serverParams;
+    public getDecoratedServerToolParameters() {
+      const params:any[] = [];
+      ServerToolsRegistry.getAllClasses().forEach((toolClass) => {
+        console.log("toolClass", toolClass);
+        const tools = this.filterParameters(toolClass);
+        params.push(...tools);
+      });
+      return params;
     }
 
-    public getDecoratedGlobalServerToolParameters() {
-      const ServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
-      const serverParams = this.filterParameters(ServerTools);
-      return serverParams;
+    // public getDecoratedGlobalServerToolParameters() {
+    //   const ServerTools = require('@/lib/task-definitions/global-server-tools').GlobalServerTools;
+    //   const serverParams = this.filterParameters(ServerTools);
+    //   return serverParams;
+    // }
+
+
+    public getDecoratedClientToolParameters() {
+      const params:any[] = [];
+      ClientToolsRegistry.getAllClasses().forEach((toolClass) => {
+        console.log("toolClass", toolClass);
+        const tools = this.filterParameters(toolClass);
+        params.push(...tools);
+      });
+      return params;
+    }
+
+    // public getDecoratedGlobalClientToolParameters() {
+    //   const ClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
+    //   const clientParams = this.filterParameters(ClientTools);
+    //   return clientParams;
+    // }
+
+    public getServerDataList() {
+      const tools = this.getDecoratedServerDataMethods();
+      return tools.map(tool => ({
+          id: tool.metadata.name,
+          description: `${tool.metadata.name} - ${tool.metadata.description}`,
+      }));
     }
 
 
-    public getDecoratedCustomClientToolParameters() {
-      const ClientTools = require('@/task-definitions/client-tools').ClientTools;
-      const clientParams = this.filterParameters(ClientTools);
-      return clientParams;
-    }
-
-    public getDecoratedGlobalClientToolParameters() {
-      const ClientTools = require('@/lib/task-definitions/global-client-tools').GlobalClientTools;
-      const clientParams = this.filterParameters(ClientTools);
-      return clientParams;
-    }
-
-    public getCustomServerToolList() {
-        const tools = this.getDecoratedCustomServerToolMethods();
+    public getServerToolList() {
+        const tools = this.getDecoratedServerToolMethods();
         return tools.map(tool => ({
             id: tool.metadata.name,
             description: `${tool.metadata.name} - ${tool.metadata.description}`,
         }));
     }
-    
 
-    public getTools(taskTools:string[]): ToolAI[] {
-      const customTools = [
-        ...this.getDecoratedCustomServerToolMethods(),
-        ...this.getDecoratedCustomClientToolMethods(),
+    public getClientToolList() {
+      const tools = this.getDecoratedClientToolMethods();
+      return tools.map(tool => ({
+          id: tool.metadata.name,
+          description: `${tool.metadata.name} - ${tool.metadata.description}`,
+      }));
+    }
+
+
+    public getTools(toolIds:string[]): ToolAI[] {
+      const allTools = [
+        ...this.getDecoratedServerToolMethods(),
+        ...this.getDecoratedClientToolMethods(),
       ];
-      const globalTools = [
-        ...this.getDecoratedGlobalServerToolMethods(),
-        ...this.getDecoratedGlobalClientToolMethods(),
-      ];
-      const toolParams = [
-        ...this.getDecoratedGlobalServerToolParameters(),
-        ...this.getDecoratedGlobalClientToolParameters(),
-        ...this.getDecoratedCustomServerToolParameters(),
-        ...this.getDecoratedCustomClientToolParameters(),
+
+      const allToolParams = [
+        ...this.getDecoratedServerToolParameters(),
+        ...this.getDecoratedClientToolParameters(),
       ];
 
       // console.log("global params");
       // console.dir(this.getDecoratedGlobalClientToolParameters(), {depth: null});
 
-      // Only include tools that are part of the task
-      const filteredCustomTools = customTools.filter(tool => taskTools.includes(tool.metadata.name));
+      // Only include tools that correspond to the current task or global task
+      const filteredTools = allTools.filter(tool => toolIds.includes(tool.metadata.name));
       //console.log("taskTools", filteredCustomTools);
 
-      // Combine global and custom tools
-      const tools = [
-        ...filteredCustomTools,
-        ...globalTools
-      ];
+      
 
-      return tools.map(tool => {
+      return filteredTools.map(tool => {
           const params: { name: string; description: string; type: string; optional?:boolean }[] = 
-            toolParams.find(tp => tp.methodName === tool.methodName)?.parameters || [];
+            allToolParams.find(tp => tp.methodName === tool.methodName)?.parameters || [];
 
           const properties: Record<string, ToolPropertyAI> = {};
           const requiredParams: string[] = [];
@@ -172,10 +224,7 @@ export class ToolsBuilder {
       const ServerTools = require('@/task-definitions/server-tools').ServerTools;
       const prototype = ServerTools.prototype;
 
-      const tools = [
-        ...this.getDecoratedCustomServerToolMethods(),
-        ...this.getDecoratedGlobalServerToolMethods()
-      ];
+      const tools = this.getDecoratedServerToolMethods();
       const tool = tools.find(tool => tool.metadata.name === toolName);
       if (!tool) {
           throw new Error(`Tool ${toolName} not found`);

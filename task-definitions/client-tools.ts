@@ -1,4 +1,4 @@
-import { ClientToolsRegistry, ClientToolsBase, Tool } from '@/lib/task-definition-types';
+import { ClientToolsBase, Tool } from '@/lib/task-definition-types';
 
 
 export class CustomClientTools extends ClientToolsBase {
@@ -9,6 +9,3 @@ export class CustomClientTools extends ClientToolsBase {
     }
 
 }
-
-
-ClientToolsRegistry.register("My Client Tools", CustomClientTools);

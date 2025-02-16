@@ -91,7 +91,7 @@ export default function TaskDefinitionForm({
             name="serverDataIds"
             className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
             items={serverData}
-            selectedItemIds={state.values?.serverToolIds || []}
+            selectedItemIds={state.values?.serverDataIds || []}
           />
         </div>
 
@@ -112,7 +112,7 @@ export default function TaskDefinitionForm({
             name="clientToolIds"
             className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
             items={clientTools}
-            selectedItemIds={state.values?.serverToolIds || []}
+            selectedItemIds={state.values?.clientToolIds || []}
           />
         </div>
 

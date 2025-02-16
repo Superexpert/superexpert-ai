@@ -5,21 +5,21 @@ import {DBAdminService} from '@/lib/db/db-admin-service';
 import {redirect} from "next/navigation";
 import { z } from "zod";
 
-export async function getServerData() {
+export async function getServerDataAction() {
   const builder = new ToolsBuilder();
   const result = builder.getServerDataList();
   return result;
 }
 
 
-export async function getServerTools() {
+export async function getServerToolsAction() {
   const builder = new ToolsBuilder();
-  const result = builder.getCustomServerToolList();
+  const result = builder.getServerToolList();
   return result;
 }
 
 
-export async function getClientTools() {
+export async function getClientToolsAction() {
   const builder = new ToolsBuilder();
   const result = builder.getClientToolList();
   return result;
@@ -82,7 +82,7 @@ export async function getTaskDefinitionList() {
   return result;
 }
 
-export async function getTaskDefinitionById(id: number) {
+export async function getTaskDefinitionByIdAction(id: number) {
   const db = new DBAdminService();
   const result = await db.getTaskDefinitionById(id);
   return result;

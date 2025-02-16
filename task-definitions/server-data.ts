@@ -1,9 +1,9 @@
-import {ServerDataRegistry, ServerDataBase, ServerData} from '@/lib/task-definition-types';
+import {Tool, ServerDataBase} from '@/lib/task-definition-types';
 
 
 export class CustomServerData extends ServerDataBase {
   
-    @ServerData('getWeather', 'This is a tool to get the weather')
+    @Tool('loadMemories', 'Loads memories')
     public async loadMemories()
     {
       console.log('Retrieing memories');
@@ -12,4 +12,3 @@ export class CustomServerData extends ServerDataBase {
 
 }
 
-ServerDataRegistry.register("My Server Data", CustomServerData);

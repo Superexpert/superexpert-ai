@@ -4,13 +4,9 @@ import ChatBot from '@/app/_components/chat-bot';
 import { ToolCall } from '@/lib/message';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
-import { GlobalClientTools } from '@/lib/task-definitions/global-client-tools';
 
 export default function ChatContainer() {
  
-
-
-
   const functionCallHandler = async (now:Date, timeZone:string, toolCall: ToolCall) => {
     const functionName = toolCall.function.name;
     const functionArgs = JSON.parse(toolCall.function.arguments);

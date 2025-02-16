@@ -54,7 +54,10 @@ export abstract class ServerDataBase {
 
 
 export abstract class ServerToolsBase {
-
+  constructor() {
+    console.log("ServerToolsBase constructor");
+    ServerToolsRegistry.register(this.constructor.name, this);
+  }
 }
 
 
@@ -65,52 +68,48 @@ export abstract class ClientToolsBase {
 
 
 export class ServerDataRegistry {
-  private static tools: { [key: string]: new (user: any, db: any) => ServerToolsBase } = {};
+  private static tools: { [key: string]: ServerDataBase } = {};
 
-  static register(name: string, tool: new (user: any, db: any) => ServerToolsBase) {
+  static register(name: string, tool: ServerDataBase) {
       this.tools[name] = tool;
   }
 
-  static createInstance(name: string, user: any, db: any): ServerToolsBase | null {
-      if (!this.tools[name]) return null;
-      return new this.tools[name](user, db);
+  static getAllClasses():ServerDataBase[] {
+      return Object.values(this.tools);
   }
 
-  static getAllInstances(user: any, db: any): ServerToolsBase[] {
-      return Object.values(this.tools).map(ToolClass => new ToolClass(user, db));
-  }
 }
 
-export class ServerToolsRegistry {
-  private static tools: { [key: string]: new (user: any, db: any) => ServerToolsBase } = {};
 
-  static register(name: string, tool: new (user: any, db: any) => ServerToolsBase) {
+export class ServerToolsRegistry {
+  private static tools: { [key: string]: ServerToolsBase } = {};
+
+  static register(name: string, tool: ServerToolsBase) {
+    console.log("Registering tool", name, tool);
       this.tools[name] = tool;
   }
 
-  static createInstance(name: string, user: any, db: any): ServerToolsBase | null {
-      if (!this.tools[name]) return null;
-      return new this.tools[name](user, db);
+  static getAllClasses():ServerToolsBase[] {
+      return Object.values(this.tools);
   }
 
-  static getAllInstances(user: any, db: any): ServerToolsBase[] {
-      return Object.values(this.tools).map(ToolClass => new ToolClass(user, db));
-  }
 }
 
 export class ClientToolsRegistry {
-  private static tools: { [key: string]: new (user: any, db: any) => ServerToolsBase } = {};
+  private static tools: { [key: string]: ClientToolsBase } = {};
 
-  static register(name: string, tool: new (user: any, db: any) => ServerToolsBase) {
+  static register(name: string, tool: ClientToolsBase) {
       this.tools[name] = tool;
   }
 
-  static createInstance(name: string, user: any, db: any): ServerToolsBase | null {
-      if (!this.tools[name]) return null;
-      return new this.tools[name](user, db);
+  static getAllClasses():ClientToolsBase[] {
+      return Object.values(this.tools);
   }
 
-  static getAllInstances(user: any, db: any): ServerToolsBase[] {
-      return Object.values(this.tools).map(ToolClass => new ToolClass(user, db));
-  }
+}
+
+export function AutoRegisterTool(name?: string) {
+  return function (constructor: any) {
+    console.log("potatos are hard to speell");
+  };
 }

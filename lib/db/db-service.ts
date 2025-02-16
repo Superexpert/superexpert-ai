@@ -52,13 +52,17 @@ export class DBService {
 
     public async getTaskDefinitions() {
         const taskDefinitions = await prisma.taskDefinitions.findMany();
-        return taskDefinitions.map(td => {
-            return {
-                id: td.id,
-                name: td.name,
-                instructions: td.instructions,
-                serverToolIds: td.serverToolIds.split(','),
-            }});
+        return taskDefinitions;
+        // return taskDefinitions.map(td => {
+        //     return {
+        //         id: td.id,
+        //         name: td.name,
+        //         isSystem: td.isSystem,
+        //         instructions: td.instructions,
+        //         serverDataIds: td.serverDataIds,
+        //         serverToolIds: td.serverToolIds,
+        //         clientToolIds: td.clientToolIds,
+        //     }});
     }
 
 

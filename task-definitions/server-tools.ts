@@ -1,5 +1,4 @@
-import {ServerToolsRegistry, ServerToolsBase, Tool, ToolParameter} from '@/lib/task-definition-types';
-
+import {ServerToolsBase, Tool, ToolParameter} from '@/lib/task-definition-types';
 
 export class CustomServerTools extends ServerToolsBase {
   
@@ -29,6 +28,6 @@ export class CustomServerTools extends ServerToolsBase {
 
 }
 
-ServerToolsRegistry.register("My Server Tools", CustomServerTools);
+
 
   

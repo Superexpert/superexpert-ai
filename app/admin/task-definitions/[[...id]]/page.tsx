@@ -1,6 +1,7 @@
 import TaskDefinitionForm from '@/app/ui/task-definition-form';
 import { Suspense } from 'react';
-import { getServerData, getServerTools, getClientTools, getTaskDefinitionById } from '@/lib/server/admin-actions';
+import { getServerDataAction, getServerToolsAction, getClientToolsAction, getTaskDefinitionByIdAction } 
+  from '@/lib/server/admin-actions';
 import { TaskDefinition } from '@/lib/task-definition';
 
 interface EditTaskDefinitionPageProps {
@@ -14,9 +15,9 @@ export default async function EditTaskDefinitionPage(
   const { id } = await params;
   const isEditMode = Boolean(id);
 
-  const serverData = await getServerData();
-  const serverTools = await getServerTools();
-  const clientTools = await getClientTools();
+  const serverData = await getServerDataAction();
+  const serverTools = await getServerToolsAction();
+  const clientTools = await getClientToolsAction();
 
   let taskDefinition:TaskDefinition = {
     isSystem: false,
@@ -29,7 +30,7 @@ export default async function EditTaskDefinitionPage(
   };
 
   if (isEditMode) {
-    taskDefinition = await getTaskDefinitionById(Number(id));
+    taskDefinition = await getTaskDefinitionByIdAction(Number(id));
   }
 
   return (
