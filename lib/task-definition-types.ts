@@ -1,4 +1,6 @@
 
+import { User } from '@/lib/user';
+import { PrismaClient } from "@prisma/client";
 import "reflect-metadata";
 
 export function Tool(name: string, description: string) {
@@ -45,6 +47,7 @@ export function OptionalToolParameter(name: string, description: string) {
 
 
 export abstract class ServerDataBase {
+  constructor(protected user: User, protected db:PrismaClient) {}
 
 }
 

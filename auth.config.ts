@@ -9,15 +9,22 @@ export const authConfig = {
     // while this file is also used in non-Node.js environments
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      if (!isLoggedIn) {
-        return false; // Redirect unauthenticated users to login page
+    authorized({ auth, request }: { auth: any; request: { nextUrl: URL } }) {
+      // Allow access to the register page without a logged-in session.
+      if (request.nextUrl.pathname === '/register') {
+        return true;
       }
-      return true;
+      const isLoggedIn = !!auth?.user;
+      return isLoggedIn;
     },
   },
+  
 } satisfies NextAuthConfig;
+
+
+
+
+
 
 
 
@@ -34,15 +41,14 @@ export const authConfig = {
 //   callbacks: {
 //     authorized({ auth, request: { nextUrl } }) {
 //       const isLoggedIn = !!auth?.user;
-//       const isOnDashboard = nextUrl.pathname.startsWith('/admin');
-//       if (isOnDashboard) {
-//         if (isLoggedIn) return true;
+//       if (!isLoggedIn) {
 //         return false; // Redirect unauthenticated users to login page
-//       } else if (isLoggedIn) {
-//         console.log("!!!!! redirecting");
-//         return Response.redirect(new URL('/admin', nextUrl));
 //       }
 //       return true;
 //     },
 //   },
+  
 // } satisfies NextAuthConfig;
+
+
+

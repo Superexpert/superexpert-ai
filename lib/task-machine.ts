@@ -3,6 +3,7 @@ import { MessageAI} from '@/lib/message';
 import { TaskDefinition } from './task-definition';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolsBuilder } from './tools-builder';
+import { User } from '@/lib/user';
 
 export class TaskMachine {
 
@@ -14,13 +15,14 @@ export class TaskMachine {
         this.db = new DBService();
     }
 
-    public async getAIPayload(userId:string, task:string, thread:string, messages: MessageAI[])
+    public async getAIPayload(user:User, task:string, thread:string, messages: MessageAI[])
     : Promise<{currentMessages: MessageAI[], tools: ToolAI[]}> {
+
         // Save messages
-        await this.saveMessages(userId, task, thread, messages);
+        await this.saveMessages(user.id, task, thread, messages);
 
         // Get previous messages
-        const previousMessages = await this.getPreviousMessages(userId, thread);
+        const previousMessages = await this.getPreviousMessages(user.id, thread);
 
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions();
@@ -42,7 +44,7 @@ export class TaskMachine {
         }
 
         // Get system messages
-        const systemMessages = await this.getSystemMessages(taskDefinition, globalTaskDefinition);
+        const systemMessages = await this.getSystemMessages(user, taskDefinition, globalTaskDefinition);
 
         // Get tools
         const tools = await this.getTools(taskDefinition, globalTaskDefinition);
@@ -66,7 +68,7 @@ export class TaskMachine {
         return tools;
     }
 
-    private async getServerData(taskDefinition:TaskDefinition, globalTaskDefinition:TaskDefinition): Promise<string> {
+    private async getServerData(user:User, taskDefinition:TaskDefinition, globalTaskDefinition:TaskDefinition): Promise<string> {
         // merge server data ids
         const serverDataIds: string[] = [...new Set([
             ...taskDefinition.serverDataIds,
@@ -75,19 +77,20 @@ export class TaskMachine {
         let result = '';
         const builder = new ToolsBuilder();
         for (const serverDataId of serverDataIds) {
-            const serverData = await builder.callServerData(serverDataId);
+            const serverData = await builder.callServerData(user, serverDataId);
             result += `${serverData}\n`;
         }
         return result;
     }
 
     private async getSystemMessages(
+        user: User,
         taskDefinition: TaskDefinition, 
         globalTaskDefinition:TaskDefinition
     ):Promise<MessageAI[]>  {
 
         // Get server data
-        const serverData = await this.getServerData(taskDefinition, globalTaskDefinition);
+        const serverData = await this.getServerData(user, taskDefinition, globalTaskDefinition);
 
 
         return [

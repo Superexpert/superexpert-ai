@@ -7,7 +7,7 @@ export class CustomServerData extends ServerDataBase {
     public async loadMemories()
     {
       console.log('Retrieing memories');
-      return `I remember you like red`;
+      return `I remember you like red ${this.user.id}`;
     }
 
 }

@@ -61,5 +61,13 @@ model users {
   email      String   @unique
   password   String
   @@map("superexpert_ai_users")
+}
 
+
+model profiles {
+  id         String   @id @default(uuid())
+  userId     String   
+  name       String   
+  value      String
+  @@map("superexpert_ai_profiles")
 }

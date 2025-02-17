@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
 import plugins from '@/superexpert-plugins'; 
+import { prisma } from '@/lib/db/prisma';
+import { User } from '@/lib/user';
 
 
 export class ToolsBuilder {
@@ -203,11 +205,15 @@ export class ToolsBuilder {
       throw new Error(`Tool '${toolName}' not found.`);
     }
 
-    public async callServerData(toolName: string) {
+
+    public async callServerData(user:User, toolName: string) {
       const serverData = plugins.ServerData;
   
+      // Form constructor args
+      const db = prisma;
+
       for (const ToolClass of serverData) {
-        const toolInstance = new ToolClass();
+        const toolInstance = new ToolClass(user, db);
   
         // Iterate through the methods of the class
         const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)

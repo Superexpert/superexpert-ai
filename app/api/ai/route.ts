@@ -2,6 +2,9 @@ import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { MessageAI, ToolCall } from "@/lib/message";
 import { TaskMachine } from "@/lib/task-machine";
+import { auth } from "@/auth";
+import { User } from "@/lib/user";
+
 
 interface RequestBody {
     nowString: string;
@@ -12,14 +15,12 @@ interface RequestBody {
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
-    // Authenticate the user
-    // const session = await auth0.getSession();
-    // if (!session) {
-    //     console.error("User not authenticated");
-    //     return new Response("User not authenticated!", { status: 401 });
-    // }
-    // const userId = session.user.sub;
-    const userId = "1234";
+    // Get user id
+    const session = await auth();
+    if (!session || !session.user) {
+        throw new Error('User not authenticated');
+    }
+    const user = session.user as User; 
 
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
@@ -27,11 +28,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     // Destructure the properties from the body
     const { nowString, timeZone, messages, task, thread} = body;
     const now = new Date(nowString);
-    //console.dir(body, { depth: null });
+
+    user.timeZone = timeZone;
 
     const taskMachine = new TaskMachine();
     const {currentMessages, tools} = await taskMachine.getAIPayload(
-        userId,
+        user,
         task,
         thread,
         messages,
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                     if (done) {
                         // Save the full response
                         await taskMachine.saveMessages(
-                            userId, 
+                            user.id, 
                             task, 
                             thread,
                             [{
@@ -84,8 +86,8 @@ export async function POST(request: NextRequest): Promise<Response> {
                         );
 
                         // Perform tool calls
-                        console.log("toolCalls:");
-                        console.dir(toolCalls, { depth: null });
+                        // console.log("toolCalls:");
+                        // console.dir(toolCalls, { depth: null });
 
                         controller.close();
                         break;
