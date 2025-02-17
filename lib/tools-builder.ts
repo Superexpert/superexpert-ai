@@ -175,11 +175,11 @@ export class ToolsBuilder {
       }
     }
 
-    public async callServerTool(toolName: string, toolParams: Record<string, any>) {
+    public async callServerTool(user:User, toolName: string, toolParams: Record<string, any>) {
       const serverTools = plugins.ServerTools;
   
       for (const ToolClass of serverTools) {
-        const toolInstance = new ToolClass();
+        const toolInstance = new ToolClass(user, prisma);
   
         // Iterate through the methods of the class
         const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)

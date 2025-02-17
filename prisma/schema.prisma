@@ -69,5 +69,6 @@ model profiles {
   userId     String   
   name       String   
   value      String
+  @@unique([userId, name], name: "userId_name") // Composite unique constraint
   @@map("superexpert_ai_profiles")
 }

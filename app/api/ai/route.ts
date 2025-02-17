@@ -26,9 +26,8 @@ export async function POST(request: NextRequest): Promise<Response> {
     const body: RequestBody = await request.json();
 
     // Destructure the properties from the body
-    const { nowString, timeZone, messages, task, thread} = body;
-    const now = new Date(nowString);
-
+    const {nowString, timeZone, messages, task, thread} = body;
+    user.now = new Date(nowString);
     user.timeZone = timeZone;
 
     const taskMachine = new TaskMachine();

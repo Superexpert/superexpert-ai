@@ -1,13 +1,23 @@
 'use server';
 import { ToolsBuilder } from '@/lib/tools-builder';
-import { signIn } from '@/auth';
+import { auth, signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { DBService } from '@/lib/db/db-service';
-
+import { User } from '@/lib/user';
 
 export async function executeServerTool(now: Date, timeZone: string, functionName: string, functionArgs: any) {
+    // Get user id
+    const session = await auth();
+    if (!session || !session.user) {
+        throw new Error('User not authenticated');
+    }
+    const user = session.user as User; 
+    user.now = now;
+    user.timeZone = timeZone;
+
+    // Execute server tool
     const builder = new ToolsBuilder();
-    const result = builder.callServerTool(functionName, functionArgs);
+    const result = builder.callServerTool(user, functionName, functionArgs);
     return result;
 }
 

@@ -53,7 +53,7 @@ export abstract class ServerDataBase {
 
 
 export abstract class ServerToolsBase {
-
+  constructor(protected user: User, protected db:PrismaClient) {}
 }
 
 
