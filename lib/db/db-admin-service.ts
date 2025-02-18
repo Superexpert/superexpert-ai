@@ -1,9 +1,16 @@
 
-import { MessageAI } from '../message-ai';
 import { TaskDefinition } from '../task-definition';
+import { Agent } from '../agent';
 import {prisma} from './prisma';
 
+
 export class DBAdminService {
+
+    constructor(protected userId:string) {}
+
+
+    //** TaskDefinitionForm **//
+
 
     public async saveTaskDefinition(data: TaskDefinition) {
         // Update existing
@@ -80,6 +87,8 @@ export class DBAdminService {
         return true;
     }
  
+    //** TaskDefinitionList **//
+
     public async getTaskDefinitionList() {
         let taskDefinitions = await prisma.taskDefinitions.findMany(
             {
@@ -136,25 +145,104 @@ export class DBAdminService {
         return results;
     }
 
+    //** AgentListPage **//
+
+    public async getAgentList() {
+        let agents = await prisma.agents.findMany(
+            {
+                where: {
+                    userId: this.userId,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                },
+            }
+        );
+        return agents;
+    }
+
+    public async getAgentById(id: string) {
+        const agent = await prisma.agents.findUnique({
+            where: {
+                id,
+            }
+        });
+        if (!agent) {
+            throw new Error('Agent not found');
+        }
+        return agent;
+    }
+
+    //** AgentForm **//
 
 
-    public async saveMessages(userId:string, task:string, thread:string, messages:MessageAI[]) {
-        const fullMessages = messages.map(m => {
-            return {
-                userId: userId,
-                task: task,
-                thread: thread,
-                role: m.role,
-                content: m.content,
-                ...('tool_calls' in m && m.tool_calls?.length ? {tool_calls: JSON.stringify(m.tool_calls)}:{}),
-                ...('tool_call_id' in m ? {tool_call_id: m.tool_call_id}:{}),
+    public async saveAgent(data: Agent) {
+        // Update existing
+        if (data.id) {
+            const existingAgent = await prisma.agents.findUnique({
+                where: {
+                    id: data.id,
+                }
+            });
+            if (!existingAgent) {
+                throw new Error('Agent not found');
+            }
+
+            await prisma.agents.update({
+                where: {
+                    id: data.id,
+                },
+                data: {
+                    name: data.name,
+                    description: data.description,
+                }
+            });
+
+            return existingAgent;
+        }
+        // save new
+        const newAgent = await prisma.agents.create({
+            data: {
+                userId: this.userId,
+                name: data.name,
+                description: data.description,
             }
         });
 
-        await prisma.messages.createMany({
-            data: fullMessages
+        return newAgent;
+    }
+
+    public async deleteAgent(id: string) {
+        await prisma.agents.delete({
+            where: {
+                id: id
+            }
         });
         return true;
     }
+
+
+
+    // //** ChatBot **//
+    // public async saveMessages(userId:string, task:string, thread:string, messages:MessageAI[]) {
+    //     const fullMessages = messages.map(m => {
+    //         return {
+    //             userId: userId,
+    //             task: task,
+    //             thread: thread,
+    //             role: m.role,
+    //             content: m.content,
+    //             ...('tool_calls' in m && m.tool_calls?.length ? {tool_calls: JSON.stringify(m.tool_calls)}:{}),
+    //             ...('tool_call_id' in m ? {tool_call_id: m.tool_call_id}:{}),
+    //         }
+    //     });
+
+    //     await prisma.messages.createMany({
+    //         data: fullMessages
+    //     });
+    //     return true;
+    // }
 
 }

@@ -72,3 +72,13 @@ model profiles {
   @@unique([userId, name], name: "userId_name") // Composite unique constraint
   @@map("superexpert_ai_profiles")
 }
+
+
+model agents {
+  id            String   @id @default(uuid())
+  userId        String   
+  name          String   @unique
+  description   String
+  @@unique([userId, name], name: "agent_userId_name") // Composite unique constraint
+  @@map("superexpert_ai_agents")
+}

@@ -13,6 +13,8 @@ export default async function EditTaskDefinitionPage(
 ) {
 
   const { id } = await params;
+  const taskId = id && id.length === 1 ? id[0] : undefined;
+
   const isEditMode = Boolean(id);
 
   const serverData = await getServerDataAction();
@@ -30,7 +32,7 @@ export default async function EditTaskDefinitionPage(
   };
 
   if (isEditMode) {
-    taskDefinition = await getTaskDefinitionByIdAction(Number(id));
+    taskDefinition = await getTaskDefinitionByIdAction(Number(taskId));
   }
 
   return (

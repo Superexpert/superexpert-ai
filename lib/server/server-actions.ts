@@ -69,3 +69,10 @@ export async function register(
     }
 
 }
+
+
+export async function checkAgentName(name:string) {
+    const db = new DBService();
+    const existingAgent = await db.getAgentByName(name);
+    return !!existingAgent;
+}

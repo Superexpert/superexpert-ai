@@ -86,5 +86,15 @@ export class DBService {
         return user;
     }
 
+    //** AgentLayout **//
+
+    public async getAgentByName(name:string) {
+        const agent = await prisma.agents.findUnique({
+            where: {
+                name: name
+            }
+        });
+        return agent;
+    }
 
 }
