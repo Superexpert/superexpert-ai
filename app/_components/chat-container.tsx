@@ -5,7 +5,7 @@ import { ToolCall } from '@/lib/message';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 
-export default function ChatContainer() {
+export default function ChatContainer({agentName}:{agentName:string}) {
  
   const functionCallHandler = async (now:Date, timeZone:string, toolCall: ToolCall) => {
     const functionName = toolCall.function.name;
@@ -34,7 +34,7 @@ export default function ChatContainer() {
   return (
     <div className="mx-auto max-w-[800px]">
       <div>
-        <ChatBot functionCallHandler={functionCallHandler} /> 
+        <ChatBot functionCallHandler={functionCallHandler} agentName={agentName} /> 
       </div>
     </div>
   );

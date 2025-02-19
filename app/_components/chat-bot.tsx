@@ -38,7 +38,8 @@ const getThread = (): string => {
   return newThread;
 };
 
-type ChatProps = {
+type ChatBotProps = {
+  agentName: string;
   functionCallHandler?: (
     now: Date,
     timeZone: string,
@@ -47,8 +48,9 @@ type ChatProps = {
 };
 
 const ChatBot = ({
+  agentName,
   functionCallHandler = () => Promise.resolve(""), // default to return empty string
-}: ChatProps) => {
+}: ChatBotProps) => {
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputDisabled, setInputDisabled] = useState(true);
@@ -63,7 +65,7 @@ const ChatBot = ({
       setBusyWaiting(true);
       setInputDisabled(true);
       const response = await fetch(
-        `/api/ai`,
+        `/${agentName}/api/ai`,
         {
           method: "POST",
           body: JSON.stringify({

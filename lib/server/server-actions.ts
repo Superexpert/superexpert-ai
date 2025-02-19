@@ -4,6 +4,7 @@ import { auth, signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { DBService } from '@/lib/db/db-service';
 import { User } from '@/lib/user';
+import { notFound, redirect } from 'next/navigation';
 
 export async function executeServerTool(now: Date, timeZone: string, functionName: string, functionArgs: any) {
     // Get user id
@@ -70,9 +71,14 @@ export async function register(
 
 }
 
-
-export async function checkAgentName(name:string) {
-    const db = new DBService();
-    const existingAgent = await db.getAgentByName(name);
-    return !!existingAgent;
+export async function validateAgentParam(resolvedParams: { [key: string]: string }) {
+  const { agent } = resolvedParams;
+  const agentName = agent.toLowerCase();
+  const db = new DBService();
+  const existingAgent = await db.getAgentByName(agentName);
+  if (!existingAgent) {
+    //return notFound();
+    return redirect("/not-found");
+  }
+  return agentName;
 }
