@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import "./admin/admin.css";
-import { validateAgentParam } from "@/lib/server/server-actions";
 
 
 export const metadata: Metadata = {

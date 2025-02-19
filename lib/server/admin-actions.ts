@@ -1,11 +1,10 @@
 'use server';
 import {ToolsBuilder} from '@/lib/tools-builder';
-import {TaskDefinition} from '@/lib/task-definition';
+import {TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
 import {DBAdminService} from '@/lib/db/db-admin-service';
 import {redirect} from "next/navigation";
-import { z } from "zod";
 import { getUserId } from '@/lib/user';
-import { Agent } from '@/lib/agent';
+import { Agent, agentSchema } from '@/lib/agent';
 
 
 //** TaskDefinitionForm **//
@@ -32,14 +31,7 @@ export async function getClientToolsAction() {
 }
 
 
-const taskDefinitionSchema = z.object({
-  name: z.string().nonempty("Task Name is required"),
-  description: z.string().nonempty("Task Description is required"),
-  instructions: z.string(),
-  serverToolIds: z.array(z.string()),
-  isSystem: z.boolean(),
-  id: z.number().optional(),
-});
+
 
 
 export async function saveTaskDefinitionAction(prevState: any, formData: FormData)
@@ -125,41 +117,79 @@ export async function getAgentByIdAction(id: string) {
 //** AgentForm **//
 
 
-const agentSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().nonempty("Agent Name is required"),
-  description: z.string().nonempty("Agent Description is required"),
-});
 
-
-export async function saveAgentAction(prevState: any, formData: FormData)
-: Promise<{success:boolean, errors: any, values: Agent}> 
+export async function saveAgentAction(newAgent: Agent)
+: Promise<{success:boolean, serverError:string}> 
 {
   const userId = await getUserId();
 
-  const newAgent: Agent = {
-    id: formData.get("id") ? formData.get("id") : prevState.values.id,
-    name: formData.get("name") as string,
-    description: formData.get("description") as string,
-  };
-
+  // Validate using Zod
   const result = agentSchema.safeParse(newAgent);
-  let errors = {};
   if (!result.success) {
-    errors = result.error.flatten().fieldErrors;    
-    console.log("errors", errors);
-  } else {
+    return {
+      success: false,
+      serverError: "Failed to save agent",
+    };
+  }
+
+  // Check agent name uniqueness
+  const db = new DBAdminService(userId);
+  const existingAgent = await db.getAgentByName(newAgent.name);
+  if (existingAgent && existingAgent.id !== newAgent.id) {
+    return {
+      success: false,
+      serverError: "Agent name must be unique",
+    };
+  }
+  
+  try {
     const db = new DBAdminService(userId);
     await db.saveAgent(newAgent);
-    redirect("/");
-  }
-
-  return {
-    success: result.success,
-    errors: errors,
-    values: newAgent,
+    return {
+      success: true,
+      serverError: "",
+    }
+  } catch (error) {
+    console.error("Error saving agent:", error);
+    return {
+      success: false,
+      serverError: "Failed to save agent.",
+    };
   }
 }
+
+
+// export async function saveAgentAction(prevState: any, formData: FormData)
+// : Promise<{success:boolean, errors: any, values: Agent}> 
+// {
+//   const userId = await getUserId();
+
+//   const newAgent: Agent = {
+//     id: formData.get("id") ? formData.get("id") : prevState.values.id,
+//     name: formData.get("name") as string,
+//     description: formData.get("description") as string,
+//   };
+
+
+
+
+//   const result = agentSchema.safeParse(newAgent);
+//   let errors = {};
+//   if (!result.success) {
+//     errors = result.error.flatten().fieldErrors;    
+//     console.log("errors", errors);
+//   } else {
+//     const db = new DBAdminService(userId);
+//     await db.saveAgent(newAgent);
+//     redirect("/");
+//   }
+
+//   return {
+//     success: result.success,
+//     errors: errors,
+//     values: newAgent,
+//   }
+// }
 
 export async function deleteAgentAction(id: string) {
   const userId = await getUserId();

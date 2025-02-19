@@ -177,6 +177,15 @@ export class DBAdminService {
 
     //** AgentForm **//
 
+    public async getAgentByName(name: string) {
+        const agent = await prisma.agents.findUnique({
+            where: {
+                name: name,
+            }
+        });
+        return agent;
+    }
+
 
     public async saveAgent(data: Agent) {
         // Update existing
@@ -223,26 +232,5 @@ export class DBAdminService {
         return true;
     }
 
-
-
-    // //** ChatBot **//
-    // public async saveMessages(userId:string, task:string, thread:string, messages:MessageAI[]) {
-    //     const fullMessages = messages.map(m => {
-    //         return {
-    //             userId: userId,
-    //             task: task,
-    //             thread: thread,
-    //             role: m.role,
-    //             content: m.content,
-    //             ...('tool_calls' in m && m.tool_calls?.length ? {tool_calls: JSON.stringify(m.tool_calls)}:{}),
-    //             ...('tool_call_id' in m ? {tool_call_id: m.tool_call_id}:{}),
-    //         }
-    //     });
-
-    //     await prisma.messages.createMany({
-    //         data: fullMessages
-    //     });
-    //     return true;
-    // }
 
 }

@@ -1,80 +1,81 @@
 "use client";
-import { useActionState } from "react";
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { saveAgentAction, deleteAgentAction } from "@/lib/server/admin-actions";
-import { Agent } from "@/lib/agent";
+import { Agent, agentSchema } from "@/lib/agent"; 
 
 
-export default function AgentForm({agent, isEditMode}: {agent: Agent, isEditMode: boolean}) {
-  const [state, formAction, isPending] = useActionState(
-    saveAgentAction,
-    { values: agent, errors:{}, success: false }
-  );
+export default function AgentForm({ agent, isEditMode }: {agent:Agent, isEditMode:boolean}) {
+  const [serverError, setServerError] = useState('');
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<Agent>({
+    resolver: zodResolver(agentSchema),
+    defaultValues: agent,
+  });
 
-    const handleDelete = async () => {
-        if (!agent.id) return;
-        const confirmed = window.confirm("Are you sure you want to delete this agent?");
-        if (!confirmed) return;
+ 
+  const onSubmit = async (newAgent: Agent) => {
+    const result = await saveAgentAction(newAgent);
+    if (result.success) {
+      router.push('/');
+    } else {
+      setServerError(result.serverError);
+    }
+  };
 
-        try {
-            await deleteAgentAction(agent.id);
-        } catch (error) {
-            console.error("Failed to delete agent", error);
-        }
-    };
+  const handleDelete = async () => {
+    if (!agent.id) return;
+    const confirmed = window.confirm("Are you sure you want to delete this agent?");
+    if (!confirmed) return;
+
+    try {
+      await deleteAgentAction(agent.id);
+    } catch (error) {
+      console.error("Failed to delete agent", error);
+    }
+  };
 
   return (
+    <div className="w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h1>{isEditMode ? "Edit Agent" : "New Agent"}</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+        <div>
+          {serverError && <p className="error">{serverError}</p>}
+        </div>
+        <div>
+          <label>Agent Name</label>
+          <input type="text" {...register("name")} />
+          {errors.name && <p className="error">{errors.name.message}</p>}
+        </div>
 
-    <div>
-       <h1>{isEditMode ? "Edit Agent" : "New Agent"}</h1>
+        <div>
+          <label>Agent Description</label>
+          <textarea {...register("description")}></textarea>
+          {errors.description && <p className="error">{errors.description.message}</p>}
+        </div>
 
-       {state.errors?.name}
-
-       <form action={formAction} className="space-y-4">
-         <div>
-           <label>Task Name</label>
-           {state.values?.name}
-           <input
-             type="text"
-             name="name"
-             defaultValue={state.values?.name}
-           />
-           {state.errors?.name && (
-             <p className="text-red-500">{state.errors.name}</p>
-           )}
-         </div>
-
-         <div>
-           <label>Description</label>
-           {state.values?.description}
-           <textarea
-             name="description"
-             defaultValue={state.values?.description}
-           ></textarea>
-           {state.errors?.description && (
-             <p className="text-red-500">{state.errors.description}</p>
-           )}
-         </div>
-
-
-         <button className="btnPrimary" type="submit">
-           Save
-         </button>
-         {isEditMode && (
-           <button
-             className="btnDanger ml-4"
-             type="button"
-             onClick={handleDelete}
-           >
-             Delete
-           </button>
-         )}
-         <Link href="/agent">
-           <button className="btnCancel ml-4" type="button">
-             Cancel
-           </button>
-         </Link>
-       </form> 
+        <button className="btn btnPrimary" type="submit">
+          Save
+        </button>
+        {isEditMode && (
+          <button className="btn btnDanger ml-4" type="button" onClick={handleDelete}>
+            Delete
+          </button>
+        )}
+        <Link href="/">
+          <button className="btn btnCancel ml-4" type="button">
+            Cancel
+          </button>
+        </Link>
+      </form>
     </div>
   );
 }

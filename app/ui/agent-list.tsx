@@ -5,8 +5,8 @@ export default function AgentList(
     { agents }: { agents: { id: string; name: string; description: string; }[] }
 ) {
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <h1 className="text-2xl font-bold mb-4">Agents</h1>
+        <div className="w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg">
+            <h1 className="mb-4">Agents</h1>
             <p className="text-gray-600 mb-6">
                 Manage your team of Superexpert AI agents.
             </p>
@@ -22,7 +22,7 @@ export default function AgentList(
                             </div>
                         <Link 
                             href={`/agents/${agent.id}`} 
-                            className="btnPrimary"
+                            className="btn btnPrimary"
                         >
                             Edit
                         </Link>
@@ -33,7 +33,7 @@ export default function AgentList(
             <div className="mt-6">
                 <Link 
                     href="/agents"
-                    className="btnPrimary"
+                    className="btn btnPrimary"
                 >
                     New Agent
                 </Link>
