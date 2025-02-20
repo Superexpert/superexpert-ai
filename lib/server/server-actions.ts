@@ -25,16 +25,18 @@ export async function executeServerTool(now: Date, timeZone: string, functionNam
 
 //** LoginForm **//
 
-export async function authenticateAction(user: RegisterUser) {
+export async function authenticateAction(user: RegisterUser, callbackUrl: string) {
   try {
-    await signIn('credentials', user);
-    console.log("success");
+    await signIn('credentials', {
+      username: user.email,
+      password: user.password,
+      redirect: false
+    });
     return {
       success: true,
       serverError: '',
     }
   } catch (error) {
-    console.log("invalid password");
     return {
       success: false,
       serverError: 'Wrong username or password'

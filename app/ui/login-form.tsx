@@ -27,7 +27,7 @@ export default function LoginForm() {
   
    
   const onSubmit = async (registerUser: RegisterUser) => {
-    const result = await authenticateAction(registerUser);
+    const result = await authenticateAction(registerUser, callbackUrl);
     if (result.success) {
       router.push(callbackUrl);
     } else {
