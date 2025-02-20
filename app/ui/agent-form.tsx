@@ -44,12 +44,13 @@ export default function AgentForm({ agent, isEditMode }: {agent:Agent, isEditMod
   };
 
   return (
-    <div className="w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="formCard">
       <h1>{isEditMode ? "Edit Agent" : "New Agent"}</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           {serverError && <p className="error">{serverError}</p>}
         </div>
+        
         <div>
           <label>Agent Name</label>
           <input type="text" {...register("name")} />
@@ -62,9 +63,7 @@ export default function AgentForm({ agent, isEditMode }: {agent:Agent, isEditMod
           {errors.description && <p className="error">{errors.description.message}</p>}
         </div>
 
-        <button className="btn btnPrimary" type="submit">
-          Save
-        </button>
+        <button className="btn btnPrimary" type="submit">Save</button>
         {isEditMode && (
           <button className="btn btnDanger ml-4" type="button" onClick={handleDelete}>
             Delete

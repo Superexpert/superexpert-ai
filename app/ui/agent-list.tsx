@@ -5,7 +5,7 @@ export default function AgentList(
     { agents }: { agents: { id: string; name: string; description: string; }[] }
 ) {
     return (
-        <div className="w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="formCard">
             <h1 className="mb-4">Agents</h1>
             <p className="text-gray-600 mb-6">
                 Manage your team of Superexpert AI agents.

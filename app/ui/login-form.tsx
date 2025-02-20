@@ -36,7 +36,7 @@ export default function LoginForm() {
   };
   
   return (
-    <div className="w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="formCard">
       <h1>Log In</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>

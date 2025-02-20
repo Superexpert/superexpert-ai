@@ -44,52 +44,41 @@ export async function authenticateAction(user: RegisterUser) {
 
 
 
-// export async function authenticateAction(
-//     prevState: string | undefined,
-//     formData: FormData,
-//   ) {
-//     try {
-//       await signIn('credentials', formData);
-//     } catch (error) {
-//       if (error instanceof AuthError) {
-//         switch (error.type) {
-//           case 'CredentialsSignin':
-//             return 'Invalid credentials.';
-//           default:
-//             return 'Something went wrong.';
-//         }
-//       }
-//       throw error;
-//     }
-// }
+export async function registerAction(user:RegisterUser) {
+  // Validate using Zod
+  const result = registerUserSchema.safeParse(user);
+  if (!result.success) {
+    return {
+      success: false,
+      serverError: "Failed to register",
+    };
+  }
+  
+  const db = new DBService();
 
-export async function register(
-    prevState: string | undefined,
-    formData: FormData,
-  ) {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+  // Check if email already registered
+  const existingUser = await db.getUser(user.email);
+  if (existingUser) {
+    return {
+      success: false,
+      serverError: 'Email already registered.'
+    };
+  }
+  
+  // Create user
+  try {
+    await db.createUser(user.email, user.password);
+  } catch {
+    return {
+      success:false,
+      serverError: 'Something went wrong.'
+    };
+  }
 
-    // Check for required fields
-    if (!email || !password) {
-      return 'Please fill in all fields.';
-    }
-
-    const db = new DBService();
-
-    // Check if email already registered
-    const existingUser = await db.getUser(email);
-    if (existingUser) {
-      return 'Email already registered.';
-    }
-    
-    // Create user
-    try {
-      await db.createUser(email, password);
-    } catch {
-      return 'Something went wrong.';
-    }
-
+  return {
+    success:true,
+    serverError:''
+  }
 }
 
 export async function validateAgentParam(resolvedParams: { [key: string]: string }) {
