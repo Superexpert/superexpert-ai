@@ -97,7 +97,7 @@ export async function getTaskDefinitionList() {
 
 //** AgentListPage **//
 
-export async function getAgentList() {
+export async function getAgentListAction() {
   const userId = await getUserId();
 
   // Get agents

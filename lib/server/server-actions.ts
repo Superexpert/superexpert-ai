@@ -5,6 +5,7 @@ import { AuthError } from 'next-auth';
 import { DBService } from '@/lib/db/db-service';
 import { User } from '@/lib/user';
 import { notFound, redirect } from 'next/navigation';
+import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 
 export async function executeServerTool(now: Date, timeZone: string, functionName: string, functionArgs: any) {
     // Get user id
@@ -22,25 +23,45 @@ export async function executeServerTool(now: Date, timeZone: string, functionNam
     return result;
 }
 
+//** LoginForm **//
 
-export async function authenticate(
-    prevState: string | undefined,
-    formData: FormData,
-  ) {
-    try {
-      await signIn('credentials', formData);
-    } catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'Something went wrong.';
-        }
-      }
-      throw error;
+export async function authenticateAction(user: RegisterUser) {
+  try {
+    await signIn('credentials', user);
+    console.log("success");
+    return {
+      success: true,
+      serverError: '',
     }
+  } catch (error) {
+    console.log("invalid password");
+    return {
+      success: false,
+      serverError: 'Wrong username or password'
+    }
+  }
 }
+
+
+
+// export async function authenticateAction(
+//     prevState: string | undefined,
+//     formData: FormData,
+//   ) {
+//     try {
+//       await signIn('credentials', formData);
+//     } catch (error) {
+//       if (error instanceof AuthError) {
+//         switch (error.type) {
+//           case 'CredentialsSignin':
+//             return 'Invalid credentials.';
+//           default:
+//             return 'Something went wrong.';
+//         }
+//       }
+//       throw error;
+//     }
+// }
 
 export async function register(
     prevState: string | undefined,

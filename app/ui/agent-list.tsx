@@ -15,11 +15,11 @@ export default function AgentList(
                 {agents.map((agent) => (
                     <div key={agent.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
                         <div>
-                            <Link href={`/${agent.name}`}>
+                            <Link href={`/${agent.name}`} className="text-blue-600">
                                 <span className="text-lg">{agent.name}</span> 
                             </Link>
-                            <br /><span>{agent.description}</span>
-                            </div>
+                            <div className="max-h-32 overflow-hidden line-clamp-3">{agent.description}</div>
+                        </div>
                         <Link 
                             href={`/agents/${agent.id}`} 
                             className="btn btnPrimary"

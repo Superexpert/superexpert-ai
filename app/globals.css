@@ -14,7 +14,9 @@ p {
   @apply text-base text-gray-700;
 }
 
-
+a {
+  @apply text-blue-600 hover:underline;
+}
 
 @layer components {
   /* Label styles */

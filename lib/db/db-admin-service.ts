@@ -153,6 +153,9 @@ export class DBAdminService {
                 where: {
                     userId: this.userId,
                 },
+                orderBy: {
+                    name: 'asc'
+                },
                 select: {
                     id: true,
                     name: true,
