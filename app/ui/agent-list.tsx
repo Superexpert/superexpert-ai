@@ -15,17 +15,26 @@ export default function AgentList(
                 {agents.map((agent) => (
                     <div key={agent.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
                         <div>
-                            <Link href={`/${agent.name}`} className="text-blue-600">
-                                <span className="text-lg">{agent.name}</span> 
-                            </Link>
+                            <span className="text-lg">{agent.name}</span> 
                             <div className="max-h-32 overflow-hidden line-clamp-3">{agent.description}</div>
                         </div>
-                        <Link 
-                            href={`/agents/${agent.id}`} 
-                            className="btn btnPrimary"
-                        >
-                            Edit
-                        </Link>
+                        <div>
+                            <Link 
+                                href={`/admin/agents/${agent.id}`} 
+                                className="btn btnSecondary ml-4">
+                                Edit
+                            </Link>
+                            <Link 
+                                href={`/admin/${agent.name}/task-definitions`} 
+                                className="btn btnSecondary ml-4">
+                                Tasks
+                            </Link>
+                            <Link 
+                                href={`${agent.name}`} 
+                                className="btn btnSecondary ml-4">
+                                Chat
+                            </Link>
+                        </div>
                     </div>
                 ))}
             </div>

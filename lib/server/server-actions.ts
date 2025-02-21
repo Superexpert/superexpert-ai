@@ -83,7 +83,7 @@ export async function registerAction(user:RegisterUser) {
   }
 }
 
-export async function validateAgentParam(resolvedParams: { [key: string]: string }) {
+export async function getAgentAction(resolvedParams: { [key: string]: string }) {
   const { agent } = resolvedParams;
   const agentName = agent.toLowerCase();
   const db = new DBService();
@@ -92,5 +92,5 @@ export async function validateAgentParam(resolvedParams: { [key: string]: string
     //return notFound();
     return redirect("/not-found");
   }
-  return agentName;
+  return existingAgent;
 }

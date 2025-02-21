@@ -18,7 +18,13 @@ a {
   @apply text-blue-600 hover:underline;
 }
 
+
+
 @layer components {
+
+  .instructions {
+    @apply text-gray-600 mb-6
+  }
 
   .formCard {
     @apply w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg
@@ -41,6 +47,10 @@ a {
 
   .btnPrimary {
     @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .btnSecondary {
+    @apply bg-teal-600 text-white hover:bg-teal-700;
   }
 
   .btnCancel {

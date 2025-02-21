@@ -1,12 +1,16 @@
-import { validateAgentParam } from "@/lib/server/server-actions";
+import { getAgentAction } from "@/lib/server/server-actions";
 import ChatContainer from "@/app/_components/chat-container";
 
 export default async function ChatPage({ params }: { params: Promise<{ [key: string]: string }> }) {
 
   // Check for valid agent name
   const resolvedParams = await params;
-  const agentName = await validateAgentParam(resolvedParams);
+  const agent = await getAgentAction(resolvedParams);
 
-  return <ChatContainer agentName={agentName} />;
+  return (
+    <ChatContainer 
+      agentId={agent.id} 
+      agentName={agent.name}/>
+  );
 }
 

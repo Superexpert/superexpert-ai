@@ -39,6 +39,7 @@ const getThread = (): string => {
 };
 
 type ChatBotProps = {
+  agentId: string;
   agentName: string;
   functionCallHandler?: (
     now: Date,
@@ -48,8 +49,9 @@ type ChatBotProps = {
 };
 
 const ChatBot = ({
+  agentId,
   agentName,
-  functionCallHandler = () => Promise.resolve(""), // default to return empty string
+  functionCallHandler = () => Promise.resolve(""), 
 }: ChatBotProps) => {
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState<MessageProps[]>([]);
