@@ -4,17 +4,17 @@
     height: 100%;
     max-width: 800px;
     /* width: 100%; */
-  }
-  
-  .inputForm {
+}
+
+.inputForm {
     display: flex;
     width: 100%;
     padding: 10px;
     padding-bottom: 40px;
     order: 1;
-  }
-  
-  .input {
+}
+
+.input {
     flex-grow: 1;
     padding: 16px 24px;
     margin-right: 10px;
@@ -22,15 +22,15 @@
     border: 2px solid transparent;
     font-size: 1em;
     background-color: #efefef;
-  }
-  
-  .input:focus {
+}
+
+.input:focus {
     outline: none !important;
     border-color: #000;
     background-color: white;
-  }
-  
-  .button {
+}
+
+.button {
     padding: 8px 24px;
     /* background-color: #1D40B0; */
     background-color: #003366;
@@ -38,13 +38,13 @@
     border: none;
     font-size: 1em;
     border-radius: 60px; /* Removed duplicate border-radius property */
-  }
-  
-  .button:disabled {
+}
+
+.button:disabled {
     background-color: rgb(75, 93, 99);
-  }
-  
-  .messages {
+}
+
+.messages {
     flex-grow: 1;
     overflow-y: auto;
     padding: 10px;
@@ -52,10 +52,10 @@
     flex-direction: column;
     order: 2;
     white-space: pre-wrap;
-  }
-  
-  .assistantMessage,
-  .codeMessage {
+}
+
+.assistantMessage,
+.codeMessage {
     margin: 8px 0;
     padding: 8px 16px;
     align-self: flex-start;
@@ -63,49 +63,45 @@
     /* max-width: 80%; */
     width: 100%;
     overflow-wrap: break-word;
-  }
+}
 
-  .userMessage {
+.userMessage {
     margin: 8px 0;
     padding: 8px 16px;
     align-self: flex-start;
     border-radius: 15px;
-    max-width: 80%; 
+    max-width: 80%;
     overflow-wrap: break-word;
-  }
+}
 
-
-
-  .assistantMessage img {
+.assistantMessage img {
     max-width: 100%;
     margin: 8px 0px 8px 0px;
     border-radius: 8px;
-  }
-  
-  .userMessage {
+}
+
+.userMessage {
     align-self: flex-end;
-    color: #fff; 
-    background-color: #156760; 
-  }
-  
-  .assistantMessage {
-    background-color: #fff; 
-  }
-  
-  .codeMessage {
+    color: #fff;
+    background-color: #156760;
+}
+
+.assistantMessage {
+    background-color: #fff;
+}
+
+.codeMessage {
     padding: 10px 16px;
     background-color: #e9e9e9;
     font-family: monospace;
     counter-reset: line;
-  }
-  
-  .codeMessage > div {
+}
+
+.codeMessage > div {
     margin-top: 4px;
-  }
-  
-  .codeMessage span {
+}
+
+.codeMessage span {
     color: #b8b8b8;
     margin-right: 8px;
-  }
-
- 
+}

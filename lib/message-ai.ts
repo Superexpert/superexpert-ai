@@ -1,5 +1,8 @@
-export type MessageAI = UserMessageAI | ToolMessageAI | AssistantMessageAI | SystemMessageAI;
-
+export type MessageAI =
+    | UserMessageAI
+    | ToolMessageAI
+    | AssistantMessageAI
+    | SystemMessageAI;
 
 export interface UserMessageAI {
     role: 'user';
@@ -16,7 +19,7 @@ export interface ToolMessageAI {
 export interface AssistantMessageAI {
     role: 'assistant';
     content: string;
-    tool_calls?: ToolCall[]; 
+    tool_calls?: ToolCall[];
 }
 
 export interface SystemMessageAI {
@@ -24,12 +27,11 @@ export interface SystemMessageAI {
     content: string;
 }
 
-
 export interface ToolCall {
     id: string;
     type: 'function';
     function: {
         name: string;
         arguments: string;
-    }
+    };
 }

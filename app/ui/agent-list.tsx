@@ -1,9 +1,10 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-
-export default function AgentList(
-    { agents }: { agents: { id: string; name: string; description: string; }[] }
-) {
+export default function AgentList({
+    agents,
+}: {
+    agents: { id: string; name: string; description: string }[];
+}) {
     return (
         <div className="formCard">
             <h1 className="mb-4">Agents</h1>
@@ -13,24 +14,28 @@ export default function AgentList(
 
             <div className="space-y-4">
                 {agents.map((agent) => (
-                    <div key={agent.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
+                    <div
+                        key={agent.id}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
                         <div>
-                            <h2>{agent.name}</h2> 
-                            <div className="max-h-32 overflow-hidden line-clamp-3">{agent.description}</div>
+                            <h2>{agent.name}</h2>
+                            <div className="max-h-32 overflow-hidden line-clamp-3">
+                                {agent.description}
+                            </div>
                         </div>
                         <div>
-                            <Link 
-                                href={`/admin/agents/${agent.id}`} 
+                            <Link
+                                href={`/admin/agents/${agent.id}`}
                                 className="btn btnSecondary ml-4">
                                 Edit
                             </Link>
-                            <Link 
-                                href={`/admin/${agent.name}/task-definitions`} 
+                            <Link
+                                href={`/admin/${agent.name}/task-definitions`}
                                 className="btn btnSecondary ml-4">
                                 Tasks
                             </Link>
-                            <Link 
-                                href={`${agent.name}`} 
+                            <Link
+                                href={`${agent.name}`}
                                 className="btn btnSecondary ml-4">
                                 Chat
                             </Link>
@@ -40,13 +45,10 @@ export default function AgentList(
             </div>
 
             <div className="mt-6">
-                <Link 
-                    href="/admin/agents"
-                    className="btn btnPrimary">
+                <Link href="/admin/agents" className="btn btnPrimary">
                     New Agent
                 </Link>
             </div>
         </div>
     );
 }
-

@@ -1,6 +1,4 @@
-import { auth } from "@/auth";
-
-
+import { auth } from '@/auth';
 
 export interface User {
     id: string;
@@ -13,5 +11,5 @@ export async function getUserId(): Promise<string> {
     if (!session || !session.user) {
         throw new Error('User not authenticated');
     }
-    return session.user.id as string;   
+    return session.user.id as string;
 }

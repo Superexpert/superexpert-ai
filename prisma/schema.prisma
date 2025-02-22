@@ -1,54 +1,46 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" 
-  url=env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model taskDefinitions {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
   userId        String
   agentId       String
-  isSystem      Boolean   @default(false)
-  name          String    
+  isSystem      Boolean  @default(false)
+  name          String
   description   String
   instructions  String
   serverDataIds String[]
   serverToolIds String[]
   clientToolIds String[]
+
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")
 }
 
-
-
-
 model messages {
-  id            Int      @id @default(autoincrement())
-  agentId       String
-  userId        String
-  task          String
-  thread        String
-  role          String
-  content       String
-  tool_calls    Json?
-  tool_call_id  String?
-  createdAt     DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  agentId      String
+  userId       String
+  task         String
+  thread       String
+  role         String
+  content      String
+  tool_calls   Json?
+  tool_call_id String?
+  createdAt    DateTime @default(now())
 
   @@map("superexpert_ai_messages")
 }
 
 model memories {
   id            Int      @id @default(autoincrement())
-  userId        String  
+  userId        String
   content       String
   expiresInDays Int
   createdAt     DateTime @default(now())
@@ -57,28 +49,29 @@ model memories {
 }
 
 model users {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  password   String
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
   @@map("superexpert_ai_users")
 }
 
-
 model profiles {
-  id         String   @id @default(uuid())
-  userId     String   
-  name       String   
-  value      String
+  id     String @id @default(uuid())
+  userId String
+  name   String
+  value  String
+
   @@unique([userId, name], name: "userId_name") // Composite unique constraint
   @@map("superexpert_ai_profiles")
 }
 
-
 model agents {
-  id            String   @id @default(uuid())
-  userId        String   
-  name          String   @unique
-  description   String
+  id          String @id @default(uuid())
+  userId      String
+  name        String @unique
+  description String
+
   @@unique([userId, name], name: "agent_userId_name") // Composite unique constraint
   @@map("superexpert_ai_agents")
 }

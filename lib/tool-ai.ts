@@ -11,10 +11,8 @@ export interface ToolAI {
     };
 }
 
-
-
 export interface ToolPropertyAI {
-    type: 'string'|'integer'; 
+    type: 'string' | 'integer';
     enum?: string[]; // Optional enum for predefined values
     description: string;
 }

@@ -1,8 +1,10 @@
-import { ServerToolsBase, Tool, ToolParameter } from '@/lib/task-definition-types';
-
+import {
+    ServerToolsBase,
+    Tool,
+    ToolParameter,
+} from '@/lib/task-definition-types';
 
 export class SystemServerTools extends ServerToolsBase {
-
     @Tool('getCurrentTime', 'Get the current time')
     public async getCurrentTime() {
         return new Date().toISOString();
@@ -20,21 +22,19 @@ export class SystemServerTools extends ServerToolsBase {
             where: {
                 userId_name: {
                     userId: this.user.id,
-                    name
-                }
+                    name,
+                },
             },
             update: {
-                value
+                value,
             },
             create: {
                 userId: this.user.id,
                 name,
-                value
-            }
+                value,
+            },
         });
 
         return `Successfully updated profile property ${name} to ${value}`;
     }
-    
 }
-

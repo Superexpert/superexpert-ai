@@ -1,21 +1,24 @@
 'use server';
 import { ToolsBuilder } from '@/lib/tools-builder';
 import { auth, signIn } from '@/auth';
-import { AuthError } from 'next-auth';
 import { DBService } from '@/lib/db/db-service';
 import { User } from '@/lib/user';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
 
-
-export async function executeServerTool(now: Date, timeZone: string, functionName: string, functionArgs: any) {
+export async function executeServerTool(
+    now: Date,
+    timeZone: string,
+    functionName: string,
+    functionArgs: any
+) {
     // Get user id
     const session = await auth();
     if (!session || !session.user) {
         throw new Error('User not authenticated');
     }
-    const user = session.user as User; 
+    const user = session.user as User;
     user.now = now;
     user.timeZone = timeZone;
 
@@ -27,73 +30,75 @@ export async function executeServerTool(now: Date, timeZone: string, functionNam
 
 //** LoginForm **//
 
-export async function authenticateAction(user: RegisterUser, callbackUrl: string) {
-  try {
-    await signIn('credentials', {
-      username: user.email,
-      password: user.password,
-      redirect: false
-    });
-    return {
-      success: true,
-      serverError: '',
+export async function authenticateAction(
+    user: RegisterUser,
+    callbackUrl: string
+) {
+    try {
+        await signIn('credentials', {
+            username: user.email,
+            password: user.password,
+            redirect: false,
+        });
+        return {
+            success: true,
+            serverError: '',
+        };
+    } catch (error) {
+        return {
+            success: false,
+            serverError: 'Wrong username or password',
+        };
     }
-  } catch (error) {
-    return {
-      success: false,
-      serverError: 'Wrong username or password'
-    }
-  }
 }
 
+export async function registerAction(user: RegisterUser) {
+    // Validate using Zod
+    const result = registerUserSchema.safeParse(user);
+    if (!result.success) {
+        return {
+            success: false,
+            serverError: collapseErrors(result.error),
+        };
+    }
 
+    const db = new DBService();
 
-export async function registerAction(user:RegisterUser) {
-  // Validate using Zod
-  const result = registerUserSchema.safeParse(user);
-  if (!result.success) {
+    // Check if email already registered
+    const existingUser = await db.getUser(user.email);
+    if (existingUser) {
+        return {
+            success: false,
+            serverError: 'Email already registered.',
+        };
+    }
+
+    // Create user
+    try {
+        await db.createUser(user.email, user.password);
+    } catch {
+        return {
+            success: false,
+            serverError: 'Something went wrong.',
+        };
+    }
+
     return {
-      success: false,
-      serverError: collapseErrors(result.error),
+        success: true,
+        serverError: '',
     };
-  }
-  
-  const db = new DBService();
-
-  // Check if email already registered
-  const existingUser = await db.getUser(user.email);
-  if (existingUser) {
-    return {
-      success: false,
-      serverError: 'Email already registered.'
-    };
-  }
-  
-
-  // Create user
-  try {
-    await db.createUser(user.email, user.password);
-  } catch {
-    return {
-      success:false,
-      serverError: 'Something went wrong.'
-    };
-  }
-
-  return {
-    success:true,
-    serverError:''
-  }
 }
 
-export async function getAgentAction(resolvedParams: { [key: string]: string }) {
-  const { agent } = resolvedParams;
-  const agentName = agent.toLowerCase();
-  const db = new DBService();
-  const existingAgent = await db.getAgentByName(agentName);
-  if (!existingAgent) {
-    //return notFound();
-    return redirect("/not-found");
-  }
-  return existingAgent;
+export async function getAgentAction(resolvedParams: {
+    [key: string]: string;
+}) {
+    const { agent } = resolvedParams;
+    const agentName = agent.toLowerCase();
+    const db = new DBService();
+    const existingAgent = await db.getAgentByName(agentName);
+    if (!existingAgent) {
+        //return notFound();
+        return redirect('/not-found');
+    }
+    return existingAgent;
 }
