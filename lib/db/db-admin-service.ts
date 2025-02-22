@@ -35,7 +35,6 @@ export class DBAdminService {
                     serverDataIds: data.serverDataIds,
                     serverToolIds: data.serverToolIds,
                     clientToolIds: data.clientToolIds,
-                    updatedBy: "bob"
                 }
             });
 
@@ -44,19 +43,19 @@ export class DBAdminService {
         // save new
         const newTaskDefinition = await prisma.taskDefinitions.create({
             data: {
+                userId: this.userId,
+                agentId: data.agentId,
                 name: data.name,
                 description: data.description,
                 instructions: data.instructions,
                 serverToolIds: data.serverToolIds,
-                createdBy: "bob",
-                updatedBy: "bob"
             }
         });
 
         return newTaskDefinition;
     }
 
-    public async getTaskDefinitionById(id: number) {
+    public async getTaskDefinitionById(id: string) {
         const td = await prisma.taskDefinitions.findUnique({
             where: {
                 id: id
@@ -65,20 +64,21 @@ export class DBAdminService {
         if (!td) {
             throw new Error('Task Definition not found');
         }
-        return {
-            id: td.id,
-            isSystem: td.isSystem,
-            name: td.name,
-            description: td.description,
-            instructions: td.instructions,
-            serverDataIds: td.serverDataIds,
-            serverToolIds: td.serverToolIds,
-            clientToolIds: td.clientToolIds,
-        };
+        return td;
+        // return {
+        //     id: td.id,
+        //     isSystem: td.isSystem,
+        //     name: td.name,
+        //     description: td.description,
+        //     instructions: td.instructions,
+        //     serverDataIds: td.serverDataIds,
+        //     serverToolIds: td.serverToolIds,
+        //     clientToolIds: td.clientToolIds,
+        // };
     }
 
 
-    public async deleteTaskDefinition(id: number) {
+    public async deleteTaskDefinition(id: string) {
         await prisma.taskDefinitions.delete({
             where: {
                 id: id
@@ -89,9 +89,13 @@ export class DBAdminService {
  
     //** TaskDefinitionList **//
 
-    public async getTaskDefinitionList() {
+    public async getTaskDefinitionList(agentId: string) {
         let taskDefinitions = await prisma.taskDefinitions.findMany(
             {
+                where: {
+                    userId: this.userId,
+                    agentId: agentId,
+                },
                 select: {
                     id: true,
                     name: true,
@@ -104,13 +108,13 @@ export class DBAdminService {
         );
 
         if (taskDefinitions.length === 0) {
-            taskDefinitions = await this.createSystemTaskDefinitions();
+            taskDefinitions = await this.createSystemTaskDefinitions(agentId);
         }
 
         return taskDefinitions;
     }
 
-    public async createSystemTaskDefinitions() {
+    public async createSystemTaskDefinitions(agentId:string) {
         const systemTaskDefinitions = [
             {
                 name: 'Home',
@@ -136,8 +140,8 @@ export class DBAdminService {
                 data: {
                     ...taskDefinition,
                     isSystem: true,
-                    createdBy: "system",
-                    updatedBy: "system"
+                    userId: this.userId,
+                    agentId: agentId,
                 }
             });
             results.push(result);

@@ -20,6 +20,8 @@ a {
 
 
 
+
+
 @layer components {
 
   .instructions {
@@ -77,6 +79,10 @@ a {
     @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200;
   }
 
+  .checkbox {
+    @apply h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
+  }
+
   input[readonly] {
     @apply bg-gray-200 border-gray-300 focus:border-0 focus:ring-0;
   }
@@ -94,6 +100,11 @@ a {
   h1 {
     @apply text-4xl font-semibold text-gray-900 mb-4;
   }
+
+  h2 {
+    @apply text-2xl font-semibold text-gray-900 mb-1;
+  }
+
 
   /* Error message */
   .error {

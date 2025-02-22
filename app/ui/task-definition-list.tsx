@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function TaskDefinitionList(
     { agentName, taskDefinitions }: 
-    { agentName:string, taskDefinitions: { id: number; name: string; description: string; }[] }
+    { agentName:string, taskDefinitions: { id: string; name: string; description: string; }[] }
 ) {
     return (
         <div className="formCard">
@@ -21,7 +21,7 @@ export default function TaskDefinitionList(
                             </div>
                         <Link 
                             href={`/admin/${agentName}/task-definitions/edit/${td.id}`} 
-                            className="btnPrimary">
+                            className="btn btnSecondary">
                             Edit
                         </Link>
                     </div>
@@ -31,8 +31,13 @@ export default function TaskDefinitionList(
             <div className="mt-6">
                 <Link 
                     href={`/admin/${agentName}/task-definitions/edit/`}
-                    className="btnPrimary">
+                    className="btn btnPrimary">
                     New Task Definition
+                </Link>
+                <Link 
+                    href={`/`}
+                    className="btn btnCancel ml-4">
+                    Cancel
                 </Link>
             </div>
         </div>

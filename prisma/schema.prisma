@@ -14,18 +14,17 @@ datasource db {
 }
 
 model taskDefinitions {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(uuid())
+  userId        String
+  agentId       String
   isSystem      Boolean   @default(false)
-  name          String    @unique
+  name          String    
   description   String
-  createdAt     DateTime  @default(now())
-  createdBy     String
-  updatedAt     DateTime  @default(now())
-  updatedBy     String
   instructions  String
   serverDataIds String[]
   serverToolIds String[]
   clientToolIds String[]
+  @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")
 }
 
@@ -34,6 +33,7 @@ model taskDefinitions {
 
 model messages {
   id            Int      @id @default(autoincrement())
+  agentId       String
   userId        String
   task          String
   thread        String

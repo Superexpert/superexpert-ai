@@ -1,12 +1,16 @@
 "use client";
-
-import { useActionState } from "react";
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ListPicker from "@/app/ui/list-picker";
 import Link from "next/link";
-import { TaskDefinition } from "@/lib/task-definition";
-import { saveTaskDefinitionAction, deleteTaskDefinition } from "@/lib/server/admin-actions";
+import { TaskDefinition, taskDefinitionSchema } from "@/lib/task-definition";
+import { saveTaskDefinitionAction, deleteTaskDefinitionAction } from "@/lib/server/admin-actions";
 
 interface TaskDefinitionFormProps {
+  agentId: string;
+  agentName: string;
   taskDefinition: TaskDefinition;
   serverData: { id: string; description: string }[];
   serverTools: { id: string; description: string }[];
@@ -15,83 +19,140 @@ interface TaskDefinitionFormProps {
 }
 
 export default function TaskDefinitionForm({
+  agentId,
+  agentName,
   taskDefinition,
   serverData,
   serverTools,
   clientTools,
   isEditMode,
 }: TaskDefinitionFormProps) {
+  const [serverError, setServerError] = useState('');
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<TaskDefinition>({
+    resolver: zodResolver(taskDefinitionSchema),
+    defaultValues: taskDefinition,
+  });
 
-  const [state, formAction, isPending] = useActionState(
-    saveTaskDefinitionAction,
-    { values: taskDefinition, errors:{}, success: false }
-  );
 
-    const handleDelete = async () => {
-        if (!taskDefinition.id) return;
-        const confirmed = window.confirm("Are you sure you want to delete this task?");
-        if (!confirmed) return;
+  const onSubmit = async (taskDefinition: TaskDefinition) => {
+    const result = await saveTaskDefinitionAction(taskDefinition);
+    if (result.success) {
+      router.push(`/admin/${agentName}/task-definitions`);
+    } else {
+      setServerError(result.serverError);
+    }
+  };
 
-        try {
-            await deleteTaskDefinition(taskDefinition.id);
-        } catch (error) {
-            console.error("Failed to delete task", error);
-        }
-    };
+
+  const handleDelete = async () => {
+      if (!taskDefinition.id) return;
+      const confirmed = window.confirm("Are you sure you want to delete this task?");
+      if (!confirmed) return;
+
+      try {
+          await deleteTaskDefinitionAction(taskDefinition.id);
+      } catch (error) {
+          console.error("Failed to delete task", error);
+      }
+  };
 
   return (
 
-    <div>
+    <div className="formCard">
       <h1>{isEditMode ? "Edit Task Definition" : "New Task Definition"}</h1>
-
-      {state.errors?.name}
-
-      <form action={formAction} className="space-y-4">
+      <div>
+        sfjkjs fsfkl fsklkfsdksdkafkafs  lfdsklkfsd fadskljkafsd afsklkflasdkfsadk fasd fas kjafsklf
+        afsdklkjlafsd  jlkfads
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          {serverError && <p className="error">{serverError}</p>}
+        </div>
         <div>
           <label>Task Name</label>
-          {state.values?.name}
           <input
+            {...register("name")}
             type="text"
-            name="name"
             readOnly={taskDefinition.isSystem}
-            defaultValue={state.values?.name}
           />
-          {state.errors?.name && (
-            <p className="text-red-500">{state.errors.name}</p>
-          )}
+          {errors.name && <p className="error">{errors.name.message}</p>}
         </div>
 
         <div>
           <label>Description</label>
-          {state.values?.description}
           <textarea
-            name="description"
+            {...register("description")}
             readOnly={taskDefinition.isSystem}
-            defaultValue={state.values?.description}
           ></textarea>
-          {state.errors?.description && (
-            <p className="text-red-500">{state.errors.description}</p>
-          )}
+          {errors.description && <p className="error">{errors.description.message}</p>}
         </div>
 
         <div>
           <label>Instructions</label>
           <textarea
-            name="instructions"
-            defaultValue={state.values?.instructions}
+            {...register("instructions")}
           ></textarea>
-          {state.errors?.instructions && (
-            <p className="text-red-500">{state.errors.instructions}</p>
-          )}
+          {errors.instructions && <p className="error">{errors.instructions.message}</p>}
         </div>
 
+
+        <h3>Server Data</h3>
+        {serverData.map((item) => (
+          <div key={item.id} className="flex items-center space-x-2">
+            <input
+              className="checkbox"
+              type="checkbox"
+              id={`serverData-${item.id}`}
+              value={item.id}
+              {...register('serverDataIds')} />
+            <label htmlFor={`serverData-${item.id}`}>{item.description}</label>
+          </div>
+        ))}
+
+      <h3>Server Tools</h3>
+      {serverTools.map((item) => (
+        <div key={item.id} className="flex items-center space-x-2">
+          <input
+            className="checkbox"
+            type="checkbox"
+            id={`serverTools-${item.id}`}
+            value={item.id}
+            {...register('serverToolIds')}
+          />
+          <label htmlFor={`serverTools-${item.id}`}>{item.description}</label>
+        </div>
+      ))}
+
+      <h3>Client Tools</h3>
+      {clientTools.map((item) => (
+        <div key={item.id} className="flex items-center space-x-2">
+          <input
+            className="checkbox"
+            type="checkbox"
+            id={`clientTools-${item.id}`}
+            value={item.id}
+            {...register('clientToolIds')}
+          />
+          <label htmlFor={`clientTools-${item.id}`}>{item.description}</label>
+        </div>
+      ))}
+
+
+
+{/* 
         <div>
           <label>Server Data</label>
           <ListPicker
             name="serverDataIds"
             className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
             items={serverData}
-            selectedItemIds={state.values?.serverDataIds || []}
+            selectedItemIds={taskDefinition.serverDataIds}
           />
         </div>
 
@@ -102,7 +163,7 @@ export default function TaskDefinitionForm({
             name="serverToolIds"
             className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
             items={serverTools}
-            selectedItemIds={state.values?.serverToolIds || []}
+            selectedItemIds={taskDefinition.serverToolIds}
           />
         </div>
 
@@ -112,26 +173,25 @@ export default function TaskDefinitionForm({
             name="clientToolIds"
             className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
             items={clientTools}
-            selectedItemIds={state.values?.clientToolIds || []}
+            selectedItemIds={taskDefinition.clientToolIds}
           />
-        </div>
+        </div> */}
 
-
-
-        <button className="btnPrimary" type="submit">
+        <button className="btn btnPrimary" type="submit">
           Save
         </button>
         {isEditMode && !taskDefinition.isSystem && (
           <button
-            className="btnDanger ml-4"
+            className="btn btnDanger ml-4"
             type="button"
-            onClick={handleDelete}
-          >
+            onClick={handleDelete}>
             Delete
           </button>
         )}
-        <Link href="/admin">
-          <button className="btnCancel ml-4" type="button">
+        <Link href={`/admin/${agentName}/task-definitions`}>
+          <button 
+            className="btn btnCancel ml-4" 
+            type="button">
             Cancel
           </button>
         </Link>

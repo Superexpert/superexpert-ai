@@ -9,7 +9,7 @@ export default async function AgentListPage() {
 
     // If the uer does not have any agents, redirect to the agents page
     if (agents.length === 0) {
-        redirect('/agents');
+        redirect('/admin/agents');
     }
     return (
         <main className="flex items-center justify-center md:h-screen">

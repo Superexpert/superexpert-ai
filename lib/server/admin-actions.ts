@@ -34,40 +34,36 @@ export async function getClientToolsAction() {
 
 
 
-export async function saveTaskDefinitionAction(prevState: any, formData: FormData)
-: Promise<{success:boolean, errors: any, values: TaskDefinition}> 
+export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition)
 {
   const userId = await getUserId();
 
-  const newTaskDefinition: TaskDefinition = {
-    id: formData.get("id") ? Number(formData.get("id")) : prevState.values.id,
-    isSystem: formData.get("isSystem") === "true",
-    name: formData.get("name") as string,
-    description: formData.get("description") as string,
-    instructions: formData.get("instructions") as string,
-    serverDataIds: formData.getAll("serverDataIds") as string[],
-    serverToolIds: formData.getAll("serverToolIds") as string[],
-    clientToolIds: formData.getAll("clientToolIds") as string[],
-  };
-
-  const result = taskDefinitionSchema.safeParse(newTaskDefinition);
-  let errors = {};
+  // Validate using Zod
+  const result = taskDefinitionSchema.safeParse(taskDefinition);
   if (!result.success) {
-    errors = result.error.flatten().fieldErrors;    
-  } else {
+    return {
+      success: false,
+      serverError: 'Failed to save task definition',
+    };
+  }
+
+  try {
     const db = new DBAdminService(userId);
-    await db.saveTaskDefinition(newTaskDefinition);
-    redirect("/admin");
+    await db.saveTaskDefinition(taskDefinition);
+  } catch (err) {
+    return {
+      success: false,
+      serverError: "Failed to save task definition",
+    };
   }
 
   return {
     success: result.success,
-    errors: errors,
-    values: newTaskDefinition,
+    serverError: ''
   }
 }
 
-export async function deleteTaskDefinition(id: number) {
+export async function deleteTaskDefinitionAction(id: string) {
   const userId = await getUserId();
 
   const db = new DBAdminService(userId);
@@ -76,7 +72,7 @@ export async function deleteTaskDefinition(id: number) {
 }
 
 
-export async function getTaskDefinitionByIdAction(id: number) {
+export async function getTaskDefinitionByIdAction(id: string) {
   const userId = await getUserId();
 
   const db = new DBAdminService(userId);
@@ -86,11 +82,11 @@ export async function getTaskDefinitionByIdAction(id: number) {
 
 //** TaskListPage **//
 
-export async function getTaskDefinitionList() {
+export async function getTaskDefinitionListAction(agentId:string) {
   const userId = await getUserId();
 
   const db = new DBAdminService(userId);
-  const result = await db.getTaskDefinitionList();
+  const result = await db.getTaskDefinitionList(agentId);
   return result;
 }
 

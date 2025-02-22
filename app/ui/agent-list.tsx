@@ -15,7 +15,7 @@ export default function AgentList(
                 {agents.map((agent) => (
                     <div key={agent.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
                         <div>
-                            <span className="text-lg">{agent.name}</span> 
+                            <h2>{agent.name}</h2> 
                             <div className="max-h-32 overflow-hidden line-clamp-3">{agent.description}</div>
                         </div>
                         <div>
@@ -41,9 +41,8 @@ export default function AgentList(
 
             <div className="mt-6">
                 <Link 
-                    href="/agents"
-                    className="btn btnPrimary"
-                >
+                    href="/admin/agents"
+                    className="btn btnPrimary">
                     New Agent
                 </Link>
             </div>
