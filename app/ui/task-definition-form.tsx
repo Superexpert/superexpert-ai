@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ListPicker from "@/app/ui/list-picker";
 import Link from "next/link";
 import { TaskDefinition, taskDefinitionSchema } from "@/lib/task-definition";
 import { saveTaskDefinitionAction, deleteTaskDefinitionAction } from "@/lib/server/admin-actions";
@@ -48,7 +47,6 @@ export default function TaskDefinitionForm({
       setServerError(result.serverError);
     }
   };
-
 
   const handleDelete = async () => {
       if (!taskDefinition.id) return;
@@ -115,67 +113,33 @@ export default function TaskDefinitionForm({
           </div>
         ))}
 
-      <h3>Server Tools</h3>
-      {serverTools.map((item) => (
-        <div key={item.id} className="flex items-center space-x-2">
-          <input
-            className="checkbox"
-            type="checkbox"
-            id={`serverTools-${item.id}`}
-            value={item.id}
-            {...register('serverToolIds')}
-          />
-          <label htmlFor={`serverTools-${item.id}`}>{item.description}</label>
-        </div>
-      ))}
+        <h3>Server Tools</h3>
+        {serverTools.map((item) => (
+          <div key={item.id} className="flex items-center space-x-2">
+            <input
+              className="checkbox"
+              type="checkbox"
+              id={`serverTools-${item.id}`}
+              value={item.id}
+              {...register('serverToolIds')}
+            />
+            <label htmlFor={`serverTools-${item.id}`}>{item.description}</label>
+          </div>
+        ))}
 
-      <h3>Client Tools</h3>
-      {clientTools.map((item) => (
-        <div key={item.id} className="flex items-center space-x-2">
-          <input
-            className="checkbox"
-            type="checkbox"
-            id={`clientTools-${item.id}`}
-            value={item.id}
-            {...register('clientToolIds')}
-          />
-          <label htmlFor={`clientTools-${item.id}`}>{item.description}</label>
-        </div>
-      ))}
-
-
-
-{/* 
-        <div>
-          <label>Server Data</label>
-          <ListPicker
-            name="serverDataIds"
-            className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
-            items={serverData}
-            selectedItemIds={taskDefinition.serverDataIds}
-          />
-        </div>
-
-
-        <div>
-          <label>Server Tools</label>
-          <ListPicker
-            name="serverToolIds"
-            className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
-            items={serverTools}
-            selectedItemIds={taskDefinition.serverToolIds}
-          />
-        </div>
-
-        <div>
-          <label>Client Tools</label>
-          <ListPicker
-            name="clientToolIds"
-            className="bg-white max-h-24 overflow-y-scroll border border-gray-300 rounded-lg p-4"
-            items={clientTools}
-            selectedItemIds={taskDefinition.clientToolIds}
-          />
-        </div> */}
+        <h3>Client Tools</h3>
+        {clientTools.map((item) => (
+          <div key={item.id} className="flex items-center space-x-2">
+            <input
+              className="checkbox"
+              type="checkbox"
+              id={`clientTools-${item.id}`}
+              value={item.id}
+              {...register('clientToolIds')}
+            />
+            <label htmlFor={`clientTools-${item.id}`}>{item.description}</label>
+          </div>
+        ))}
 
         <button className="btn btnPrimary" type="submit">
           Save

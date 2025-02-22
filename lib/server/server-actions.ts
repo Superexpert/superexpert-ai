@@ -6,6 +6,8 @@ import { DBService } from '@/lib/db/db-service';
 import { User } from '@/lib/user';
 import { notFound, redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
+import { collapseErrors } from '@/lib/validation';
+
 
 export async function executeServerTool(now: Date, timeZone: string, functionName: string, functionArgs: any) {
     // Get user id
@@ -52,7 +54,7 @@ export async function registerAction(user:RegisterUser) {
   if (!result.success) {
     return {
       success: false,
-      serverError: "Failed to register",
+      serverError: collapseErrors(result.error),
     };
   }
   
@@ -67,6 +69,7 @@ export async function registerAction(user:RegisterUser) {
     };
   }
   
+
   // Create user
   try {
     await db.createUser(user.email, user.password);

@@ -5,6 +5,7 @@ import {DBAdminService} from '@/lib/db/db-admin-service';
 import {redirect} from "next/navigation";
 import { getUserId } from '@/lib/user';
 import { Agent, agentSchema } from '@/lib/agent';
+import { collapseErrors } from '@/lib/validation';
 
 
 //** TaskDefinitionForm **//
@@ -31,9 +32,6 @@ export async function getClientToolsAction() {
 }
 
 
-
-
-
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition)
 {
   const userId = await getUserId();
@@ -43,7 +41,7 @@ export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition)
   if (!result.success) {
     return {
       success: false,
-      serverError: 'Failed to save task definition',
+      serverError: collapseErrors(result.error),
     };
   }
 
@@ -124,7 +122,7 @@ export async function saveAgentAction(newAgent: Agent)
   if (!result.success) {
     return {
       success: false,
-      serverError: "Failed to save agent",
+      serverError: collapseErrors(result.error),
     };
   }
 
@@ -154,38 +152,6 @@ export async function saveAgentAction(newAgent: Agent)
   }
 }
 
-
-// export async function saveAgentAction(prevState: any, formData: FormData)
-// : Promise<{success:boolean, errors: any, values: Agent}> 
-// {
-//   const userId = await getUserId();
-
-//   const newAgent: Agent = {
-//     id: formData.get("id") ? formData.get("id") : prevState.values.id,
-//     name: formData.get("name") as string,
-//     description: formData.get("description") as string,
-//   };
-
-
-
-
-//   const result = agentSchema.safeParse(newAgent);
-//   let errors = {};
-//   if (!result.success) {
-//     errors = result.error.flatten().fieldErrors;    
-//     console.log("errors", errors);
-//   } else {
-//     const db = new DBAdminService(userId);
-//     await db.saveAgent(newAgent);
-//     redirect("/");
-//   }
-
-//   return {
-//     success: result.success,
-//     errors: errors,
-//     values: newAgent,
-//   }
-// }
 
 export async function deleteAgentAction(id: string) {
   const userId = await getUserId();
