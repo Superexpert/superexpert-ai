@@ -16,12 +16,13 @@ export class TaskMachine {
 
     public async getAIPayload(
         user: User,
+        agentId: string,
         task: string,
         thread: string,
         messages: MessageAI[]
     ): Promise<{ currentMessages: MessageAI[]; tools: ToolAI[] }> {
         // Save messages
-        await this.saveMessages(user.id, task, thread, messages);
+        await this.saveMessages(user.id, agentId, task, thread, messages);
 
         // Get previous messages
         const previousMessages = await this.getPreviousMessages(
@@ -30,12 +31,12 @@ export class TaskMachine {
         );
 
         // Get task definition
-        const taskDefinitions = await this.getTaskDefinitions();
+        const taskDefinitions = await this.getTaskDefinitions(agentId);
         let taskDefinition = taskDefinitions.find((td) => td.name === task);
 
-        // default task to Home if not found
+        // default task to home if not found
         if (!taskDefinition) {
-            task = 'Home';
+            task = 'home';
             taskDefinition = taskDefinitions.find((td) => td.name === task);
         }
         if (!taskDefinition) {
@@ -43,10 +44,10 @@ export class TaskMachine {
         }
 
         const globalTaskDefinition = taskDefinitions.find(
-            (td) => td.name === 'Global'
+            (td) => td.name === 'global'
         );
         if (!globalTaskDefinition) {
-            throw new Error(`Task definition not found for task: Global`);
+            throw new Error(`Task definition not found for task: global`);
         }
 
         // Get system messages
@@ -116,25 +117,32 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
-        return [
-            { role: 'system', content: globalTaskDefinition.instructions },
-            { role: 'system', content: taskDefinition.instructions },
-            { role: 'system', content: serverData },
-        ];
+        const returnData:MessageAI[] = [];
+        if (globalTaskDefinition.instructions) {
+            returnData.push({ role: 'system', content: globalTaskDefinition.instructions });
+        }
+        if (taskDefinition.instructions) {
+            returnData.push({ role: 'system', content: taskDefinition.instructions });
+        }
+        if (serverData) {
+            returnData.push({ role: 'system', content: serverData });
+        }
+        return returnData;
     }
 
-    private async getTaskDefinitions() {
-        const result = await this.db.getTaskDefinitions();
+    private async getTaskDefinitions(agentId: string) {
+        const result = await this.db.getTaskDefinitions(agentId);
         return result;
     }
 
     public async saveMessages(
         userId: string,
+        agentId: string,
         task: string,
         thread: string,
         messages: MessageAI[]
     ) {
-        await this.db.saveMessages(userId, task, thread, messages);
+        await this.db.saveMessages(userId, agentId, task, thread, messages);
     }
 
     private async getPreviousMessages(userId: string, thread: string) {

@@ -92,8 +92,7 @@ export async function registerAction(user: RegisterUser) {
 export async function getAgentAction(resolvedParams: {
     [key: string]: string;
 }) {
-    const { agent } = resolvedParams;
-    const agentName = agent.toLowerCase();
+    const { agentName } = resolvedParams;
     const db = new DBService();
     const existingAgent = await db.getAgentByName(agentName);
     if (!existingAgent) {

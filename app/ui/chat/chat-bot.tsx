@@ -21,7 +21,7 @@ const getTask = () => {
     if (task) {
         return task;
     }
-    const newTask = 'Home';
+    const newTask = 'home';
     setSessionItem('task', newTask);
     return newTask;
 };

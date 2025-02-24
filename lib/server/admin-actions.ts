@@ -28,6 +28,7 @@ export async function getClientToolsAction() {
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
+    console.log("taskDef", taskDefinition);
     const userId = await getUserId();
 
     // Validate using Zod

@@ -1,11 +1,12 @@
 import { MessageAI } from '../message-ai';
-import { TaskDefinition } from '../task-definition';
+import { getAgentByIdAction } from '../server/admin-actions';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 
 export class DBService {
     public async saveMessages(
         userId: string,
+        agentId: string,
         task: string,
         thread: string,
         messages: MessageAI[]
@@ -73,8 +74,17 @@ export class DBService {
         return resultMessages;
     }
 
-    public async getTaskDefinitions() {
-        const taskDefinitions = await prisma.taskDefinitions.findMany();
+    public async getTaskDefinitions(agentId: string) {
+        const taskDefinitions = await prisma.taskDefinitions.findMany(
+            {
+                where: {
+                    agentId: agentId
+                },
+                orderBy: {
+                    name: 'asc',
+                },
+            }
+        );
         return taskDefinitions;
     }
 

@@ -36,6 +36,7 @@ export default function AgentList({
                             </Link>
                             <Link
                                 href={`${agent.name}`}
+                                target='_blank'
                                 className="btn btnSecondary ml-4">
                                 Chat
                             </Link>

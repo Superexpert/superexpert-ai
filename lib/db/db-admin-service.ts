@@ -98,7 +98,7 @@ export class DBAdminService {
     public async createSystemTaskDefinitions(agentId: string) {
         const systemTaskDefinitions = [
             {
-                name: 'Home',
+                name: 'home',
                 description:
                     'The first task when a user starts a new conversation.',
                 instructions: '',
@@ -107,7 +107,7 @@ export class DBAdminService {
                 clientToolIds: [],
             },
             {
-                name: 'Global',
+                name: 'global',
                 description:
                     'Instructios, data, and tools applied to all tasks.',
                 instructions: '',

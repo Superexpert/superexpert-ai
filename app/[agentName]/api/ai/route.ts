@@ -4,6 +4,7 @@ import { MessageAI, ToolCall } from '@/lib/message';
 import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { User } from '@/lib/user';
+import { DBAdminService } from '@/lib/db/db-admin-service';
 
 interface RequestBody {
     nowString: string;
@@ -13,7 +14,10 @@ interface RequestBody {
     thread: string;
 }
 
-export async function POST(request: NextRequest): Promise<Response> {
+export async function POST(
+    request: NextRequest,
+    context: { params: Promise<{ agentName: string }> }
+): Promise<Response> {
     // Get user id
     const session = await auth();
     if (!session || !session.user) {
@@ -21,6 +25,14 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
     const user = session.user as User;
 
+    // Get agent 
+    const {agentName} = await context.params;
+    const db = new DBAdminService(user.id);
+    const agent = await db.getAgentByName(agentName);
+    if (!agent) {
+        throw new Error('Agent not found');
+    }
+ 
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
 
@@ -32,10 +44,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     const taskMachine = new TaskMachine();
     const { currentMessages, tools } = await taskMachine.getAIPayload(
         user,
+        agent.id,
         task,
         thread,
         messages
     );
+
+    console.log(currentMessages);
 
     const client = new OpenAI();
     const stream = await client.chat.completions.create({
@@ -57,7 +72,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                     const { done, value } = await reader.read();
                     if (done) {
                         // Save the full response
-                        await taskMachine.saveMessages(user.id, task, thread, [
+                        await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
                             {
                                 role: 'assistant',
                                 content: fullResponse,
