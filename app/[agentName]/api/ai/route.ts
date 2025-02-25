@@ -5,6 +5,7 @@ import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { User } from '@/lib/user';
 import { DBAdminService } from '@/lib/db/db-admin-service';
+import { AIModelFactory } from '@/lib/models/ai-model-factory';
 
 interface RequestBody {
     nowString: string;
@@ -50,78 +51,167 @@ export async function POST(
         messages
     );
 
-    console.log(currentMessages);
+    // Create a new AI Model
+    const model = AIModelFactory.createModel("GPT-4o");
+    const response = model.generateResponse(currentMessages, tools);
 
-    const client = new OpenAI();
-    const stream = await client.chat.completions.create({
-        model: 'gpt-4o',
-        stream: true,
-        messages: currentMessages,
-        ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
-    });
-
-    // ReadableStream that will be sent to the client
     const readableStream = new ReadableStream({
         async start(controller) {
-            let fullResponse = ''; // Buffer to store the full response
-            const toolCalls: ToolCall[] = []; // Store tool call IDs
-            const reader = stream.toReadableStream().getReader();
-
-            async function processStream() {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        // Save the full response
-                        await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
-                            {
-                                role: 'assistant',
-                                content: fullResponse,
-                                tool_calls: toolCalls,
-                            },
-                        ]);
-
-                        controller.close();
-                        break;
-                    }
-                    const textChunk = new TextDecoder().decode(value);
-                    controller.enqueue(value); // Send chunk to client
-
-                    try {
-                        // Parse the JSON object
-                        const jsonChunk = JSON.parse(textChunk);
-                        const choice = jsonChunk.choices?.[0]?.delta;
-
-                        // Append assistant content if present
-                        if (choice?.content) {
-                            fullResponse += choice.content;
-                        }
-
-                        // Handle tool calls
-                        if (choice?.tool_calls) {
-                            const tool_call = choice.tool_calls[0];
-                            if (tool_call.function.name) {
-                                toolCalls.push(tool_call);
-                            } else {
-                                toolCalls[
-                                    toolCalls.length - 1
-                                ].function.arguments +=
-                                    tool_call.function.arguments;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error parsing JSON chunk:', error);
-                    }
-                }
+            const encoder = new TextEncoder();
+            for await (const chunk of response) {
+                console.log("chunk", chunk)
+                //controller.enqueue(new TextEncoder().encode(chunk));
+                //controller.enqueue(JSON.stringify(chunk));
+                controller.enqueue(encoder.encode(`event: message\ndata: ${JSON.stringify(chunk)}\n\n`));
             }
-
-            processStream().catch((error) => {
-                console.error('Error processing stream:', error);
-                controller.error(error);
-            });
+            controller.close();
         },
     });
 
     return new Response(readableStream, {
-        headers: { 'Content-Type': 'text/event-stream' },
+        headers: { 'Content-Type': 'text/event-stream', 'Transfer-Encoding': 'chunked', 'Cache-Control': 'no-cache' },
     });
+
+
+    // // ReadableStream that will be sent to the client
+    // const readableStream = new ReadableStream({
+    //     async start(controller) {
+    //         let fullResponse = ''; // Buffer to store the full response
+    //         const toolCalls: ToolCall[] = []; // Store tool call IDs
+    //         const reader = response.toReadableStream().getReader();
+
+    //         async function processStream() {
+    //             while (true) {
+    //                 const { done, value } = await reader.read();
+    //                 if (done) {
+    //                     // Save the full response
+    //                     await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
+    //                         {
+    //                             role: 'assistant',
+    //                             content: fullResponse,
+    //                             tool_calls: toolCalls,
+    //                         },
+    //                     ]);
+
+    //                     controller.close();
+    //                     break;
+    //                 }
+    //                 const textChunk = new TextDecoder().decode(value);
+    //                 controller.enqueue(value); // Send chunk to client
+
+    //                 try {
+    //                     // Parse the JSON object
+    //                     const jsonChunk = JSON.parse(textChunk);
+    //                     const choice = jsonChunk.choices?.[0]?.delta;
+
+    //                     // Append assistant content if present
+    //                     if (choice?.content) {
+    //                         fullResponse += choice.content;
+    //                     }
+
+    //                     // Handle tool calls
+    //                     if (choice?.tool_calls) {
+    //                         const tool_call = choice.tool_calls[0];
+    //                         if (tool_call.function.name) {
+    //                             toolCalls.push(tool_call);
+    //                         } else {
+    //                             toolCalls[
+    //                                 toolCalls.length - 1
+    //                             ].function.arguments +=
+    //                                 tool_call.function.arguments;
+    //                         }
+    //                     }
+    //                 } catch (error) {
+    //                     console.error('Error parsing JSON chunk:', error);
+    //                 }
+    //             }
+    //         }
+
+    //         processStream().catch((error) => {
+    //             console.error('Error processing stream:', error);
+    //             controller.error(error);
+    //         });
+    //     },
+    // });
+
+    // return new Response(readableStream, {
+    //     headers: { 'Content-Type': 'text/event-stream' },
+    // });
+
+
+    //////////////
+
+
+    // const client = new OpenAI();
+    // const stream = await client.chat.completions.create({
+    //     model: 'gpt-4o',
+    //     stream: true,
+    //     messages: currentMessages,
+    //     ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
+    // });
+
+    // ReadableStream that will be sent to the client
+    // const readableStream = new ReadableStream({
+    //     async start(controller) {
+    //         let fullResponse = ''; // Buffer to store the full response
+    //         const toolCalls: ToolCall[] = []; // Store tool call IDs
+    //         const reader = stream.toReadableStream().getReader();
+
+    //         async function processStream() {
+    //             while (true) {
+    //                 const { done, value } = await reader.read();
+    //                 if (done) {
+    //                     // Save the full response
+    //                     await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
+    //                         {
+    //                             role: 'assistant',
+    //                             content: fullResponse,
+    //                             tool_calls: toolCalls,
+    //                         },
+    //                     ]);
+
+    //                     controller.close();
+    //                     break;
+    //                 }
+    //                 const textChunk = new TextDecoder().decode(value);
+    //                 controller.enqueue(value); // Send chunk to client
+
+    //                 try {
+    //                     // Parse the JSON object
+    //                     const jsonChunk = JSON.parse(textChunk);
+    //                     const choice = jsonChunk.choices?.[0]?.delta;
+
+    //                     // Append assistant content if present
+    //                     if (choice?.content) {
+    //                         fullResponse += choice.content;
+    //                     }
+
+    //                     // Handle tool calls
+    //                     if (choice?.tool_calls) {
+    //                         const tool_call = choice.tool_calls[0];
+    //                         if (tool_call.function.name) {
+    //                             toolCalls.push(tool_call);
+    //                         } else {
+    //                             toolCalls[
+    //                                 toolCalls.length - 1
+    //                             ].function.arguments +=
+    //                                 tool_call.function.arguments;
+    //                         }
+    //                     }
+    //                 } catch (error) {
+    //                     console.error('Error parsing JSON chunk:', error);
+    //                 }
+    //             }
+    //         }
+
+    //         processStream().catch((error) => {
+    //             console.error('Error processing stream:', error);
+    //             controller.error(error);
+    //         });
+    //     },
+    // });
+
+    // return new Response(readableStream, {
+    //     headers: { 'Content-Type': 'text/event-stream' },
+    // });
 }

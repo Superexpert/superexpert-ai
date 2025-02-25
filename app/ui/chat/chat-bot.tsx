@@ -60,7 +60,8 @@ const ChatBot = ({
     const isInitialStartSentRef = useRef(false); // Track if "start" has been sent
 
     const sendMessages = async (messages: MessageAI[]) => {
-        try {
+
+        //try {
             setBusyWaiting(true);
             setInputDisabled(true);
             const response = await fetch(`/${agentName}/api/ai`, {
@@ -74,21 +75,58 @@ const ChatBot = ({
                 }),
             });
 
-            if (response.body) {
-                const stream = ChatCompletionStream.fromReadableStream(
-                    response.body
-                );
-                handleReadableStream(stream);
+            if (!response.body) return;
+
+            handleTextCreated();
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let done = false;
+      
+            while (!done) {
+                const { value, done} = await reader.read();
+        
+                if (!value) continue; 
+        
+                const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
+                console.log("Raw chunk:", chunk); // Debugging: See raw data
+        
+                // **Parse the chunk to extract JSON**
+                const events = chunk.split("\n"); // Split by newline to handle multiple messages
+        
+                for (const line of events) {
+                    if (line.startsWith("data: ")) { // Only process "data:" lines
+                        try {
+                            const jsonPart = line.replace("data: ", "").trim(); // Remove "data: "
+                            const parsed = JSON.parse(jsonPart); // Convert to JSON
+                            
+                            if (parsed.text) {
+                                handleTextDelta(parsed.text); // Process extracted text
+                            }
+                        } catch (error) {
+                            console.error("Failed to parse JSON from chunk:", error, line);
+                        }
+                    }
+                }
             }
-        } catch (error) {
-            console.error('Error sending message', error);
-            appendMessage(
-                'assistant',
-                'My brain went offline for a sec — classic ‘AI brain fog.’ Trying to reboot my wisdom!'
-            );
-            setBusyWaiting(false);
-            setInputDisabled(false);
-        }
+        //} catch (error) {
+
+
+        //     if (response.body) {
+        //         const stream = ChatCompletionStream.fromReadableStream(
+        //             response.body
+        //         );
+        //         handleReadableStream(stream);
+        //     }
+        // } catch (error) {
+        //     console.error('Error sending message', error);
+        //     appendMessage(
+        //         'assistant',
+        //         'My brain went offline for a sec — classic ‘AI brain fog.’ Trying to reboot my wisdom!'
+        //     );
+        //     setBusyWaiting(false);
+        //     setInputDisabled(false);
+        // }
     };
 
     // automatically scroll to bottom of chat
