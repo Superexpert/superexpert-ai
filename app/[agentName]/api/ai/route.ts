@@ -53,7 +53,8 @@ export async function POST(
 
     // Create a new AI Model
     //const model = AIModelFactory.createModel("GPT-4o");
-    const model = AIModelFactory.createModel("Gemini");
+    //const model = AIModelFactory.createModel("Gemini");
+    const model = AIModelFactory.createModel("Anthropic");
 
     const response = model.generateResponse(currentMessages, tools);
 

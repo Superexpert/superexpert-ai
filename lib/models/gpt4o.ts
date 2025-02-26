@@ -4,7 +4,6 @@ import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 
 export class GPT4oModel implements AIModel {
-    private api = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     async *generateResponse(
         inputMessages: MessageAI[],
