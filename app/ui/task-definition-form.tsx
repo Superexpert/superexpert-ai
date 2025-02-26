@@ -17,7 +17,7 @@ interface TaskDefinitionFormProps {
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
-    models: { id: string; name:string, description: string }[];
+    models: { id: string; name: string; description: string }[];
     isEditMode: boolean;
 }
 
@@ -157,6 +157,20 @@ export default function TaskDefinitionForm({
                 ))}
 
                 <h3>AI Model</h3>
+                {taskDefinition.name != 'global' && (
+                    <div className="flex items-center space-x-2">
+                        <input
+                            className="checkbox"
+                            type="radio"
+                            id="model-global"
+                            value="global"
+                            {...register('modelId')}
+                        />
+                        <label htmlFor="model-global">
+                            global: Use the model from the global task definition
+                        </label>
+                    </div>
+                )}
                 {models.map((item) => (
                     <div key={item.id} className="flex items-center space-x-2">
                         <input
@@ -167,12 +181,10 @@ export default function TaskDefinitionForm({
                             {...register('modelId')}
                         />
                         <label htmlFor={`model-${item.id}`}>
-                            {item.name}:
-                            {item.description}
+                            {item.name}:{item.description}
                         </label>
                     </div>
                 ))}
-
 
                 <button className="btn btnPrimary" type="submit">
                     Save

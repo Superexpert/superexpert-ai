@@ -20,7 +20,11 @@ export class TaskMachine {
         task: string,
         thread: string,
         messages: MessageAI[]
-    ): Promise<{ currentMessages: MessageAI[]; tools: ToolAI[], modelId:string}> {
+    ): Promise<{
+        currentMessages: MessageAI[];
+        tools: ToolAI[];
+        modelId: string;
+    }> {
         // Save messages
         await this.saveMessages(user.id, agentId, task, thread, messages);
 
@@ -50,6 +54,12 @@ export class TaskMachine {
             throw new Error(`Task definition not found for task: global`);
         }
 
+        // get modelId
+        const modelId =
+            taskDefinition.modelId === 'global'
+                ? globalTaskDefinition.modelId
+                : taskDefinition.modelId;
+
         // Get system messages
         const systemMessages = await this.getSystemMessages(
             user,
@@ -62,8 +72,8 @@ export class TaskMachine {
 
         return {
             currentMessages: [...systemMessages, ...previousMessages],
-            tools: tools,
-            modelId: taskDefinition.modelId,
+            tools,
+            modelId,
         };
     }
 
@@ -118,12 +128,18 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
-        const returnData:MessageAI[] = [];
+        const returnData: MessageAI[] = [];
         if (globalTaskDefinition.instructions) {
-            returnData.push({ role: 'system', content: globalTaskDefinition.instructions });
+            returnData.push({
+                role: 'system',
+                content: globalTaskDefinition.instructions,
+            });
         }
         if (taskDefinition.instructions) {
-            returnData.push({ role: 'system', content: taskDefinition.instructions });
+            returnData.push({
+                role: 'system',
+                content: taskDefinition.instructions,
+            });
         }
         if (serverData) {
             returnData.push({ role: 'system', content: serverData });

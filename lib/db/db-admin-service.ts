@@ -108,7 +108,7 @@ export class DBAdminService {
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
-                modelId: DEFAULT_MODEL,
+                modelId: 'global',
             },
             {
                 name: 'global',
@@ -118,7 +118,7 @@ export class DBAdminService {
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
-                modelId: DEFAULT_MODEL,
+                modelId: 'gpt-4o',
             },
         ];
 
