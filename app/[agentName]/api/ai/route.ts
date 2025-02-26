@@ -43,7 +43,7 @@ export async function POST(
     user.timeZone = timeZone;
 
     const taskMachine = new TaskMachine();
-    const { currentMessages, tools } = await taskMachine.getAIPayload(
+    const { currentMessages, tools, modelId } = await taskMachine.getAIPayload(
         user,
         agent.id,
         task,
@@ -54,7 +54,7 @@ export async function POST(
     // Create a new AI Model
     //const model = AIModelFactory.createModel("GPT-4o");
     //const model = AIModelFactory.createModel("Gemini");
-    const model = AIModelFactory.createModel("Anthropic");
+    const model = AIModelFactory.createModel(modelId);
 
     const response = model.generateResponse(currentMessages, tools);
 

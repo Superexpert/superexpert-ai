@@ -1,5 +1,5 @@
 'use client';
-import plugins from '@/superexpert-plugins';
+import plugins from '@/superexpert.plugins';
 
 export class ClientToolsBuilder {
     private filterMethods(targetClass: any) {

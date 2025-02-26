@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
-import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
 import { getSessionItem, setSessionItem } from '@/lib/session-storage';
+import { START_MESSAGE } from '@/superexpert.config';
 
 const getNow = () => {
     return new Date();
@@ -131,8 +131,7 @@ const ChatBot = ({
     const sendInitialStartMessage = async () => {
         if (!isInitialStartSentRef.current) {
             isInitialStartSentRef.current = true;
-            const message = 'User has started a new conversation.';
-            await sendMessages([{ role: 'system', content: message }]);
+            await sendMessages([{ role: 'user', content: START_MESSAGE }]);
         }
     };
 

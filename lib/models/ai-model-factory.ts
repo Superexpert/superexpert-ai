@@ -86,24 +86,23 @@ export class AIModelFactory {
     }
 
     /** Create an AI model instance based on the selected name */
-    static createModel(selectedModel: string): AIModel {
-        const modelInfo = this.modelMap[selectedModel];
+    static createModel(modelId: string): AIModel {
+      const modelEntry = Object.values(this.modelMap).find((entry) => entry.model === modelId);
+      if (!modelEntry) {
+          throw new Error(`Unsupported AI model ID: ${modelId}`);
+      }
 
-        if (!modelInfo) {
-            throw new Error(`Unsupported AI model: ${selectedModel}`);
-        }
-
-        switch (modelInfo.provider) {
-            case 'openai':
-                return new OpenAIModel(modelInfo.model);
-            case 'google':
-                return new GoogleAIModel(modelInfo.model);
-            case 'anthropic':
-                return new AnthropicAIModel(modelInfo.model);
-            default:
-                throw new Error(`Unknown provider: ${modelInfo.provider}`);
-        }
-    }
+      switch (modelEntry.provider) {
+          case 'openai':
+              return new OpenAIModel(modelEntry.model);
+          case 'google':
+              return new GoogleAIModel(modelEntry.model);
+          case 'anthropic':
+              return new AnthropicAIModel(modelEntry.model);
+          default:
+              throw new Error(`Unknown provider: ${modelEntry.provider}`);
+      }
+  }
 }
 
 // import { AIModel } from '@/lib/models/ai-model';

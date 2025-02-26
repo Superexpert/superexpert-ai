@@ -41,12 +41,7 @@ export class AnthropicAIModel implements AIModel {
             } as { role: 'user' | 'assistant'; content: string };
         });
 
-        if (anthropicMessages.length === 0) {
-            anthropicMessages = [{
-                role: 'user',
-                content: 'Hello'
-            }];
-        }
+
 
         // // Format tools for Anthropic if needed
         // const anthropicTools = tools.length > 0 ? tools.map(tool => ({

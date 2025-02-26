@@ -1,6 +1,7 @@
 import { TaskDefinition } from '../task-definition';
 import { Agent } from '../agent';
 import { prisma } from './prisma';
+import { DEFAULT_MODEL } from '@/superexpert.config';
 
 export class DBAdminService {
     constructor(protected userId: string) {}
@@ -107,7 +108,7 @@ export class DBAdminService {
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
-                modelId: 'gpt-4o',
+                modelId: DEFAULT_MODEL,
             },
             {
                 name: 'global',
@@ -117,7 +118,7 @@ export class DBAdminService {
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
-                modelId: 'gpt-4o',
+                modelId: DEFAULT_MODEL,
             },
         ];
 

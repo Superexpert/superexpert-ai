@@ -20,7 +20,7 @@ export class TaskMachine {
         task: string,
         thread: string,
         messages: MessageAI[]
-    ): Promise<{ currentMessages: MessageAI[]; tools: ToolAI[] }> {
+    ): Promise<{ currentMessages: MessageAI[]; tools: ToolAI[], modelId:string}> {
         // Save messages
         await this.saveMessages(user.id, agentId, task, thread, messages);
 
@@ -63,6 +63,7 @@ export class TaskMachine {
         return {
             currentMessages: [...systemMessages, ...previousMessages],
             tools: tools,
+            modelId: taskDefinition.modelId,
         };
     }
 

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
-import plugins from '@/superexpert-plugins';
+import plugins from '@/superexpert.plugins';
 import { prisma } from '@/lib/db/prisma';
 import { User } from '@/lib/user';
 

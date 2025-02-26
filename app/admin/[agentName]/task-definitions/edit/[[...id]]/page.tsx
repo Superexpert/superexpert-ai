@@ -6,6 +6,7 @@ import {
     getTaskDefinitionByIdAction,
 } from '@/lib/server/admin-actions';
 import { TaskDefinition } from '@/lib/task-definition';
+import { DEFAULT_MODEL } from '@/superexpert.config';
 
 export default async function EditTaskDefinitionPage({
     params,
@@ -36,7 +37,7 @@ export default async function EditTaskDefinitionPage({
         serverDataIds: [],
         serverToolIds: [],
         clientToolIds: [],
-        modelId: 'gpt-4o',
+        modelId: DEFAULT_MODEL,
     };
 
     if (isEditMode) {
