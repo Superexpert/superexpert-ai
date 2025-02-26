@@ -60,8 +60,7 @@ const ChatBot = ({
     const isInitialStartSentRef = useRef(false); // Track if "start" has been sent
 
     const sendMessages = async (messages: MessageAI[]) => {
-
-        //try {
+        try {
             setBusyWaiting(true);
             setInputDisabled(true);
             const response = await fetch(`/${agentName}/api/ai`, {
@@ -84,7 +83,8 @@ const ChatBot = ({
             let done = false;
       
             while (!done) {
-                const { value, done} = await reader.read();
+                const { value, done: isDone} = await reader.read();
+                done = isDone; // Update loop condition
         
                 if (!value) continue; 
         
@@ -109,24 +109,17 @@ const ChatBot = ({
                     }
                 }
             }
-        //} catch (error) {
-
-
-        //     if (response.body) {
-        //         const stream = ChatCompletionStream.fromReadableStream(
-        //             response.body
-        //         );
-        //         handleReadableStream(stream);
-        //     }
-        // } catch (error) {
-        //     console.error('Error sending message', error);
-        //     appendMessage(
-        //         'assistant',
-        //         'My brain went offline for a sec — classic ‘AI brain fog.’ Trying to reboot my wisdom!'
-        //     );
-        //     setBusyWaiting(false);
-        //     setInputDisabled(false);
-        // }
+ 
+        } catch (error) {
+            console.error('Error sending message', error);
+            appendMessage(
+                'assistant',
+                'My brain went offline for a sec — classic ‘AI brain fog.’ Trying to reboot my wisdom!'
+            );
+        } finally {
+            setBusyWaiting(false);
+            setInputDisabled(false);
+        };
     };
 
     // automatically scroll to bottom of chat
@@ -192,43 +185,43 @@ const ChatBot = ({
     }
 
     // https://github.com/openai/openai-node/blob/HEAD/helpers.md#chat-events
-    const handleReadableStream = (stream: ChatCompletionStream) => {
-        let toolCalls: ToolCall[] = [];
+    // const handleReadableStream = (stream: ChatCompletionStream) => {
+    //     let toolCalls: ToolCall[] = [];
 
-        stream.on('message', (event) => {
-            const message = event as unknown as CustomChunk;
+    //     stream.on('message', (event) => {
+    //         const message = event as unknown as CustomChunk;
 
-            if (message.tool_calls.length > 0) {
-                toolCalls = message.tool_calls;
-            }
-        });
+    //         if (message.tool_calls.length > 0) {
+    //             toolCalls = message.tool_calls;
+    //         }
+    //     });
 
-        stream.on('chunk', (event) => {
-            const delta = event.choices[0].delta;
+    //     stream.on('chunk', (event) => {
+    //         const delta = event.choices[0].delta;
 
-            if (delta.role && delta.content == '') {
-                // This indicates the start of a new message
-                handleTextCreated();
-            }
+    //         if (delta.role && delta.content == '') {
+    //             // This indicates the start of a new message
+    //             handleTextCreated();
+    //         }
 
-            if (delta.content) {
-                // This is a part of the message content
-                handleTextDelta(delta.content);
-            }
-        });
+    //         if (delta.content) {
+    //             // This is a part of the message content
+    //             handleTextDelta(delta.content);
+    //         }
+    //     });
 
-        stream.on('end', () => {
-            if (toolCalls.length > 0) {
-                handleToolCalls(toolCalls);
-            }
-            handleRunCompleted();
-        });
+    //     stream.on('end', () => {
+    //         if (toolCalls.length > 0) {
+    //             handleToolCalls(toolCalls);
+    //         }
+    //         handleRunCompleted();
+    //     });
 
-        stream.on('error', (error) => {
-            // Handle any errors that occur during streaming
-            console.error('Stream error:', error);
-        });
-    };
+    //     stream.on('error', (error) => {
+    //         // Handle any errors that occur during streaming
+    //         console.error('Stream error:', error);
+    //     });
+    // };
 
     const handleToolCalls = async (toolCalls: ToolCall[]) => {
         const toolMessages: MessageAI[] = [];

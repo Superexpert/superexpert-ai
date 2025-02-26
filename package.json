@@ -11,6 +11,7 @@
         "nuke-db": "npx prisma db push --force-reset"
     },
     "dependencies": {
+        "@google/generative-ai": "^0.22.0",
         "@hookform/resolvers": "^3.10.0",
         "@prisma/client": "^6.4.1",
         "@typescript-eslint/parser": "^8.23.0",

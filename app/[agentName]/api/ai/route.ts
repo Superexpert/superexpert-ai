@@ -52,19 +52,29 @@ export async function POST(
     );
 
     // Create a new AI Model
-    const model = AIModelFactory.createModel("GPT-4o");
+    //const model = AIModelFactory.createModel("GPT-4o");
+    const model = AIModelFactory.createModel("Gemini");
+
     const response = model.generateResponse(currentMessages, tools);
 
     const readableStream = new ReadableStream({
         async start(controller) {
+            let fullMessage = ''; // Buffer to store the full message
             const encoder = new TextEncoder();
             for await (const chunk of response) {
                 console.log("chunk", chunk)
-                //controller.enqueue(new TextEncoder().encode(chunk));
-                //controller.enqueue(JSON.stringify(chunk));
                 controller.enqueue(encoder.encode(`event: message\ndata: ${JSON.stringify(chunk)}\n\n`));
+                fullMessage += chunk.text;
             }
             controller.close();
+            // Save the full message
+            await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
+                {
+                    role: 'assistant',
+                    content: fullMessage,
+                    tool_calls: [],
+                },
+            ]);
         },
     });
 
