@@ -18,6 +18,7 @@ model taskDefinitions {
   serverDataIds String[]
   serverToolIds String[]
   clientToolIds String[]
+  modelId       String
 
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")

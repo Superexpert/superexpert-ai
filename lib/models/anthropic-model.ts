@@ -5,6 +5,8 @@ import { Anthropic } from '@anthropic-ai/sdk';
 
 export class AnthropicAIModel implements AIModel {
 
+    constructor(public modelName: string) { }
+
     async *generateResponse(
         inputMessages: MessageAI[],
         tools: ToolAI[],
@@ -54,10 +56,9 @@ export class AnthropicAIModel implements AIModel {
         // })) : undefined;
 
         // Default to Claude 3.7 Sonnet unless specified in options
-        const modelName = 'claude-3-7-sonnet-20250219';
 
         const response = await client.messages.create({
-            model: modelName,
+            model: this.modelName,
             messages: anthropicMessages,
             system: combinedSystemMessage, // Pass combined system messages
             stream: true,

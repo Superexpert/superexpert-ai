@@ -5,13 +5,16 @@ import { ToolAI } from '@/lib/tool-ai';
 
 export class GoogleAIModel implements AIModel {
 
+    constructor(public modelName: string){}
+
+
     async *generateResponse(
         inputMessages: MessageAI[],
         tools: ToolAI[],
         options = {}
     ) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: this.modelName });
 
         const chat = model.startChat();
 

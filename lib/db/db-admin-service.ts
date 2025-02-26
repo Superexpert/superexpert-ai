@@ -31,6 +31,7 @@ export class DBAdminService {
                     serverDataIds: data.serverDataIds,
                     serverToolIds: data.serverToolIds,
                     clientToolIds: data.clientToolIds,
+                    modelId: data.modelId,
                 },
             });
 
@@ -45,6 +46,7 @@ export class DBAdminService {
                 description: data.description,
                 instructions: data.instructions,
                 serverToolIds: data.serverToolIds,
+                modelId: data.modelId,
             },
         });
 
@@ -105,15 +107,17 @@ export class DBAdminService {
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
+                modelId: 'gpt-4o',
             },
             {
                 name: 'global',
                 description:
-                    'Instructios, data, and tools applied to all tasks.',
+                    'Instructions, data, and tools applied to all tasks.',
                 instructions: '',
                 serverDataIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
+                modelId: 'gpt-4o',
             },
         ];
 

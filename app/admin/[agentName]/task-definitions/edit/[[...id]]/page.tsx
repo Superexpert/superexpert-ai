@@ -2,9 +2,7 @@ import TaskDefinitionForm from '@/app/ui/task-definition-form';
 import { Suspense } from 'react';
 import { getAgentAction } from '@/lib/server/server-actions';
 import {
-    getServerDataAction,
-    getServerToolsAction,
-    getClientToolsAction,
+    getTaskDefinitionFormDataAction,
     getTaskDefinitionByIdAction,
 } from '@/lib/server/admin-actions';
 import { TaskDefinition } from '@/lib/task-definition';
@@ -23,9 +21,11 @@ export default async function EditTaskDefinitionPage({
 
     const isEditMode = Boolean(id);
 
-    const serverData = await getServerDataAction();
-    const serverTools = await getServerToolsAction();
-    const clientTools = await getClientToolsAction();
+    // const serverData = await getServerDataAction();
+    // const serverTools = await getServerToolsAction();
+    // const clientTools = await getClientToolsAction();
+
+    const {serverData, serverTools, clientTools, models} = await getTaskDefinitionFormDataAction();
 
     let taskDefinition: TaskDefinition = {
         agentId: agent.id,
@@ -36,6 +36,7 @@ export default async function EditTaskDefinitionPage({
         serverDataIds: [],
         serverToolIds: [],
         clientToolIds: [],
+        modelId: 'gpt-4o',
     };
 
     if (isEditMode) {
@@ -56,6 +57,7 @@ export default async function EditTaskDefinitionPage({
                         serverData={serverData}
                         serverTools={serverTools}
                         clientTools={clientTools}
+                        models={models}
                         isEditMode={isEditMode}
                     />
                 </Suspense>

@@ -6,25 +6,37 @@ import { redirect } from 'next/navigation';
 import { getUserId } from '@/lib/user';
 import { Agent, agentSchema } from '@/lib/agent';
 import { collapseErrors } from '@/lib/validation';
+import { AIModelFactory } from '../models/ai-model-factory';
 
 //** TaskDefinitionForm **//
 
-export async function getServerDataAction() {
-    const builder = new ToolsBuilder();
-    const result = builder.getServerDataList();
-    return result;
-}
+// export async function getServerDataAction() {
+//     const builder = new ToolsBuilder();
+//     const result = builder.getServerDataList();
+//     return result;
+// }
 
-export async function getServerToolsAction() {
-    const builder = new ToolsBuilder();
-    const result = builder.getServerToolList();
-    return result;
-}
+// export async function getServerToolsAction() {
+//     const builder = new ToolsBuilder();
+//     const result = builder.getServerToolList();
+//     return result;
+// }
 
-export async function getClientToolsAction() {
+// export async function getClientToolsAction() {
+//     const builder = new ToolsBuilder();
+//     const result = builder.getClientToolList();
+//     return result;
+// }
+
+export async function getTaskDefinitionFormDataAction() {
     const builder = new ToolsBuilder();
-    const result = builder.getClientToolList();
-    return result;
+
+    const serverData = builder.getServerDataList();
+    const serverTools = builder.getServerToolList();
+    const clientTools = builder.getClientToolList();
+    const models = AIModelFactory.getAvailableModels();
+    
+    return { serverData, serverTools, clientTools, models };
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {

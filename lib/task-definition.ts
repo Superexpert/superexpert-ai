@@ -10,6 +10,7 @@ export interface TaskDefinition {
     serverDataIds: string[];
     serverToolIds: string[];
     clientToolIds: string[];
+    modelId: string;
 }
 
 export const taskDefinitionSchema = z.object({
@@ -29,5 +30,6 @@ export const taskDefinitionSchema = z.object({
     serverDataIds: z.array(z.string()),
     serverToolIds: z.array(z.string()),
     clientToolIds: z.array(z.string()),
+    modelId: z.string().nonempty('Model ID is required'),
     isSystem: z.boolean(),
 });

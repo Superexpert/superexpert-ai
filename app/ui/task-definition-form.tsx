@@ -17,6 +17,7 @@ interface TaskDefinitionFormProps {
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
+    models: { id: string; name:string, description: string }[];
     isEditMode: boolean;
 }
 
@@ -27,6 +28,7 @@ export default function TaskDefinitionForm({
     serverData,
     serverTools,
     clientTools,
+    models,
     isEditMode,
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
@@ -35,7 +37,6 @@ export default function TaskDefinitionForm({
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<TaskDefinition>({
         resolver: zodResolver(taskDefinitionSchema),
         defaultValues: taskDefinition,
@@ -154,6 +155,24 @@ export default function TaskDefinitionForm({
                         </label>
                     </div>
                 ))}
+
+                <h3>AI Model</h3>
+                {models.map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                        <input
+                            className="checkbox"
+                            type="radio"
+                            id={`model-${item.id}`}
+                            value={item.id}
+                            {...register('modelId')}
+                        />
+                        <label htmlFor={`model-${item.id}`}>
+                            {item.name}:
+                            {item.description}
+                        </label>
+                    </div>
+                ))}
+
 
                 <button className="btn btnPrimary" type="submit">
                     Save

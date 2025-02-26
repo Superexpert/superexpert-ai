@@ -3,7 +3,9 @@ import { OpenAI } from 'openai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 
-export class GPT4oModel implements AIModel {
+export class OpenAIModel implements AIModel {
+
+    constructor(public modelName: string) { }
 
     async *generateResponse(
         inputMessages: MessageAI[],
@@ -12,7 +14,7 @@ export class GPT4oModel implements AIModel {
     ) {
         const client = new OpenAI();
         const response = await client.chat.completions.create({
-            model: 'gpt-4o',
+            model: this.modelName,
             stream: true,
             messages: inputMessages,
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
