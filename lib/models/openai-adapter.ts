@@ -1,20 +1,27 @@
-import { AIModel } from '@/lib/models/ai-model';
+import { AIAdapter } from '@/lib/models/ai-adapter';
 import { OpenAI } from 'openai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 
-export class OpenAIModel implements AIModel {
+export class OpenAIAdapter implements AIAdapter {
 
-    constructor(public modelName: string) { }
+    constructor(public modelId: string) { }
 
     async *generateResponse(
+        instructions: string,
         inputMessages: MessageAI[],
         tools: ToolAI[],
         options = {}
     ) {
         const client = new OpenAI();
+
+        // add instructions to the inputMessages
+        if (instructions) {
+            inputMessages.unshift({ role: 'system', content: instructions });
+        }
+
         const response = await client.chat.completions.create({
-            model: this.modelName,
+            model: this.modelId,
             stream: true,
             messages: inputMessages,
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
@@ -25,9 +32,6 @@ export class OpenAIModel implements AIModel {
             if (text) {
                 yield { text };
             } 
-            // if (chunk.choices?.[0]?.delta?.content) {
-            //     yield chunk.choices[0].delta.content;
-            // }
         }
     }
 }

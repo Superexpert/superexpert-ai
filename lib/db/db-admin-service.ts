@@ -1,7 +1,6 @@
 import { TaskDefinition } from '../task-definition';
 import { Agent } from '../agent';
 import { prisma } from './prisma';
-import { DEFAULT_MODEL } from '@/superexpert.config';
 
 export class DBAdminService {
     constructor(protected userId: string) {}

@@ -43,7 +43,7 @@ export async function POST(
     user.timeZone = timeZone;
 
     const taskMachine = new TaskMachine();
-    const { currentMessages, tools, modelId } = await taskMachine.getAIPayload(
+    const { instructions, currentMessages, tools, modelId } = await taskMachine.getAIPayload(
         user,
         agent.id,
         task,
@@ -56,7 +56,7 @@ export async function POST(
     //const model = AIModelFactory.createModel("Gemini");
     const model = AIModelFactory.createModel(modelId);
 
-    const response = model.generateResponse(currentMessages, tools);
+    const response = model.generateResponse(instructions, currentMessages, tools);
 
     const readableStream = new ReadableStream({
         async start(controller) {

@@ -1,7 +1,7 @@
-import { AIModel } from '@/lib/models/ai-model';
-import { OpenAIModel } from '@/lib/models/openai-model';
-import { GoogleAIModel } from '@/lib/models/google-model';
-import { AnthropicAIModel } from '@/lib/models/anthropic-model';
+import { AIAdapter } from '@/lib/models/ai-adapter';
+import { OpenAIAdapter } from '@/lib/models/openai-adapter';
+import { GoogleAdapter } from '@/lib/models/google-adapter';
+import { AnthropicAdapter } from '@/lib/models/anthropic-adapter';
 
 export class AIModelFactory {
     // Define available models with human-readable names
@@ -86,7 +86,7 @@ export class AIModelFactory {
     }
 
     /** Create an AI model instance based on the selected name */
-    static createModel(modelId: string): AIModel {
+    static createModel(modelId: string): AIAdapter {
       const modelEntry = Object.values(this.modelMap).find((entry) => entry.model === modelId);
       if (!modelEntry) {
           throw new Error(`Unsupported AI model ID: ${modelId}`);
@@ -94,33 +94,15 @@ export class AIModelFactory {
 
       switch (modelEntry.provider) {
           case 'openai':
-              return new OpenAIModel(modelEntry.model);
+              return new OpenAIAdapter(modelEntry.model);
           case 'google':
-              return new GoogleAIModel(modelEntry.model);
+              return new GoogleAdapter(modelEntry.model);
           case 'anthropic':
-              return new AnthropicAIModel(modelEntry.model);
+              return new AnthropicAdapter(modelEntry.model);
           default:
               throw new Error(`Unknown provider: ${modelEntry.provider}`);
       }
   }
 }
 
-// import { AIModel } from '@/lib/models/ai-model';
-// import { GPT4oModel } from '@/lib/models/gpt4o';
-// import { GoogleAIModel } from './google-ai-model';
-// import { AnthropicAIModel } from './anthropic-ai-model';
 
-// export class AIModelFactory {
-//   static createModel(provider: string): AIModel {
-//     switch (provider.toLowerCase()) {
-//       case "gpt-4o":
-//         return new GPT4oModel();
-//       case "gemini":
-//         return new GoogleAIModel();
-//       case "anthropic":
-//         return new AnthropicAIModel();
-//       default:
-//         throw new Error("Unsupported AI model provider");
-//     }
-//   }
-// }

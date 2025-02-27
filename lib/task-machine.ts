@@ -21,6 +21,7 @@ export class TaskMachine {
         thread: string,
         messages: MessageAI[]
     ): Promise<{
+        instructions: string;
         currentMessages: MessageAI[];
         tools: ToolAI[];
         modelId: string;
@@ -60,8 +61,8 @@ export class TaskMachine {
                 ? globalTaskDefinition.modelId
                 : taskDefinition.modelId;
 
-        // Get system messages
-        const systemMessages = await this.getSystemMessages(
+        // Get instructions
+        const instructions = await this.getInstructions(
             user,
             taskDefinition,
             globalTaskDefinition
@@ -71,7 +72,8 @@ export class TaskMachine {
         const tools = await this.getTools(taskDefinition, globalTaskDefinition);
 
         return {
-            currentMessages: [...systemMessages, ...previousMessages],
+            instructions,
+            currentMessages: previousMessages,
             tools,
             modelId,
         };
@@ -116,35 +118,20 @@ export class TaskMachine {
         return result;
     }
 
-    private async getSystemMessages(
+    private async getInstructions(
         user: User,
         taskDefinition: TaskDefinition,
         globalTaskDefinition: TaskDefinition
-    ): Promise<MessageAI[]> {
-        // Get server data
+    ): Promise<string> {
         const serverData = await this.getServerData(
             user,
             taskDefinition,
             globalTaskDefinition
         );
 
-        const returnData: MessageAI[] = [];
-        if (globalTaskDefinition.instructions) {
-            returnData.push({
-                role: 'system',
-                content: globalTaskDefinition.instructions,
-            });
-        }
-        if (taskDefinition.instructions) {
-            returnData.push({
-                role: 'system',
-                content: taskDefinition.instructions,
-            });
-        }
-        if (serverData) {
-            returnData.push({ role: 'system', content: serverData });
-        }
-        return returnData;
+        return serverData 
+            + globalTaskDefinition.instructions
+            + taskDefinition.instructions;
     }
 
     private async getTaskDefinitions(agentId: string) {
