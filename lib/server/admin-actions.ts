@@ -10,24 +10,6 @@ import { AIModelFactory } from '../models/ai-model-factory';
 
 //** TaskDefinitionForm **//
 
-// export async function getServerDataAction() {
-//     const builder = new ToolsBuilder();
-//     const result = builder.getServerDataList();
-//     return result;
-// }
-
-// export async function getServerToolsAction() {
-//     const builder = new ToolsBuilder();
-//     const result = builder.getServerToolList();
-//     return result;
-// }
-
-// export async function getClientToolsAction() {
-//     const builder = new ToolsBuilder();
-//     const result = builder.getClientToolList();
-//     return result;
-// }
-
 export async function getTaskDefinitionFormDataAction() {
     const builder = new ToolsBuilder();
 
@@ -40,7 +22,6 @@ export async function getTaskDefinitionFormDataAction() {
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
-    console.log("taskDef", taskDefinition);
     const userId = await getUserId();
 
     // Validate using Zod

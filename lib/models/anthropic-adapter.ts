@@ -16,22 +16,22 @@ export class AnthropicAdapter implements AIAdapter {
             apiKey: process.env.ANTHROPIC_API_KEY || '',
         });
 
+        // See https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts
         // Prepend instructions to the inputMessages
-        // if (instructions) {
-        //     inputMessages.unshift({ role: 'user', content: instructions });
-        // }
+        if (instructions) {
+            inputMessages.unshift({ role: 'user', content: instructions });
+        }
 
 
         // Set up the request parameters
         const requestParams: any = {
             model: this.modelId,
             messages: inputMessages,
-            system: instructions,
+            // system: instructions,
             max_tokens: 4096,
             stream: true
         };
 
-        console.log("calling anthropic with:", requestParams);
 
         // Add tools if provided
         // if (tools.length > 0) {

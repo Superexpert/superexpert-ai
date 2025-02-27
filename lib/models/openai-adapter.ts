@@ -27,11 +27,40 @@ export class OpenAIAdapter implements AIAdapter {
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
         });
 
+        let toolCallId: string = '';
+        let functionName: string = '';
+        let functionArguments: string = '';
         for await (const chunk of response) {
-            const text = chunk.choices[0].delta.content;
-            if (text) {
-                yield { text };
-            } 
+            const delta = chunk.choices[0].delta;
+            if (delta.content) {
+                yield { text: delta.content };
+            } else if (delta.tool_calls) {
+                const toolCall = delta.tool_calls[0];
+                if (toolCall.function?.name) {
+                    // Start of function tool call
+                    toolCallId = toolCall.id!;
+                    functionName = toolCall.function.name;
+                    functionArguments = '';
+                }
+                if (toolCall.function?.arguments) {
+                    // Append arguments to function tool call
+                    functionArguments += toolCall.function.arguments;
+                }
+            } else if (chunk.choices[0].finish_reason === 'tool_calls') {
+                // End of function tool call
+                yield {
+                    toolCall: {
+                        id: toolCallId,
+                        type: 'function' as const,
+                        function: {
+                            name: functionName,
+                            arguments: functionArguments,
+                        }
+                    },
+                };
+
+            }
+            
         }
     }
 }

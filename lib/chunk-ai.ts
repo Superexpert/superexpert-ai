@@ -1,5 +1,13 @@
 
 
 export interface ChunkAI {
-    text: string;
+    text?: string;
+    toolCall?: {
+        id: string;
+        type: 'function';
+        function: {
+            name: string;
+            arguments: any;
+        }
+    }
 }

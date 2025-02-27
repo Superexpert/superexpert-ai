@@ -78,6 +78,7 @@ const ChatBot = ({
 
             handleTextCreated();
 
+            const toolCalls = [];
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let done = false;
@@ -89,7 +90,6 @@ const ChatBot = ({
                 if (!value) continue; 
         
                 const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
-                console.log("Raw chunk:", chunk); // Debugging: See raw data
         
                 // **Parse the chunk to extract JSON**
                 const events = chunk.split("\n"); // Split by newline to handle multiple messages
@@ -99,15 +99,26 @@ const ChatBot = ({
                         try {
                             const jsonPart = line.replace("data: ", "").trim(); // Remove "data: "
                             const parsed = JSON.parse(jsonPart); // Convert to JSON
+
+                            console.log("parsed", parsed);
+
                             
                             if (parsed.text) {
                                 handleTextDelta(parsed.text); // Process extracted text
+                            }
+
+                            if (parsed.toolCall) {
+                                toolCalls.push(parsed.toolCall); // Store tool calls
                             }
                         } catch (error) {
                             console.error("Failed to parse JSON from chunk:", error, line);
                         }
                     }
                 }
+            }
+
+            if (toolCalls.length > 0) {
+                handleToolCalls(toolCalls);
             }
  
         } catch (error) {
@@ -177,11 +188,11 @@ const ChatBot = ({
 
     /* Stream Event Handlers */
 
-    interface CustomChunk {
-        id: string;
-        content: string;
-        tool_calls: ToolCall[];
-    }
+    // interface CustomChunk {
+    //     id: string;
+    //     content: string;
+    //     tool_calls: ToolCall[];
+    // }
 
     // https://github.com/openai/openai-node/blob/HEAD/helpers.md#chat-events
     // const handleReadableStream = (stream: ChatCompletionStream) => {
@@ -225,25 +236,25 @@ const ChatBot = ({
     const handleToolCalls = async (toolCalls: ToolCall[]) => {
         const toolMessages: MessageAI[] = [];
         for (const toolCall of toolCalls) {
-            if (toolCall.function.name === 'celebrateSuccess') {
-                celebrateSuccess();
-                toolMessages.push({
-                    role: 'tool',
-                    content: 'Success message displayed.',
-                    tool_call_id: toolCall.id,
-                });
-            } else {
-                const result = await functionCallHandler(
-                    getNow(),
-                    getTimeZone(),
-                    toolCall
-                );
-                toolMessages.push({
-                    role: 'tool',
-                    content: result,
-                    tool_call_id: toolCall.id,
-                });
-            }
+            // if (toolCall.function.name === 'celebrateSuccess') {
+            //     celebrateSuccess();
+            //     toolMessages.push({
+            //         role: 'tool',
+            //         content: 'Success message displayed.',
+            //         tool_call_id: toolCall.id,
+            //     });
+            // } else {
+            const result = await functionCallHandler(
+                getNow(),
+                getTimeZone(),
+                toolCall
+            );
+            toolMessages.push({
+                role: 'tool',
+                content: result,
+                tool_call_id: toolCall.id,
+            });
+            // }
         }
         sendMessages(toolMessages);
     };
