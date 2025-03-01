@@ -5,8 +5,9 @@ import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
-import { getSessionItem, setSessionItem } from '@/lib/session-storage';
 import { START_MESSAGE } from '@/superexpert.config';
+import { executeServerTool } from '@/lib/server/server-actions';
+import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 
 const getNow = () => {
     return new Date();
@@ -16,42 +17,38 @@ const getTimeZone = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
-const getTask = () => {
-    const task = getSessionItem('task');
-    if (task) {
-        return task;
-    }
-    const newTask = 'home';
-    setSessionItem('task', newTask);
-    return newTask;
-};
+// const getTask = () => {
+//     const task = getSessionItem('task');
+//     if (task) {
+//         return task;
+//     }
+//     const newTask = 'home';
+//     setSessionItem('task', newTask);
+//     return newTask;
+// };
 
-const getThread = (): string => {
-    const thread = getSessionItem('thread');
-    if (thread) {
-        return thread;
-    }
-    const newThread = crypto.randomUUID();
-    setSessionItem('thread', newThread);
-    return newThread;
-};
+// const getThread = (): string => {
+//     const thread = getSessionItem('thread');
+//     if (thread) {
+//         return thread;
+//     }
+//     const newThread = crypto.randomUUID();
+//     setSessionItem('thread', newThread);
+//     return newThread;
+// };
 
 type ChatBotProps = {
     agentId: string;
     agentName: string;
-    functionCallHandler?: (
-        now: Date,
-        timeZone: string,
-        toolCall: ToolCall
-    ) => Promise<string>;
 };
 
 const ChatBot = ({
     agentId,
     agentName,
-    functionCallHandler = () => Promise.resolve(''),
 }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
+    const [threadId, setThreadId] = useState(crypto.randomUUID());
+    const [taskName, setTaskName] = useState('home');
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
     const [busyWaiting, setBusyWaiting] = useState(false);
@@ -68,8 +65,8 @@ const ChatBot = ({
                 body: JSON.stringify({
                     nowString: getNow().toISOString(),
                     timeZone: getTimeZone(),
-                    task: getTask(),
-                    thread: getThread(),
+                    task: taskName,
+                    thread: threadId,
                     messages,
                 }),
             });
@@ -272,11 +269,56 @@ const ChatBot = ({
         setBusyWaiting(false);
     };
 
+
+    /*
+    ===============================================
+    === Handle Server and Client Function Calls ===
+    ===============================================
+    */
+
+
+    const functionCallHandler = async (
+        now: Date,
+        timeZone: string,
+        toolCall: ToolCall
+    ) => {
+        const functionName = toolCall.function.name;
+        const functionArgs = JSON.parse(toolCall.function.arguments);
+
+        console.log('calling function', functionName);
+        console.log('function arguments', functionArgs);
+
+        // Execute client tool
+        const clientToolsBuilder = new ClientToolsBuilder();
+        const clientTool = clientToolsBuilder.getClientTool(functionName);
+        console.log('client tool found?', clientTool);
+        if (clientTool) {
+            const result = clientToolsBuilder.callClientTool(
+                clientTool.methodName,
+                functionArgs
+            );
+            console.log('client tool result', result);
+            return Promise.resolve(result);
+        }
+
+        // Execute server tool
+        const result = await executeServerTool(
+            now,
+            timeZone,
+            functionName,
+            functionArgs
+        );
+        console.log('client tool result', result);
+        return Promise.resolve(result);
+    };
+
+
+
     /*
     =======================
     === Utility Helpers ===
     =======================
-  */
+    */
 
     const appendToLastMessage = (text: string) => {
         setMessages((prevMessages) => {
