@@ -99,9 +99,6 @@ const ChatBot = ({
                         try {
                             const jsonPart = line.replace("data: ", "").trim(); // Remove "data: "
                             const parsed = JSON.parse(jsonPart); // Convert to JSON
-
-                            console.log("parsed", parsed);
-
                             
                             if (parsed.text) {
                                 handleTextDelta(parsed.text); // Process extracted text

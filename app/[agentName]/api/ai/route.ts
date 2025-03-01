@@ -42,6 +42,10 @@ export async function POST(
     user.now = new Date(nowString);
     user.timeZone = timeZone;
 
+    console.log("green 1 ***********");
+    console.dir(messages, { depth: null });
+
+
     const taskMachine = new TaskMachine();
     const { instructions, currentMessages, tools, modelId } = await taskMachine.getAIPayload(
         user,
@@ -50,6 +54,9 @@ export async function POST(
         thread,
         messages
     );
+
+    console.log("green 2 ***********");
+    console.dir(currentMessages, { depth: null });
 
     // Create a new AI Model
     const model = AIModelFactory.createModel(modelId);
@@ -62,7 +69,8 @@ export async function POST(
             let toolCalls = []; // Store tool call IDs
             const encoder = new TextEncoder();
             for await (const chunk of response) {
-                console.dir(chunk, { depth: null });
+                //console.log("chunk:");
+                //console.dir(chunk, { depth: null });
                 controller.enqueue(encoder.encode(`event: message\ndata: ${JSON.stringify(chunk)}\n\n`));
                 if (chunk.text) {
                     fullMessage += chunk.text;

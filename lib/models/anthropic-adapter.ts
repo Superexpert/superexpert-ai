@@ -16,17 +16,45 @@ export class AnthropicAdapter implements AIAdapter {
             apiKey: process.env.ANTHROPIC_API_KEY || '',
         });
 
+        // Anthropic uses 'user' role instead of 'tool' role
+        // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#example-api-response-with-a-tool-use-content-block
+        const anthropicInputMessages = inputMessages.map(message => {
+            if (message.role === 'tool') {
+                return {
+                    role: 'user',
+                    content: [{
+                        type: "tool_result",
+                        tool_use_id: message.tool_call_id,
+                        content: message.content,
+                    }]
+                };
+            }
+            // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#chain-of-thought
+            if (message.role == 'assistant' && message.tool_calls) {
+                return {
+                    role: 'assistant',
+                    content: [{
+                        type: "tool_use",
+                        id: message.tool_calls[0].id,
+                        name: message.tool_calls[0].function.name,
+                        input: JSON.parse(message.tool_calls[0].function.arguments),
+                    }]
+                };    
+            }
+            return message;
+        });
+
         // See https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts
         // Prepend instructions to the inputMessages
         if (instructions) {
-            inputMessages.unshift({ role: 'user', content: instructions });
+            anthropicInputMessages.unshift({ role: 'user', content: instructions });
         }
 
 
         // Set up the request parameters
         const requestParams: any = {
             model: this.modelId,
-            messages: inputMessages,
+            messages: anthropicInputMessages,
             // system: instructions,
             max_tokens: 4096,
             stream: true
@@ -34,34 +62,55 @@ export class AnthropicAdapter implements AIAdapter {
 
 
         // Add tools if provided
-        // if (tools.length > 0) {
-        //     requestParams.tools = tools.map(tool => ({
-        //         name: tool.name,
-        //         description: tool.description,
-        //         input_schema: tool.parameters,
-        //     }));
-        // }
+        if (tools.length > 0) {
+            requestParams.tools = tools.map(tool => ({
+                name: tool.function.name,
+                description: tool.function.description,
+                input_schema: tool.function.parameters,
+            }));
+        }
 
         try {
             // Create the streaming response - the stream itself is an AsyncIterable
-            const stream = await client.messages.stream(requestParams);
+            const response = await client.messages.stream(requestParams);
             
+            let toolCallId: string = '';
+            let functionName: string = '';
+            let functionArguments: string = '';
+      
+
             // Process stream directly
-            for await (const chunk of stream) {
+            for await (const chunk of response) {
+                // console.dir(chunk, { depth: null });
                 if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
                     yield { text: chunk.delta.text };
                 } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
-                    // yield { 
-                    //     text: "",
-                    //     toolUse: {
-                    //         name: chunk.content_block.name,
-                    //         input: JSON.parse(chunk.content_block.input)
-                    //     }
-                    // };
+                    // Start of function tool call
+                    toolCallId = chunk.content_block.id;
+                    functionName = chunk.content_block.name;
+                    functionArguments = '';
+                } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
+                    // Append arguments to function tool call
+                    functionArguments += chunk.delta.partial_json;
+                } else if (chunk.type === 'message_delta' && chunk.delta.stop_reason === 'tool_use') {
+                    // End of function tool call
+                    yield {
+                        toolCall: {
+                            id: toolCallId,
+                            type: 'function' as const,
+                            function: {
+                                name: functionName,
+                                arguments: functionArguments,
+                            }
+                        },
+                    };    
                 }
             }
         } catch (error) {
-            console.error("Error in Anthropic streaming:", error);
+            //console.error("Error in Anthropic streaming:", error);
+            console.log("green 3 ***********");
+            console.dir(anthropicInputMessages, { depth: null });
+            //console.dir(error, { depth: null });
             throw error;
         }
     }
