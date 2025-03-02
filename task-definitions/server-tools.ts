@@ -9,13 +9,19 @@ export class CustomServerTools extends ServerToolsBase {
     public async gw(
         @ToolParameter('location', 'This is the location')
         location: string,
-        @ToolParameter('favNumber', 'This is your favorite number')
-        favNumber: number,
-        @ToolParameter('favColor', 'Your favorite color')
-        favColor: 'red' | 'blue' | 'green'
+        @ToolParameter('unit', 'Return the temperature in Celsius or Fahrenheit')
+        unit: 'Celsius' | 'Fahrenheit' = 'Celsius',
     ) {
-        console.log('getWeather is awesome');
-        return `The weather in ${location} is god awful`;
+        if (location === 'San Francisco') {
+            return `The weather in ${location} in ${unit} is foggy.`;
+        }
+        if (location === 'Seattle') {
+            return `The weather in ${location} in ${unit} is rainy.`;
+        }
+        if (location === 'Austin') {
+            return `The weather in ${location} in ${unit} is hot.`;
+        }
+        return `The weather in ${location} is unimaginably awful`;
     }
 
     @Tool('saveMemory', 'This is a tool to save a memory')

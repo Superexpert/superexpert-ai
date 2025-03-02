@@ -9,7 +9,9 @@
     "lint": "next lint",
     "migrate": "npx prisma generate && npx prisma db push",
     "nuke-db": "npx prisma db push --force-reset",
-    "test": "jest"
+    "test": "jest",
+    "test-adapters": "jest __tests__/adapters --testPathIgnorePatterns=",
+    "test-current": "jest __tests__/adapters/function.test.ts --testPathIgnorePatterns="
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
@@ -23,7 +25,7 @@
     "fs": "^0.0.1-security",
     "next": "^15.1.7",
     "next-auth": "^5.0.0-beta.25",
-    "openai": "^4.83.0",
+    "openai": "^4.86.1",
     "path": "^0.12.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

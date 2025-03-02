@@ -23,6 +23,12 @@ export class GoogleAdapter implements AIAdapter {
             inputMessages.unshift({ role: 'system', content: instructions });
         }
 
+        // console.log("inputMessages");
+        // console.dir(inputMessages, { depth: null });
+
+        // console.log("tools");
+        // console.dir(tools, { depth: null });
+
         const response = await client.chat.completions.create({
             model: this.modelId,
             stream: true,

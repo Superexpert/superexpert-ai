@@ -5,7 +5,7 @@ import { AIModelFactory } from '@/lib/models/ai-model-factory';
 const models = AIModelFactory.getAvailableModels();
 const testCases = models.map(model => [model.id, model.name]);
 
-describe('OpenAI Adapter tests', () => {
+describe('Adapter tests', () => {
     test.each(testCases)(
         'should work with model: %s (%s)',
         async (modelId, modelName) => {

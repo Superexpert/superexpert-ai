@@ -72,11 +72,12 @@ export class AIModelFactory {
           model: 'gemini-2.0-flash-lite',
           description: 'Our cost effective offering to support high throughput'
         },
-        'Google: Gemini 2.0 Flash Thinking': {
-          provider: 'google',
-          model: 'gemini-2.0-flash-thinking-exp-01-21',
-          description: 'Provides stronger reasoning capabilities and includes the thinking process in responses'
-        },
+        // Does not support custom functions, I get 400 status code (no body) when passing non-empty tools array
+        // 'Google: Gemini 2.0 Flash Thinking': {
+        //   provider: 'google',
+        //   model: 'gemini-2.0-flash-thinking-exp-01-21',
+        //   description: 'Provides stronger reasoning capabilities and includes the thinking process in responses'
+        // },
     };
 
     /** Get a list of available models with their details */

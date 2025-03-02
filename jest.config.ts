@@ -14,6 +14,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/src/$1', // Adjust this if you use a different baseUrl
   },
   clearMocks: true,
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/adapters/'],
 };
 
 export default createJestConfig(config);
