@@ -9,6 +9,11 @@ export class AIModelFactory {
     // https://docs.anthropic.com/en/docs/about-claude/models/all-models#model-comparison-table
     // https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
     private static modelMap: Record<string, { provider: string; model: string, description: string }> = {
+        'OpenAI: GPT-4.5 Preview': {
+          provider: 'openai',
+          model: 'gpt-4.5-preview',
+          description: 'Largest GPT model, good for creative tasks and agentic planning',
+        },
         'OpenAI: GPT-4o': {
             provider: 'openai',
             model: 'gpt-4o',
@@ -19,16 +24,14 @@ export class AIModelFactory {
           model: 'gpt-4o-mini',
           description: 'Fastest responses, cost-effective, customizable',
         },
-        'OpenAI: o1': { 
-          provider: 'openai', 
-          model: 'o1', 
-          description: 'High intelligence reasoning model'
-        },
-        'OpenAI: o3 mini': { 
-          provider: 'openai', 
-          model: 'o3-mini',
-          description: 'Fast, flexible reasoning model' 
-        },
+
+        // Not yet available to all users
+        // 'OpenAI: o1': { 
+        //   provider: 'openai', 
+        //   model: 'o1', 
+        //   description: 'High intelligence reasoning model'
+        // },
+
         'Anthropic: Claude 3.7 Sonnet': {
           provider: 'anthropic',
           model: 'claude-3-7-sonnet-20250219',
