@@ -17,25 +17,6 @@ const getTimeZone = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
-// const getTask = () => {
-//     const task = getSessionItem('task');
-//     if (task) {
-//         return task;
-//     }
-//     const newTask = 'home';
-//     setSessionItem('task', newTask);
-//     return newTask;
-// };
-
-// const getThread = (): string => {
-//     const thread = getSessionItem('thread');
-//     if (thread) {
-//         return thread;
-//     }
-//     const newThread = crypto.randomUUID();
-//     setSessionItem('thread', newThread);
-//     return newThread;
-// };
 
 type ChatBotProps = {
     agentId: string;
@@ -180,52 +161,6 @@ const ChatBot = ({
         scrollToBottom();
     };
 
-    /* Stream Event Handlers */
-
-    // interface CustomChunk {
-    //     id: string;
-    //     content: string;
-    //     tool_calls: ToolCall[];
-    // }
-
-    // https://github.com/openai/openai-node/blob/HEAD/helpers.md#chat-events
-    // const handleReadableStream = (stream: ChatCompletionStream) => {
-    //     let toolCalls: ToolCall[] = [];
-
-    //     stream.on('message', (event) => {
-    //         const message = event as unknown as CustomChunk;
-
-    //         if (message.tool_calls.length > 0) {
-    //             toolCalls = message.tool_calls;
-    //         }
-    //     });
-
-    //     stream.on('chunk', (event) => {
-    //         const delta = event.choices[0].delta;
-
-    //         if (delta.role && delta.content == '') {
-    //             // This indicates the start of a new message
-    //             handleTextCreated();
-    //         }
-
-    //         if (delta.content) {
-    //             // This is a part of the message content
-    //             handleTextDelta(delta.content);
-    //         }
-    //     });
-
-    //     stream.on('end', () => {
-    //         if (toolCalls.length > 0) {
-    //             handleToolCalls(toolCalls);
-    //         }
-    //         handleRunCompleted();
-    //     });
-
-    //     stream.on('error', (error) => {
-    //         // Handle any errors that occur during streaming
-    //         console.error('Stream error:', error);
-    //     });
-    // };
 
     const handleToolCalls = async (toolCalls: ToolCall[]) => {
         const toolMessages: MessageAI[] = [];
@@ -286,22 +221,10 @@ const ChatBot = ({
         const functionName = toolCall.function.name;
         const functionArgs = JSON.parse(toolCall.function.arguments);
 
-        console.log('kermit 0');
-        console.log(typeof toolCall.function.arguments);
-        console.log(toolCall.function.arguments);
-
-
-        console.log('calling function', functionName);
-        console.log('function arguments', functionArgs);
-
-        console.log('kermit 1');
-        console.dir(functionArgs, { depth: null });
-
 
         // Execute client tool
         const clientToolsBuilder = new ClientToolsBuilder();
         const clientTool = clientToolsBuilder.getClientTool(functionName);
-        console.log('client tool found?', clientTool);
         if (clientTool) {
             const result = clientToolsBuilder.callClientTool(
                 clientTool.methodName,
@@ -311,8 +234,6 @@ const ChatBot = ({
             return Promise.resolve(result);
         }
 
-        console.log('kermit 2');
-        console.dir(functionArgs, { depth: null });
 
 
 
@@ -323,7 +244,7 @@ const ChatBot = ({
             functionName,
             functionArgs
         );
-        console.log('client tool result', result);
+        console.log('server tool result', result);
         return Promise.resolve(result);
     };
 

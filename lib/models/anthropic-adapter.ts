@@ -81,7 +81,6 @@ export class AnthropicAdapter implements AIAdapter {
 
             // Process stream directly
             for await (const chunk of response) {
-                // console.dir(chunk, { depth: null });
                 if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
                     yield { text: chunk.delta.text };
                 } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
