@@ -42,9 +42,6 @@ export async function POST(
     user.now = new Date(nowString);
     user.timeZone = timeZone;
 
-    console.log("green 1 ***********");
-    console.dir(messages, { depth: null });
-
 
     const taskMachine = new TaskMachine();
     const { instructions, currentMessages, tools, modelId } = await taskMachine.getAIPayload(
@@ -55,8 +52,6 @@ export async function POST(
         messages
     );
 
-    console.log("green 2 ***********");
-    console.dir(currentMessages, { depth: null });
 
     // Create a new AI Model
     const model = AIModelFactory.createModel(modelId);

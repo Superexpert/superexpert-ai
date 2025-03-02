@@ -107,10 +107,7 @@ export class AnthropicAdapter implements AIAdapter {
                 }
             }
         } catch (error) {
-            //console.error("Error in Anthropic streaming:", error);
-            console.log("green 3 ***********");
-            console.dir(anthropicInputMessages, { depth: null });
-            //console.dir(error, { depth: null });
+            console.error("Error in Anthropic streaming:", error);
             throw error;
         }
     }

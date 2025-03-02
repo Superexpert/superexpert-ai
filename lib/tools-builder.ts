@@ -177,43 +177,101 @@ export class ToolsBuilder {
         }
     }
 
+    // public async callServerTool(
+    //     user: User,
+    //     toolName: string,
+    //     toolParams: Record<string, any>
+    // ) {
+    //     const serverTools = plugins.ServerTools;
+
+    //     for (const ToolClass of serverTools) {
+    //         const toolInstance = new ToolClass(user, prisma);
+
+    //         // Iterate through the methods of the class
+    //         const methodNames = Object.getOwnPropertyNames(
+    //             ToolClass.prototype
+    //         ).filter((method) => method !== 'constructor');
+
+    //         for (const methodName of methodNames) {
+    //             const metadata = Reflect.getMetadata(
+    //                 'tool',
+    //                 ToolClass.prototype,
+    //                 methodName
+    //             );
+
+    //             if (metadata && metadata.name === toolName) {
+    //                 // Get method reference
+    //                 const method = (toolInstance as any)[methodName];
+
+    //                 if (typeof method === 'function') {
+    //                     // Call the tool method with arguments
+    //                     const args = Object.values(toolParams);
+    //                     return await method.apply(toolInstance, args);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     throw new Error(`Tool '${toolName}' not found.`);
+    // }
+
     public async callServerTool(
         user: User,
         toolName: string,
         toolParams: Record<string, any>
     ) {
         const serverTools = plugins.ServerTools;
-
+    
         for (const ToolClass of serverTools) {
             const toolInstance = new ToolClass(user, prisma);
-
+    
             // Iterate through the methods of the class
-            const methodNames = Object.getOwnPropertyNames(
-                ToolClass.prototype
-            ).filter((method) => method !== 'constructor');
-
+            const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
+                .filter((method) => method !== 'constructor');
+    
             for (const methodName of methodNames) {
                 const metadata = Reflect.getMetadata(
                     'tool',
                     ToolClass.prototype,
                     methodName
                 );
-
+    
                 if (metadata && metadata.name === toolName) {
+                    // Retrieve the parameter metadata
+                    const parameterMetadata = Reflect.getMetadata(
+                        'tool-parameters',
+                        ToolClass.prototype,
+                        methodName
+                    ) || [];
+    
+                    if (!parameterMetadata.length) {
+                        throw new Error(`No parameter metadata found for tool '${toolName}'.`);
+                    }
+    
+                    // Create a mapping of expected parameter names to their index in function signature
+                    const expectedParams = parameterMetadata.map((param: any) => param.name);
+    
+                    // Rearrange toolParams according to the expected parameter order
+                    const args = expectedParams.map((paramName:string) => {
+                        if (!(paramName in toolParams)) {
+                            throw new Error(`Missing parameter '${paramName}' for tool '${toolName}'.`);
+                        }
+                        return toolParams[paramName];
+                    });
+    
                     // Get method reference
                     const method = (toolInstance as any)[methodName];
-
+    
                     if (typeof method === 'function') {
-                        // Call the tool method with arguments
-                        const args = Object.values(toolParams);
                         return await method.apply(toolInstance, args);
                     }
                 }
             }
         }
-
+    
         throw new Error(`Tool '${toolName}' not found.`);
     }
+
 
     public async callServerData(user: User, toolName: string) {
         const serverData = plugins.ServerData;

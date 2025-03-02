@@ -238,6 +238,7 @@ const ChatBot = ({
             //         tool_call_id: toolCall.id,
             //     });
             // } else {
+
             const result = await functionCallHandler(
                 getNow(),
                 getTimeZone(),
@@ -285,8 +286,17 @@ const ChatBot = ({
         const functionName = toolCall.function.name;
         const functionArgs = JSON.parse(toolCall.function.arguments);
 
+        console.log('kermit 0');
+        console.log(typeof toolCall.function.arguments);
+        console.log(toolCall.function.arguments);
+
+
         console.log('calling function', functionName);
         console.log('function arguments', functionArgs);
+
+        console.log('kermit 1');
+        console.dir(functionArgs, { depth: null });
+
 
         // Execute client tool
         const clientToolsBuilder = new ClientToolsBuilder();
@@ -300,6 +310,11 @@ const ChatBot = ({
             console.log('client tool result', result);
             return Promise.resolve(result);
         }
+
+        console.log('kermit 2');
+        console.dir(functionArgs, { depth: null });
+
+
 
         // Execute server tool
         const result = await executeServerTool(

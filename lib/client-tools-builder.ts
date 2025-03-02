@@ -31,40 +31,98 @@ export class ClientToolsBuilder {
         return null;
     }
 
+    // public async callClientTool(
+    //     toolName: string,
+    //     toolParams: Record<string, any>
+    // ) {
+    //     const clientTools = plugins.ClientTools;
+
+    //     for (const ToolClass of clientTools) {
+    //         const toolInstance = new ToolClass();
+
+    //         // Iterate through the methods of the class
+    //         const methodNames = Object.getOwnPropertyNames(
+    //             ToolClass.prototype
+    //         ).filter((method) => method !== 'constructor');
+
+    //         for (const methodName of methodNames) {
+    //             const metadata = Reflect.getMetadata(
+    //                 'tool',
+    //                 ToolClass.prototype,
+    //                 methodName
+    //             );
+
+    //             if (metadata && metadata.name === toolName) {
+    //                 // Get method reference
+    //                 const method = (toolInstance as any)[methodName];
+
+    //                 if (typeof method === 'function') {
+    //                     // Call the tool method with arguments
+    //                     const args = Object.values(toolParams);
+    //                     return await method.apply(toolInstance, args);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     throw new Error(`Tool '${toolName}' not found.`);
+    // }
+
     public async callClientTool(
         toolName: string,
         toolParams: Record<string, any>
     ) {
         const clientTools = plugins.ClientTools;
-
+    
         for (const ToolClass of clientTools) {
             const toolInstance = new ToolClass();
-
+    
             // Iterate through the methods of the class
-            const methodNames = Object.getOwnPropertyNames(
-                ToolClass.prototype
-            ).filter((method) => method !== 'constructor');
-
+            const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
+                .filter((method) => method !== 'constructor');
+    
             for (const methodName of methodNames) {
                 const metadata = Reflect.getMetadata(
                     'tool',
                     ToolClass.prototype,
                     methodName
                 );
-
+    
                 if (metadata && metadata.name === toolName) {
+                    // Retrieve the parameter metadata
+                    const parameterMetadata = Reflect.getMetadata(
+                        'tool-parameters',
+                        ToolClass.prototype,
+                        methodName
+                    ) || [];
+    
+                    if (!parameterMetadata.length) {
+                        throw new Error(`No parameter metadata found for tool '${toolName}'.`);
+                    }
+    
+                    // Create a mapping of expected parameter names to their index in function signature
+                    const expectedParams = parameterMetadata.map((param: any) => param.name);
+    
+                    // Rearrange toolParams according to the expected parameter order
+                    const args = expectedParams.map((paramName:string) => {
+                        if (!(paramName in toolParams)) {
+                            throw new Error(`Missing parameter '${paramName}' for tool '${toolName}'.`);
+                        }
+                        return toolParams[paramName];
+                    });
+    
                     // Get method reference
                     const method = (toolInstance as any)[methodName];
-
+    
                     if (typeof method === 'function') {
-                        // Call the tool method with arguments
-                        const args = Object.values(toolParams);
                         return await method.apply(toolInstance, args);
                     }
                 }
             }
         }
-
+    
         throw new Error(`Tool '${toolName}' not found.`);
     }
+
+
 }
