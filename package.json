@@ -11,7 +11,7 @@
     "nuke-db": "npx prisma db push --force-reset",
     "test": "jest",
     "test-all": "jest --testPathIgnorePatterns=",
-    "test-current": "jest __tests__/adapters/multiple-function.test.ts --testPathIgnorePatterns="
+    "test-current": "jest __tests__/adapters/function.test.ts --testPathIgnorePatterns="
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
