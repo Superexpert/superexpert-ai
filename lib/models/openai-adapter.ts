@@ -27,9 +27,7 @@ export class OpenAIAdapter implements AIAdapter {
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
         });
 
-        let toolCallId: string = '';
-        let functionName: string = '';
-        let functionArguments: string = '';
+        const functionAccumulator = [];
         for await (const chunk of response) {
             const delta = chunk.choices[0].delta;
             if (delta.content) {
@@ -37,28 +35,18 @@ export class OpenAIAdapter implements AIAdapter {
             } else if (delta.tool_calls) {
                 const toolCall = delta.tool_calls[0];
                 if (toolCall.function?.name) {
-                    // Start of function tool call
-                    toolCallId = toolCall.id!;
-                    functionName = toolCall.function.name;
-                    functionArguments = '';
+                    functionAccumulator.push(toolCall);
                 }
                 if (toolCall.function?.arguments) {
                     // Append arguments to function tool call
-                    functionArguments += toolCall.function.arguments;
+                    functionAccumulator[functionAccumulator.length - 1].function.arguments 
+                        += toolCall.function.arguments;
                 }
             } else if (chunk.choices[0].finish_reason === 'tool_calls') {
-                // End of function tool call
-                yield {
-                    toolCall: {
-                        id: toolCallId,
-                        type: 'function' as const,
-                        function: {
-                            name: functionName,
-                            arguments: functionArguments,
-                        }
-                    },
-                };
-
+                // End of function tool calls
+                for (const toolCall of functionAccumulator) {
+                    yield {toolCall};
+                }
             }
             
         }

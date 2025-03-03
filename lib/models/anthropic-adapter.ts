@@ -57,7 +57,9 @@ export class AnthropicAdapter implements AIAdapter {
             messages: anthropicInputMessages,
             // system: instructions,
             max_tokens: 4096,
-            stream: true
+            stream: true,
+            //tool_choice: { type: 'auto', disable_parallel_tool_use: false },
+            //thinking: { budget_tokens: 1024, type: 'enabled' },
         };
 
 
@@ -72,12 +74,8 @@ export class AnthropicAdapter implements AIAdapter {
 
         try {
             // Create the streaming response - the stream itself is an AsyncIterable
-            const response = await client.messages.stream(requestParams);
-            
-            let toolCallId: string = '';
-            let functionName: string = '';
-            let functionArguments: string = '';
-      
+            const response = await client.messages.stream(requestParams);            
+            const functionAccumulator = [];
 
             // Process stream directly
             for await (const chunk of response) {
@@ -85,24 +83,24 @@ export class AnthropicAdapter implements AIAdapter {
                     yield { text: chunk.delta.text };
                 } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
                     // Start of function tool call
-                    toolCallId = chunk.content_block.id;
-                    functionName = chunk.content_block.name;
-                    functionArguments = '';
+                    functionAccumulator.push({
+                        //toolCall: {
+                            id: chunk.content_block.id,
+                            type: 'function',
+                            function: {
+                                name: chunk.content_block.name,
+                                arguments: '',
+                            }
+                        //}
+                    });
                 } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
                     // Append arguments to function tool call
-                    functionArguments += chunk.delta.partial_json;
+                    functionAccumulator[functionAccumulator.length - 1].function.arguments 
+                        += chunk.delta.partial_json;
                 } else if (chunk.type === 'message_delta' && chunk.delta.stop_reason === 'tool_use') {
-                    // End of function tool call
-                    yield {
-                        toolCall: {
-                            id: toolCallId,
-                            type: 'function' as const,
-                            function: {
-                                name: functionName,
-                                arguments: functionArguments,
-                            }
-                        },
-                    };    
+                    for (const toolCall of functionAccumulator) {
+                        yield {toolCall};
+                    }
                 }
             }
         } catch (error) {

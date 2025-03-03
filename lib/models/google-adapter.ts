@@ -23,12 +23,6 @@ export class GoogleAdapter implements AIAdapter {
             inputMessages.unshift({ role: 'system', content: instructions });
         }
 
-        // console.log("inputMessages");
-        // console.dir(inputMessages, { depth: null });
-
-        // console.log("tools");
-        // console.dir(tools, { depth: null });
-
         const response = await client.chat.completions.create({
             model: this.modelId,
             stream: true,
@@ -36,9 +30,11 @@ export class GoogleAdapter implements AIAdapter {
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
         });
 
-        let toolCallId: string = '';
-        let functionName: string = '';
-        let functionArguments: string | undefined = '';
+        // let toolCallId: string = '';
+        // let functionName: string = '';
+        // let functionArguments: string | undefined = '';
+        //const functionAccumulator = [];
+
         for await (const chunk of response) {
             const delta = chunk.choices[0].delta;
             if (delta.content) {
@@ -47,9 +43,9 @@ export class GoogleAdapter implements AIAdapter {
                 const toolCall = delta.tool_calls[0];
 
                 // function tool call (Google does not stream tool calls)
-                toolCallId = 'gemini-tool-' + Math.random().toString(36).substring(2, 15);
-                functionName = toolCall.function!.name!;
-                functionArguments = toolCall.function!.arguments;
+                const toolCallId = 'gemini-tool-' + Math.random().toString(36).substring(2, 15);
+                const functionName = toolCall.function!.name!;
+                const functionArguments = toolCall.function!.arguments;
 
                 yield {
                     toolCall: {

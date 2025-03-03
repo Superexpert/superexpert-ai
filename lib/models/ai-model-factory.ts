@@ -86,6 +86,7 @@ export class AIModelFactory {
           name: key, // Human-readable model name (e.g., "OpenAI: GPT-4o")
           id: value.model, // Model identifier (e.g., "gpt-4o")
           description: value.description, // Model description
+          provider: value.provider, // Model provider (e.g., "openai")
       }));
     }
 
