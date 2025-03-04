@@ -72,7 +72,7 @@ export class AIModelFactory {
           model: 'gemini-2.0-flash-lite',
           description: 'Our cost effective offering to support high throughput'
         },
-        // Does not support custom functions, I get 400 status code (no body) when passing non-empty tools array
+        // Does not support custom functions, "Function calling is not enabled for models"
         // 'Google: Gemini 2.0 Flash Thinking': {
         //   provider: 'google',
         //   model: 'gemini-2.0-flash-thinking-exp-01-21',

@@ -3,22 +3,12 @@ import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import Anthropic from '@anthropic-ai/sdk';
 
-export class AnthropicAdapter implements AIAdapter {
-    constructor(public modelId: string) {}
+export class AnthropicAdapter extends AIAdapter {
 
-    async *generateResponse(
-        instructions: string,
-        inputMessages: MessageAI[],
-        tools: ToolAI[],
-        options = {}
-    ) {
-        const client = new Anthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY || '',
-        });
-
-        // Anthropic uses 'user' role instead of 'tool' role
-        // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#example-api-response-with-a-tool-use-content-block
-        const anthropicInputMessages = inputMessages.map(message => {
+    // Anthropic uses 'user' role instead of 'tool' role
+    // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#example-api-response-with-a-tool-use-content-block
+    private mapMessages(inputMessages: MessageAI[]) {
+        return inputMessages.map(message => {
             if (message.role === 'tool') {
                 return {
                     role: 'user',
@@ -43,6 +33,20 @@ export class AnthropicAdapter implements AIAdapter {
             }
             return message;
         });
+    }
+
+    async *generateResponse(
+        instructions: string,
+        inputMessages: MessageAI[],
+        tools: ToolAI[],
+        options = {}
+    ) {
+        const client = new Anthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY || '',
+        });
+
+        const anthropicInputMessages = this.mapMessages(inputMessages);
+
 
         // See https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts
         // Prepend instructions to the inputMessages
@@ -72,38 +76,44 @@ export class AnthropicAdapter implements AIAdapter {
             }));
         }
 
-        try {
-            // Create the streaming response - the stream itself is an AsyncIterable
-            const response = await client.messages.stream(requestParams);            
-            const functionAccumulator = [];
+        // Call OpenAI and process the chunks with retry logic
+        yield* this.retryWithBackoff(async () => {
+            const response = client.messages.stream(requestParams);            
+            return this.processChunks(response);
+        });
+    }
 
-            // Process stream directly
-            for await (const chunk of response) {
-                if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-                    yield { text: chunk.delta.text };
-                } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
-                    // Start of function tool call
-                    functionAccumulator.push({
-                            id: chunk.content_block.id,
-                            type: 'function' as const,
-                            function: {
-                                name: chunk.content_block.name,
-                                arguments: '',
-                            }
-                    });
-                } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
-                    // Append arguments to function tool call
-                    functionAccumulator[functionAccumulator.length - 1].function.arguments 
-                        += chunk.delta.partial_json;
-                } else if (chunk.type === 'message_delta' && chunk.delta.stop_reason === 'tool_use') {
-                    for (const toolCall of functionAccumulator) {
-                        yield {toolCall};
-                    }
+
+    private async *processChunks(
+        response: AsyncIterable<Anthropic.MessageStreamEvent>
+    ) {
+        const functionAccumulator = [];
+
+        // Process stream directly
+        for await (const chunk of response) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+                yield { text: chunk.delta.text };
+            } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+                // Start of function tool call
+                functionAccumulator.push({
+                        id: chunk.content_block.id,
+                        type: 'function' as const,
+                        function: {
+                            name: chunk.content_block.name,
+                            arguments: '',
+                        }
+                });
+            } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
+                // Append arguments to function tool call
+                functionAccumulator[functionAccumulator.length - 1].function.arguments 
+                    += chunk.delta.partial_json;
+            } else if (chunk.type === 'message_delta' && chunk.delta.stop_reason === 'tool_use') {
+                for (const toolCall of functionAccumulator) {
+                    yield {toolCall};
                 }
             }
-        } catch (error) {
-            console.error("Error in Anthropic streaming:", error);
-            throw error;
         }
     }
+
+
 }
