@@ -1,7 +1,7 @@
 import { MessageAI } from '../message-ai';
-import { getAgentByIdAction } from '../server/admin-actions';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
+import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert.config';
 
 export class DBService {
     public async saveMessages(
@@ -34,11 +34,30 @@ export class DBService {
         return newMessages;
     }
 
+    public async deleteOldMessages() {
+        const messageRetentionHours = Number(MESSAGE_RETENTION_HOURS);
+        const messages = await prisma.messages.deleteMany({
+            where: {
+                createdAt: {
+                    lt: new Date(new Date().getTime() - 1000 * 60 * 60 * messageRetentionHours),
+                },
+            },
+        });
+    }
+
+
     public async getMessages(
         userId: string,
         thread: string,
-        take: number
     ): Promise<MessageAI[]> {
+
+        // Initiate deletion of old messages asynchronously
+        // Notice that we DO NOT await this operation because we don't want to block the response
+        this.deleteOldMessages().catch(error => {
+            console.error('Error deleting old messages:', error);
+        });
+
+
         const messages =
             (await prisma.messages.findMany({
                 where: {
@@ -48,7 +67,7 @@ export class DBService {
                 orderBy: {
                     id: 'desc',
                 },
-                //take: take,
+                take: Number(MAX_MESSAGES),
             })) || [];
 
         const processedMessages = messages.reverse().map(
@@ -63,15 +82,16 @@ export class DBService {
                 }) as MessageAI
         );
 
-        // Remove all leading 'tool' messages
-        const firstNonToolIndex = processedMessages.findIndex(
-            (m) => m.role !== 'tool'
-        );
-        const resultMessages =
-            firstNonToolIndex === -1
-                ? []
-                : processedMessages.slice(firstNonToolIndex);
-        return resultMessages;
+        // Trim messages from the start until the first message has a role of 'user'
+        // This is required for Gemini (uses even/odd messages for assistant/user)
+        // And to ensure that a function call does not get cut off in the middle.
+        while (processedMessages.length > 0 && processedMessages[0].role !== 'user') {
+            processedMessages.shift();
+        }
+
+        console.log("**** Messages ***");
+        console.dir(processedMessages, { depth: null });
+        return processedMessages;
     }
 
     public async getTaskDefinitions(agentId: string) {

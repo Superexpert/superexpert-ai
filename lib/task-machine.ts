@@ -6,7 +6,6 @@ import { ToolsBuilder } from './tools-builder';
 import { User } from '@/lib/user';
 
 export class TaskMachine {
-    private readonly MAX_MESSAGES = 30;
 
     private db: DBService;
 
@@ -153,7 +152,6 @@ export class TaskMachine {
         const result = await this.db.getMessages(
             userId,
             thread,
-            this.MAX_MESSAGES
         );
         return result;
     }

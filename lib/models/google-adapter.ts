@@ -10,6 +10,7 @@ import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolCall } from '@/lib/tool-call';
 import { ChunkAI } from '../chunk-ai';
+import { START_MESSAGE } from '@/superexpert.config';
 
 export class GoogleAdapter extends AIAdapter {
 
@@ -150,9 +151,9 @@ export class GoogleAdapter extends AIAdapter {
         const history = this.mapMessages(inputMessages);
 
         // Get the last message (which is either the user or tool message)
-        const lastMessage = history.pop();
+        let lastMessage = history.pop();
         if (!lastMessage) {
-            throw new Error('No last message found');
+            lastMessage = { role: 'user', parts: [{ text: START_MESSAGE }] };
         }
 
         // Call Gemini and process the chunks with retry logic
