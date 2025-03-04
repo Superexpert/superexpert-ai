@@ -14,28 +14,33 @@ export abstract class AIAdapter {
         options?: object
     ): AsyncGenerator<ChunkAI>;
 
-    protected async retryOperation<T>(
-        operation: () => Promise<T>,
-        maxRetries: number = 3,
-        delay: number = 1000,
-        backoffFactor: number = 2
-    ): Promise<T> {
-        let attempt = 0;
-        let currentDelay = delay;
-    
-        while (attempt < maxRetries) {
+
+
+    protected async *retryWithBackoff<T>(
+        operation: () => Promise<AsyncGenerator<T, any, any>>,
+        maxRetries: number = 3
+    ): AsyncGenerator<T> {
+        let retries = 0;
+        
+        while (retries <= maxRetries) {
             try {
-                return await operation();
+                console.log(`Attempt ${retries + 1}/${maxRetries + 1}`);
+                
+                // Call the operation and yield its results
+                yield* await operation();
+                return;
             } catch (error) {
-                attempt++;
-                if (attempt >= maxRetries) {
+                console.error(`Error on attempt ${retries + 1}:`, error);
+
+                if (++retries > maxRetries) {
+                    console.error("Maximum retries reached.");
                     throw error;
                 }
-                console.warn(`Attempt ${attempt} failed. Retrying in ${currentDelay}ms...`);
-                await new Promise(res => setTimeout(res, currentDelay));
-                currentDelay *= backoffFactor; // Exponential backoff
+
+                console.log(`Retrying in ${retries * 1000}ms...`);
+                await new Promise((resolve) => setTimeout(resolve, retries * 1000)); // Exponential backoff
             }
         }
-        throw new Error('Operation failed after maximum retries');
     }
+
 }

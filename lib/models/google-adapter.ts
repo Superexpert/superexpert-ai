@@ -12,6 +12,9 @@ import { ToolCall } from '@/lib/tool-call';
 import { ChunkAI } from '../chunk-ai';
 
 export class GoogleAdapter extends AIAdapter {
+
+    // Gemini wants function responses to be collapsed into a single function response
+    // (Unlike OpenAI which returns each function response separately)
     private collapseFunctionResponses(messages: Content[]): Content[] {
         const collapsedMessages: Content[] = [];
         let functionResponses: Part[] = [];
@@ -73,32 +76,8 @@ export class GoogleAdapter extends AIAdapter {
         return collapsedMessages;
     }
 
-    async *generateResponse(
-        instructions: string,
-        inputMessages: MessageAI[],
-        tools: ToolAI[],
-        options = {}
-    ) {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
-        // Map tools to functionDeclarations
-        const functionDeclarations: FunctionDeclaration[] = tools.map(
-            (tool) => ({
-                name: tool.function.name,
-                description: tool.function.description,
-                parameters: tool.function.parameters as any, // Cast to any to bypass type incompatibility
-            })
-        );
-
-        const model = genAI.getGenerativeModel({
-            model: this.modelId,
-            tools: [
-                {
-                    functionDeclarations: functionDeclarations,
-                },
-            ],
-        });
-
+    // Gemini uses 'model' for 'assistant' and 'function' for 'tool'
+    private mapMessages(inputMessages: MessageAI[]) {
         // Map messages to Content objects
         let history: Content[] = inputMessages.map((message) => {
             switch (message.role) {
@@ -132,51 +111,43 @@ export class GoogleAdapter extends AIAdapter {
                     return { role: message.role, parts: [{ text: message.content || '???' }] };
             }
         });
-        // let history: Content[] = inputMessages.map((message) => {
-        //     if (message.role === 'assistant') {
-        //         if (message.tool_calls) {
-        //             const functionCalls: Part[] = [];
-        //             for (const toolCall of message.tool_calls) {
-        //                 const functionCall: Part = {
-        //                     functionCall: {
-        //                         name: toolCall.id,
-        //                         args: JSON.parse(toolCall.function.arguments),
-        //                     },
-        //                 };
-        //                 functionCalls.push(functionCall);
-        //             }
-        //             return {
-        //                 role: 'model',
-        //                 parts: functionCalls,
-        //             };
-        //         }
-        //         return {
-        //             role: 'model',
-        //             parts: [{ text: message.content }],
-        //         };
-        //     }
-        //     if (message.role === 'tool') {
-        //         // Corrected: functionResponse is a direct Part property
-        //         const functionPart: Part = {
-        //             functionResponse: {
-        //                 name: message.tool_call_id,
-        //                 response: { result: message.content },
-        //             },
-        //         };
-        //         return {
-        //             role: 'function',
-        //             parts: [functionPart],
-        //         };
-        //     }
-
-        //     // Otherwise, it's a user message
-        //     return {
-        //         role: message.role,
-        //         parts: [{ text: message.content || '???' }],
-        //     };
-        // });
 
         history = this.collapseFunctionResponses(history);
+        return history;
+    }
+
+    async *generateResponse(
+        instructions: string,
+        inputMessages: MessageAI[],
+        tools: ToolAI[],
+        options = {}
+    ) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error("Gemini API key not found. Please set the GEMINI_API_KEY environment variable.");
+        }
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        // Map tools to functionDeclarations
+        const functionDeclarations: FunctionDeclaration[] = tools.map(
+            (tool) => ({
+                name: tool.function.name,
+                description: tool.function.description,
+                parameters: tool.function.parameters as any, // Cast to any to bypass type incompatibility
+            })
+        );
+
+        const model = genAI.getGenerativeModel({
+            model: this.modelId,
+            tools: [
+                {
+                    functionDeclarations: functionDeclarations,
+                },
+            ],
+        });
+
+        // Convert messages to the format that Gemini expects
+        const history = this.mapMessages(inputMessages);
 
         // Get the last message (which is either the user or tool message)
         const lastMessage = history.pop();
@@ -184,46 +155,26 @@ export class GoogleAdapter extends AIAdapter {
             throw new Error('No last message found');
         }
 
-        let retries = 0;
-        const maxRetries = 3;
-
-        while (retries <= maxRetries) {
-            try {
-                const chat = model.startChat({
-                    history,
-                    safetySettings: [],
-                    ...(instructions && {
-                        systemInstruction: {
-                            role: 'system',
-                            parts: [{ text: instructions }],
-                        },
-                    }),
-                });
-                const result = await chat.sendMessageStream(lastMessage.parts);
-
-                console.log(
-                    `Processing chunks attempt ${retries + 1}/${maxRetries + 1}`
-                );
-                yield* this.processChunks(result.stream);
-                break;
-            } catch (error) {
-                if (++retries > maxRetries) {
-                    console.error(
-                        'Maximum retries reached for processing chunks'
-                    );
-                    throw error;
-                }
-
-                console.log(
-                    `Retrying entire operation (${retries}/${maxRetries})`
-                );
-            }
-        }
+        // Call Gemini and process the chunks with retry logic
+        yield* this.retryWithBackoff(async () => {
+            const chat = model.startChat({
+                history,
+                safetySettings: [],
+                ...(instructions && {
+                    systemInstruction: { role: 'system', parts: [{ text: instructions }] },
+                }),
+            });
+    
+            const result = await chat.sendMessageStream(lastMessage.parts);
+            return this.processChunks(result.stream);
+        });
     }
 
+    // If there are issues then throw to trigger a retry
     async *processChunks(
         stream: AsyncGenerator<EnhancedGenerateContentResponse, any, any>
     ): AsyncGenerator<ChunkAI> {
+        // Accumulates function calls to be yielded after processing all chunks
         const functionAccumulator: ToolCall[] = [];
 
         console.log('iterating chunks');
