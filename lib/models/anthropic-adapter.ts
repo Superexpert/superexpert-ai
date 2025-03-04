@@ -84,14 +84,12 @@ export class AnthropicAdapter implements AIAdapter {
                 } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
                     // Start of function tool call
                     functionAccumulator.push({
-                        //toolCall: {
                             id: chunk.content_block.id,
-                            type: 'function',
+                            type: 'function' as const,
                             function: {
                                 name: chunk.content_block.name,
                                 arguments: '',
                             }
-                        //}
                     });
                 } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
                     // Append arguments to function tool call

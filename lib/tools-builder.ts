@@ -130,6 +130,7 @@ export class ToolsBuilder {
                 description: string;
                 type: string;
                 optional?: boolean;
+                enumValues?: string[];
             }[] =
                 allToolParams.find((tp) => tp.methodName === tool.methodName)
                     ?.parameters || [];
@@ -138,10 +139,17 @@ export class ToolsBuilder {
             const requiredParams: string[] = [];
 
             params.forEach((param) => {
-                properties[param.name] = {
+                const propertySchema: ToolPropertyAI = {
                     type: this.mapType(param.type),
                     description: param.description,
                 };
+    
+                // Include enum values if they exist
+                if (param.enumValues) {
+                    propertySchema.enum = param.enumValues;
+                }
+    
+                properties[param.name] = propertySchema;
                 // Only add to requiredParams if it's not optional
                 if (!param.optional) {
                     requiredParams.push(param.name);

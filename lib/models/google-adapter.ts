@@ -7,9 +7,63 @@ import {
 } from '@google/generative-ai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
+import {ToolCall} from '@/lib/tool-call';
 
 export class GoogleAdapter implements AIAdapter {
     constructor(public modelId: string) {}
+
+
+    private collapseFunctionResponses(messages: Content[]): Content[] {
+        const collapsedMessages: Content[] = [];
+        let functionResponses: Part[] = [];
+        let functionCallIndex = -1;
+    
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+    
+            if (message.role === 'model' && message.parts.some(part => part.functionCall)) {
+                if (functionCallIndex !== -1 && functionResponses.length > 0) {
+                    collapsedMessages.splice(functionCallIndex + 1, 0, {
+                        role: 'function',
+                        parts: functionResponses,
+                    });
+                    functionResponses = [];
+                }
+                functionCallIndex = i;
+                collapsedMessages.push(message);
+            } else if (message.role === 'function' && message.parts.some(part => part.functionResponse)) {
+                if (functionCallIndex !== -1 && i > functionCallIndex) {
+                    functionResponses = functionResponses.concat(message.parts);
+                } else {
+                    collapsedMessages.push(message);
+                }
+            } else {
+                if (functionCallIndex !== -1 && message.role === 'model' && message.parts.some(part => part.text)){
+                    if (functionResponses.length > 0) {
+                        collapsedMessages.splice(functionCallIndex + 1, 0, {
+                            role: 'function',
+                            parts: functionResponses,
+                        });
+                        functionResponses = [];
+                    }
+                    functionCallIndex = -1;
+                    collapsedMessages.push(message);
+                } else {
+                    collapsedMessages.push(message);
+                }
+            }
+        }
+    
+        if (functionCallIndex !== -1 && functionResponses.length > 0) {
+            collapsedMessages.splice(functionCallIndex + 1, 0, {
+                role: 'function',
+                parts: functionResponses,
+            });
+        }
+    
+        return collapsedMessages;
+    }
+
 
     async *generateResponse(
         instructions: string,
@@ -41,20 +95,20 @@ export class GoogleAdapter implements AIAdapter {
         let history: Content[] = inputMessages.map((message) => {
             if (message.role === 'assistant') {
                 if (message.tool_calls) {
-
-                    const functionCall: Part = {
-                        functionCall: {
-                            name: message.tool_calls[0].id,
-                            args: JSON.parse(message.tool_calls[0].function.arguments),
-                        }
-                    };
+                    const functionCalls:Part[] = [];
+                    for (const toolCall of message.tool_calls) {
+                        const functionCall: Part = {
+                            functionCall: {
+                                name: toolCall.id,
+                                args: JSON.parse(toolCall.function.arguments),
+                            }
+                        };    
+                        functionCalls.push(functionCall);
+                    }
                     return {
                         role: 'model',
-                        parts: [functionCall]
+                        parts: functionCalls
                     };
-    
-
-
                 }
                 return {
                     role: 'model',
@@ -78,18 +132,28 @@ export class GoogleAdapter implements AIAdapter {
             // Otherwise, it's a user message
             return {
                 role: message.role,
-                parts: [{ text: message.content }],
+                parts: [{ text: message.content || '???' }],
             };
         });
+
+        console.log("************ Pre-History ************");
+        console.dir(history, {depth: null});
+        
+        history = this.collapseFunctionResponses(history);
+        
+        console.log("************ Post-History ************");
+        console.dir(history, {depth: null});
+        console.log("************ Tools ************");
+        console.dir(functionDeclarations, {depth: null});
 
         // Get the last message (which is either the user or tool message)
         const lastMessage = history.pop();
         if (!lastMessage) {
-            throw new Error('No user message found');
+            throw new Error('No last message found');
         }
 
         // Filter tool messages from history
-        history = history.filter((message) => message.role !== 'tool');
+        // history = history.filter((message) => message.role !== 'tool');
 
         const chat = model.startChat({
             history,
@@ -117,13 +181,16 @@ export class GoogleAdapter implements AIAdapter {
         //}
         //const result = await chat.sendMessageStream(lastMessage.parts);
 
-        let toolCallId: string = '';
-        let functionName: string = '';
-        let functionArguments: string = '';
+        // let toolCallId: string = '';
+        // let functionName: string = '';
+        // let functionArguments: string = '';
+        const functionAccumulator:ToolCall[] = [];
+        
 
         for await (const chunk of result.stream) {
             console.log("CHUNK");
-            console.dir(chunk, {depth: null});
+            //console.dir(chunk, {depth: null});
+            console.log(JSON.stringify(chunk, null, 2))
             if (
                 chunk.candidates &&
                 chunk.candidates[0] &&
@@ -134,29 +201,43 @@ export class GoogleAdapter implements AIAdapter {
                         yield { text: part.text };
                     } else if (part.functionCall) {
                         // Function call detected
-                        if (!toolCallId) {
-                            toolCallId =
-                                'gemini-tool-' +
-                                Math.random().toString(36).substring(2, 15);
-                            functionName = part.functionCall.name;
-                            functionArguments = JSON.stringify(
-                                part.functionCall.args
-                            );
-                            yield {
-                                toolCall: {
-                                    id: toolCallId,
-                                    type: 'function' as const,
-                                    function: {
-                                        name: functionName,
-                                        arguments: functionArguments,
-                                    },
-                                },
-                            };
-                        }
+                        // if (!toolCallId) {
+                        //     toolCallId =
+                        //         'gemini-tool-' +
+                        //         Math.random().toString(36).substring(2, 15);
+                        //     functionName = part.functionCall.name;
+                        //     functionArguments = JSON.stringify(
+                        //         part.functionCall.args
+                        //     );
+                        functionAccumulator.push({
+                            id: part.functionCall.name,
+                            type: 'function' as const,
+                            function: {
+                                name: part.functionCall.name,
+                                arguments: JSON.stringify(part.functionCall.args),
+                            },
+                        });
+
+                            // yield {
+                            //     toolCall: {
+                            //         id: toolCallId,
+                            //         type: 'function' as const,
+                            //         function: {
+                            //             name: functionName,
+                            //             arguments: functionArguments,
+                            //         },
+                            //     },
+                            // };
+                        
                     }
                 }
             }
         }
+
+        for (const toolCall of functionAccumulator) {
+            yield { toolCall };
+        }
+
     }
 }
 

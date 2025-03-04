@@ -2,6 +2,7 @@ import { AIAdapter } from '@/lib/models/ai-adapter';
 import { OpenAI } from 'openai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
+import { ToolCall } from '@/lib/tool-call';
 
 export class OpenAIAdapter implements AIAdapter {
 
@@ -27,7 +28,7 @@ export class OpenAIAdapter implements AIAdapter {
             ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
         });
 
-        const functionAccumulator = [];
+        const functionAccumulator:ToolCall[] = [];
         for await (const chunk of response) {
             const delta = chunk.choices[0].delta;
             if (delta.content) {
@@ -35,11 +36,11 @@ export class OpenAIAdapter implements AIAdapter {
             } else if (delta.tool_calls) {
                 const toolCall = delta.tool_calls[0];
                 if (toolCall.function?.name) {
-                    functionAccumulator.push(toolCall);
+                    functionAccumulator.push(toolCall as ToolCall);
                 }
                 if (toolCall.function?.arguments) {
                     // Append arguments to function tool call
-                    functionAccumulator[functionAccumulator.length - 1].function.arguments 
+                    functionAccumulator[functionAccumulator.length - 1].function!.arguments 
                         += toolCall.function.arguments;
                 }
             } else if (chunk.choices[0].finish_reason === 'tool_calls') {
@@ -48,7 +49,6 @@ export class OpenAIAdapter implements AIAdapter {
                     yield {toolCall};
                 }
             }
-            
         }
     }
 }

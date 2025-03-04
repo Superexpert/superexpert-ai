@@ -48,7 +48,7 @@ export class DBService {
                 orderBy: {
                     id: 'desc',
                 },
-                take: take,
+                //take: take,
             })) || [];
 
         const processedMessages = messages.reverse().map(
