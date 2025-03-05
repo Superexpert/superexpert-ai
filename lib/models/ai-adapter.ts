@@ -1,10 +1,11 @@
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ChunkAI } from '../chunk-ai';
+import { ModelConfiguration } from '../model-configuration';
 
 export abstract class AIAdapter {
 
-    constructor(public modelId: string) {}
+    constructor(public modelId: string, public modelConfiguration: ModelConfiguration) {}
 
 
     public abstract generateResponse(

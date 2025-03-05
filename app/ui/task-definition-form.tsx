@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,7 @@ import {
     saveTaskDefinitionAction,
     deleteTaskDefinitionAction,
 } from '@/lib/server/admin-actions';
+import { ModelDefinition } from '@/lib/model-definition';
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -17,7 +18,7 @@ interface TaskDefinitionFormProps {
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
-    models: { id: string; name: string; description: string }[];
+    models: ModelDefinition[];
     isEditMode: boolean;
 }
 
@@ -32,15 +33,29 @@ export default function TaskDefinitionForm({
     isEditMode,
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
+    const [maximumOutputTokensDescription, setMaximumOutputTokensDescription] = useState('');
+
     const router = useRouter();
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<TaskDefinition>({
         resolver: zodResolver(taskDefinitionSchema),
         defaultValues: taskDefinition,
     });
+
+    const selectedModelId = watch('modelId');
+
+    useEffect(() => {
+        const selectedModel = models.find(model => model.id === selectedModelId);
+        if (selectedModel) {
+          setMaximumOutputTokensDescription(`The ${selectedModel.name} model supports a maximum of ${selectedModel.maximumOutputTokens.toLocaleString()} tokens.`);
+        } else {
+          setMaximumOutputTokensDescription('Please select a model to see its maximum output tokens.');
+        }
+      }, [selectedModelId, models]);
 
     const onSubmit = async (taskDefinition: TaskDefinition) => {
         const result = await saveTaskDefinitionAction(taskDefinition);
@@ -185,6 +200,35 @@ export default function TaskDefinitionForm({
                         </label>
                     </div>
                 ))}
+
+                <h3>Advanced AI Model Settings</h3>
+                <div>
+                    <label>Maximum Output Tokens</label>
+                    <div>{maximumOutputTokensDescription}</div>
+                    <input
+                        {...register('maximumOutputTokens', {
+                            setValueAs: (value) => (value === '' ? null : Number(value)),
+                        })}
+                        type="text"
+                    />
+                    {errors.maximumOutputTokens && (
+                        <p className="error">{errors.maximumOutputTokens.message}</p>
+                    )}
+                </div>
+
+                <div>
+                    <label>Temperature</label>
+                    <input
+                        {...register('temperature', {
+                            setValueAs: (value) => (value === '' ? null : Number(value)),
+                        })}
+                        type="text"
+                    />
+                    {errors.temperature && (
+                        <p className="error">{errors.temperature.message}</p>
+                    )}
+                </div>
+
 
                 <button className="btn btnPrimary" type="submit">
                     Save

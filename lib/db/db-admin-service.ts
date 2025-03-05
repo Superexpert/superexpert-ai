@@ -32,6 +32,8 @@ export class DBAdminService {
                     serverToolIds: data.serverToolIds,
                     clientToolIds: data.clientToolIds,
                     modelId: data.modelId,
+                    maximumOutputTokens: data.maximumOutputTokens,
+                    temperature: data.temperature,
                 },
             });
 
@@ -100,16 +102,6 @@ export class DBAdminService {
     public async createSystemTaskDefinitions(agentId: string) {
         const systemTaskDefinitions = [
             {
-                name: 'home',
-                description:
-                    'The first task when a user starts a new conversation.',
-                instructions: '',
-                serverDataIds: [],
-                serverToolIds: [],
-                clientToolIds: [],
-                modelId: 'global',
-            },
-            {
                 name: 'global',
                 description:
                     'Instructions, data, and tools applied to all tasks.',
@@ -118,6 +110,16 @@ export class DBAdminService {
                 serverToolIds: [],
                 clientToolIds: [],
                 modelId: 'gpt-4o',
+            },
+            {
+                name: 'home',
+                description:
+                    'The first task when a user starts a new conversation.',
+                instructions: '',
+                serverDataIds: [],
+                serverToolIds: [],
+                clientToolIds: [],
+                modelId: 'global',
             },
         ];
 

@@ -8,17 +8,19 @@ datasource db {
 }
 
 model taskDefinitions {
-  id            String   @id @default(uuid())
-  userId        String
-  agentId       String
-  isSystem      Boolean  @default(false)
-  name          String
-  description   String
-  instructions  String
-  serverDataIds String[]
-  serverToolIds String[]
-  clientToolIds String[]
-  modelId       String
+  id                    String   @id @default(uuid())
+  userId                String
+  agentId               String
+  isSystem              Boolean  @default(false)
+  name                  String
+  description           String
+  instructions          String
+  serverDataIds         String[]
+  serverToolIds         String[]
+  clientToolIds         String[]
+  modelId               String
+  maximumOutputTokens   Int?
+  temperature           Float?
 
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")

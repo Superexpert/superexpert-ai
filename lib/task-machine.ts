@@ -4,6 +4,7 @@ import { TaskDefinition } from './task-definition';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolsBuilder } from './tools-builder';
 import { User } from '@/lib/user';
+import { ModelConfiguration } from './model-configuration';
 
 export class TaskMachine {
 
@@ -24,6 +25,7 @@ export class TaskMachine {
         currentMessages: MessageAI[];
         tools: ToolAI[];
         modelId: string;
+        modelConfiguration: ModelConfiguration;
     }> {
         // Save messages
         await this.saveMessages(user.id, agentId, task, thread, messages);
@@ -60,6 +62,9 @@ export class TaskMachine {
                 ? globalTaskDefinition.modelId
                 : taskDefinition.modelId;
 
+        // get model configuration
+        const modelConfiguration = this.getModelConfiguration(taskDefinition, globalTaskDefinition);
+
         // Get instructions
         const instructions = await this.getInstructions(
             user,
@@ -75,6 +80,17 @@ export class TaskMachine {
             currentMessages: previousMessages,
             tools,
             modelId,
+            modelConfiguration
+        };
+    }
+
+    private getModelConfiguration(
+        taskDefinition: TaskDefinition,
+        globalTaskDefinition: TaskDefinition
+    ): ModelConfiguration {
+        return {
+            maximumOutputTokens: taskDefinition.maximumOutputTokens || globalTaskDefinition.maximumOutputTokens,
+            temperature: taskDefinition.temperature || globalTaskDefinition.temperature,
         };
     }
 

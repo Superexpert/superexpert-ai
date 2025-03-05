@@ -221,7 +221,6 @@ const ChatBot = ({
         const functionName = toolCall.function.name;
         const functionArgs = JSON.parse(toolCall.function.arguments);
 
-
         // Execute client tool
         const clientToolsBuilder = new ClientToolsBuilder();
         const clientTool = clientToolsBuilder.getClientTool(functionName);

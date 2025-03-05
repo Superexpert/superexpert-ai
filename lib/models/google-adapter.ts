@@ -13,7 +13,6 @@ import { ChunkAI } from '../chunk-ai';
 import { START_MESSAGE } from '@/superexpert.config';
 
 export class GoogleAdapter extends AIAdapter {
-
     // Gemini wants function responses to be collapsed into a single function response
     // (Unlike OpenAI which returns each function response separately)
     private collapseFunctionResponses(messages: Content[]): Content[] {
@@ -89,12 +88,14 @@ export class GoogleAdapter extends AIAdapter {
                               parts: message.tool_calls.map((toolCall) => ({
                                   functionCall: {
                                       name: toolCall.id,
-                                      args: JSON.parse(toolCall.function.arguments),
+                                      args: JSON.parse(
+                                          toolCall.function.arguments
+                                      ),
                                   },
                               })),
                           }
                         : { role: 'model', parts: [{ text: message.content }] };
-        
+
                 case 'tool':
                     return {
                         role: 'function',
@@ -107,9 +108,12 @@ export class GoogleAdapter extends AIAdapter {
                             },
                         ],
                     };
-        
+
                 default:
-                    return { role: message.role, parts: [{ text: message.content || '???' }] };
+                    return {
+                        role: message.role,
+                        parts: [{ text: message.content || '???' }],
+                    };
             }
         });
 
@@ -125,17 +129,31 @@ export class GoogleAdapter extends AIAdapter {
     ) {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            throw new Error("Gemini API key not found. Please set the GEMINI_API_KEY environment variable.");
+            throw new Error(
+                'Gemini API key not found. Please set the GEMINI_API_KEY environment variable.'
+            );
         }
         const genAI = new GoogleGenerativeAI(apiKey);
 
-        // Map tools to functionDeclarations
         const functionDeclarations: FunctionDeclaration[] = tools.map(
-            (tool) => ({
-                name: tool.function.name,
-                description: tool.function.description,
-                parameters: tool.function.parameters as any, // Cast to any to bypass type incompatibility
-            })
+            (tool) => {
+                const { parameters } = tool.function;
+
+                // Ensure parameters exist and 'properties' is not an empty object
+                const hasValidParameters =
+                    parameters &&
+                    typeof parameters === 'object' &&
+                    parameters.properties &&
+                    Object.keys(parameters.properties).length > 0;
+
+                return {
+                    name: tool.function.name,
+                    description: tool.function.description,
+                    ...(hasValidParameters
+                        ? { parameters: parameters as any }
+                        : {}),
+                };
+            }
         );
 
         const model = genAI.getGenerativeModel({
@@ -162,10 +180,17 @@ export class GoogleAdapter extends AIAdapter {
                 history,
                 safetySettings: [],
                 ...(instructions && {
-                    systemInstruction: { role: 'system', parts: [{ text: instructions }] },
+                    systemInstruction: {
+                        role: 'system',
+                        parts: [{ text: instructions }],
+                    },
                 }),
+                generationConfig: {
+                    maxOutputTokens:
+                        this.modelConfiguration.maximumOutputTokens || 8192,
+                },
             });
-    
+
             const result = await chat.sendMessageStream(lastMessage.parts);
             return this.processChunks(result.stream);
         });
@@ -178,11 +203,7 @@ export class GoogleAdapter extends AIAdapter {
         // Accumulates function calls to be yielded after processing all chunks
         const functionAccumulator: ToolCall[] = [];
 
-        console.log('iterating chunks');
         for await (const chunk of stream) {
-            // console.log('CHUNK');
-            // console.log(JSON.stringify(chunk, null, 2));
-
             if (chunk.candidates && chunk.candidates[0]) {
                 if (chunk.candidates[0].content) {
                     for (const part of chunk.candidates[0].content.parts) {

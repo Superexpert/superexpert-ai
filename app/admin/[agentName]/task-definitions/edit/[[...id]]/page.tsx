@@ -21,10 +21,6 @@ export default async function EditTaskDefinitionPage({
 
     const isEditMode = Boolean(id);
 
-    // const serverData = await getServerDataAction();
-    // const serverTools = await getServerToolsAction();
-    // const clientTools = await getClientToolsAction();
-
     const {serverData, serverTools, clientTools, models} = await getTaskDefinitionFormDataAction();
 
     let taskDefinition: TaskDefinition = {
@@ -37,6 +33,8 @@ export default async function EditTaskDefinitionPage({
         serverToolIds: [],
         clientToolIds: [],
         modelId: 'global',
+        maximumOutputTokens: null,
+        temperature: null,
     };
 
     if (isEditMode) {

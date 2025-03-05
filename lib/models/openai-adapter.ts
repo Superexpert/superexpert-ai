@@ -29,6 +29,7 @@ export class OpenAIAdapter extends AIAdapter {
             const response = await client.chat.completions.create({
                 model: this.modelId,
                 stream: true,
+                max_completion_tokens: this.modelConfiguration.maximumOutputTokens || 16384,
                 messages: inputMessages,
                 ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
             });

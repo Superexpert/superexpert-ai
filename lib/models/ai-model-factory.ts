@@ -2,27 +2,35 @@ import { AIAdapter } from '@/lib/models/ai-adapter';
 import { OpenAIAdapter } from '@/lib/models/openai-adapter';
 import { GoogleAdapter } from '@/lib/models/google-adapter';
 import { AnthropicAdapter } from '@/lib/models/anthropic-adapter';
+import { ModelDefinition } from '../model-definition';
+import { ModelConfiguration } from '../model-configuration';
 
 export class AIModelFactory {
     // Define available models with human-readable names
     // https://platform.openai.com/docs/models
     // https://docs.anthropic.com/en/docs/about-claude/models/all-models#model-comparison-table
     // https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
-    private static modelMap: Record<string, { provider: string; model: string, description: string }> = {
-        'OpenAI: GPT-4.5 Preview': {
+    private static models: ModelDefinition[] = [
+        {
+          name:'OpenAI: GPT-4.5 Preview',
           provider: 'openai',
-          model: 'gpt-4.5-preview',
+          id: 'gpt-4.5-preview',
           description: 'Largest GPT model, good for creative tasks and agentic planning',
+          maximumOutputTokens: 16384,
         },
-        'OpenAI: GPT-4o': {
+        {
+          name:  'OpenAI: GPT-4o',
             provider: 'openai',
-            model: 'gpt-4o',
+            id: 'gpt-4o',
             description: 'Fast, intelligent, flexible GPT model',
+            maximumOutputTokens: 16384,
         },
-        'OpenAI: GPT-4o mini': {
+        {
+          name: 'OpenAI: GPT-4o mini',
           provider: 'openai',
-          model: 'gpt-4o-mini',
+          id: 'gpt-4o-mini',
           description: 'Fastest responses, cost-effective, customizable',
+          maximumOutputTokens: 16384,
         },
 
         // Not yet available to all users
@@ -32,45 +40,61 @@ export class AIModelFactory {
         //   description: 'High intelligence reasoning model'
         // },
 
-        'Anthropic: Claude 3.7 Sonnet': {
+        {
+          name: 'Anthropic: Claude 3.7 Sonnet',
           provider: 'anthropic',
-          model: 'claude-3-7-sonnet-20250219',
-          description: 'Our most intelligent model'
+          id: 'claude-3-7-sonnet-20250219',
+          description: 'Our most intelligent model',
+          maximumOutputTokens: 8192,
         },
-        'Anthropic: Claude 3.5 Sonnet': {
+        {
+          name: 'Anthropic: Claude 3.5 Sonnet',
           provider: 'anthropic',
-          model: 'claude-3-5-sonnet-20241022',
-          description: 'Our previous most intelligent model'
+          id: 'claude-3-5-sonnet-20241022',
+          description: 'Our previous most intelligent model',
+          maximumOutputTokens: 8192,
         },
-        'Anthropic: Claude 3.5 Haiku': {
+        {
+          name: 'Anthropic: Claude 3.5 Haiku',
           provider: 'anthropic',
-          model: 'claude-3-5-haiku-20241022',
-          description: 'Our fastest model'
+          id: 'claude-3-5-haiku-20241022',
+          description: 'Our fastest model',
+          maximumOutputTokens: 8192,
         },
-        'Anthropic: Claude 3 Opus': {
+        {
+          name: 'Anthropic: Claude 3 Opus',
           provider: 'anthropic',
-          model: 'claude-3-opus-20240229',
-          description: 'Powerful model for complex tasks'
+          id: 'claude-3-opus-20240229',
+          description: 'Powerful model for complex tasks',
+          maximumOutputTokens: 4096,
         },
-        'Anthropic: Claude 3 Haiku': {
+        {
+          name:'Anthropic: Claude 3 Haiku',
           provider: 'anthropic',
-          model: 'claude-3-haiku-20240307',
-          description: 'Fastest and most compact model for near-instant responsiveness'
+          id: 'claude-3-haiku-20240307',
+          description: 'Fastest and most compact model for near-instant responsiveness',
+          maximumOutputTokens: 4096,
         },
-        'Google: Gemini 2.0 Flash': {
+        {
+          name: 'Google: Gemini 2.0 Flash',
           provider: 'google',
-          model: 'gemini-2.0-flash',
-          description: 'Workhorse model for all daily tasks. Strong overall performance and supports real-time streaming Live API'
+          id: 'gemini-2.0-flash',
+          description: 'Workhorse model for all daily tasks. Strong overall performance and supports real-time streaming Live API',
+          maximumOutputTokens: 8192,
         },
-        'Google: Gemini 2.0 Pro': {
+        {
+          name: 'Google: Gemini 2.0 Pro',
           provider: 'google',
-          model: 'gemini-2.0-pro-exp-02-05',
-          description: 'Strongest model quality, especially for code & world knowledge; 2M long context'
+          id: 'gemini-2.0-pro-exp-02-05',
+          description: 'Strongest model quality, especially for code & world knowledge; 2M long context',
+          maximumOutputTokens: 8192,
         },
-        'Google: Gemini 2.0 Flash-Lite': {
+        {
+          name: 'Google: Gemini 2.0 Flash-Lite',
           provider: 'google',
-          model: 'gemini-2.0-flash-lite',
-          description: 'Our cost effective offering to support high throughput'
+          id: 'gemini-2.0-flash-lite',
+          description: 'Our cost effective offering to support high throughput',
+          maximumOutputTokens: 8192,
         },
         // Does not support custom functions, "Function calling is not enabled for models"
         // 'Google: Gemini 2.0 Flash Thinking': {
@@ -78,32 +102,31 @@ export class AIModelFactory {
         //   model: 'gemini-2.0-flash-thinking-exp-01-21',
         //   description: 'Provides stronger reasoning capabilities and includes the thinking process in responses'
         // },
-    };
+      ];
 
     /** Get a list of available models with their details */
-    static getAvailableModels(): { id: string; name: string; description: string }[] {
-      return Object.entries(this.modelMap).map(([key, value]) => ({
-          name: key, // Human-readable model name (e.g., "OpenAI: GPT-4o")
-          id: value.model, // Model identifier (e.g., "gpt-4o")
-          description: value.description, // Model description
-          provider: value.provider, // Model provider (e.g., "openai")
-      }));
+    static getAvailableModels() {
+      return this.models;
     }
 
-    /** Create an AI model instance based on the selected name */
-    static createModel(modelId: string): AIAdapter {
-      const modelEntry = Object.values(this.modelMap).find((entry) => entry.model === modelId);
+    static getModelById(modelId: string) {
+      return this.models.find((entry) => entry.id === modelId);
+    }
+
+    /** Create an AI model instance based on the selected id */
+    static createModel(modelId: string, modelConfiguration: ModelConfiguration): AIAdapter {
+      const modelEntry = this.getModelById(modelId);
       if (!modelEntry) {
           throw new Error(`Unsupported AI model ID: ${modelId}`);
       }
 
       switch (modelEntry.provider) {
           case 'openai':
-              return new OpenAIAdapter(modelEntry.model);
+              return new OpenAIAdapter(modelEntry.id, modelConfiguration);
           case 'google':
-              return new GoogleAdapter(modelEntry.model);
+              return new GoogleAdapter(modelEntry.id, modelConfiguration);
           case 'anthropic':
-              return new AnthropicAdapter(modelEntry.model);
+              return new AnthropicAdapter(modelEntry.id,  modelConfiguration);
           default:
               throw new Error(`Unknown provider: ${modelEntry.provider}`);
       }

@@ -26,6 +26,7 @@ export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
 
     // Validate using Zod
     const result = taskDefinitionSchema.safeParse(taskDefinition);
+    console.dir(result, { depth: null });
     if (!result.success) {
         return {
             success: false,

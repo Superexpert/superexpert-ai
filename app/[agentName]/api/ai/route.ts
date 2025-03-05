@@ -44,7 +44,7 @@ export async function POST(
 
 
     const taskMachine = new TaskMachine();
-    const { instructions, currentMessages, tools, modelId } = await taskMachine.getAIPayload(
+    const { instructions, currentMessages, tools, modelId, modelConfiguration } = await taskMachine.getAIPayload(
         user,
         agent.id,
         task,
@@ -54,7 +54,7 @@ export async function POST(
 
 
     // Create a new AI Model
-    const model = AIModelFactory.createModel(modelId);
+    const model = AIModelFactory.createModel(modelId, modelConfiguration);
 
     const response = model.generateResponse(instructions, currentMessages, tools);
 
