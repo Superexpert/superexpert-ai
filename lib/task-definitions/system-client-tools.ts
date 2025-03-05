@@ -23,12 +23,12 @@ export class SystemClientTools extends ClientToolsBase {
         const newTask = task.toLowerCase();
         this.clientContext.setTask(newTask);
 
-        // Set new thread
-        this.clientContext.setThread(crypto.randomUUID());
+        // // Set new thread
+        // this.clientContext.setThread(crypto.randomUUID());
 
 
-        // Send START_MESSAGE
-        //await this.clientContext.sendMessages([{ role: 'user', content: START_MESSAGE }]);
+        // // Send START_MESSAGE
+        // await this.clientContext.sendMessages([{ role: 'user', content: 'blixen' }]);
         
 
         return `Successfully transitioned from ${previousTask} to ${newTask}`;

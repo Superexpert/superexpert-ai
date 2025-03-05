@@ -25,16 +25,23 @@ type ChatBotProps = {
 
 const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
-    const [threadId, setThreadId] = useState(crypto.randomUUID());
-    const [taskName, setTaskName] = useState('home');
+    // const [threadId, setThreadId] = useState(crypto.randomUUID());
+    // const [taskName, setTaskName] = useState('home');
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
     const [busyWaiting, setBusyWaiting] = useState(false);
+
+    const queuedMessagesRef = useRef<MessageAI[]>([]);
+    const threadIdRef = useRef(crypto.randomUUID());
+    const taskNameRef = useRef('home');
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     const isInitialStartSentRef = useRef(false); // Track if "start" has been sent
 
     const sendMessages = async (messages: MessageAI[]) => {
+        console.log(`New Send Messages with threadId ${threadIdRef.current}`);
+        console.dir(messages, { depth: null });
         try {
             setBusyWaiting(true);
             setInputDisabled(true);
@@ -43,8 +50,8 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
                 body: JSON.stringify({
                     nowString: getNow().toISOString(),
                     timeZone: getTimeZone(),
-                    task: taskName,
-                    thread: threadId,
+                    task: taskNameRef.current,
+                    thread: threadIdRef.current,
                     messages,
                 }),
             });
@@ -187,7 +194,17 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
             });
             // }
         }
-        sendMessages(toolMessages);
+        await sendMessages(toolMessages);
+
+        // These are messages that were queued while waiting for the tool calls to complete
+        console.log(`queuedMessages: ${queuedMessagesRef.current.length}`);
+        console.dir(queuedMessagesRef, { depth: null });
+        if (queuedMessagesRef.current.length > 0) {
+            console.log(`sending queued messages`);
+            const messagesToSend = [...queuedMessagesRef.current];
+            queuedMessagesRef.current = []; // Reset the queue
+            await sendMessages(messagesToSend);
+        }
     };
 
     // textCreated - create new assistant message
@@ -216,20 +233,21 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
 
     const setTask = (taskName: string) => {
         console.log('setting task to', taskName);
-        setTaskName(taskName);
+        //setTaskName(taskName);
+        taskNameRef.current = taskName;
     };
 
     const getTask = () => {
-        return taskName;
+        return taskNameRef.current;
     };
 
     const setThread = (threadId: string) => {
         console.log('setting threadId to', threadId);
-        setThreadId(threadId);
+        threadIdRef.current = threadId;
     };
 
     const getThread = () => {
-        return threadId;
+        return threadIdRef.current;
     };
 
     const showModal = () => {
@@ -240,14 +258,19 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
         alert('hide modal');
     };
 
+    const sendQueuedMessages =  async (messages: MessageAI[]) => {
+        console.log(`sendQueuedMessages called ${messages.length}`);
+        queuedMessagesRef.current = [...queuedMessagesRef.current, ...messages];
+    };
+
     const clientContext = new ClientContext(
         setTask,
         getTask,
         setThread,
         getThread,
-        sendMessages,
+        sendQueuedMessages,
         showModal,
-        hideModal
+        hideModal,
     );
 
     const functionCallHandler = async (
@@ -308,7 +331,7 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
 
     return (
         <div>
-            <h1>{taskName}</h1>
+            <h1>{taskNameRef.current}</h1>
             <div className={styles.chatContainer}>
                 <div className={styles.messages}>
                     {messages.map((msg, index) => (

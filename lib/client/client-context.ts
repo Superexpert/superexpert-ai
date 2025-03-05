@@ -12,3 +12,4 @@ export class ClientContext {
         public hideModal: () => void
     ) {}
 }
+    
