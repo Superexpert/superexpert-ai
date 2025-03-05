@@ -49,6 +49,8 @@ export class DBAdminService {
                 instructions: data.instructions,
                 serverToolIds: data.serverToolIds,
                 modelId: data.modelId,
+                maximumOutputTokens: data.maximumOutputTokens,
+                temperature: data.temperature,
             },
         });
 

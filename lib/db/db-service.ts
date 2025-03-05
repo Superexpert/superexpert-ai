@@ -11,6 +11,7 @@ export class DBService {
         thread: string,
         messages: MessageAI[]
     ) {
+
         const fullMessages = messages.map((m) => {
             return {
                 userId: userId,
@@ -18,7 +19,7 @@ export class DBService {
                 task: task,
                 thread: thread,
                 role: m.role,
-                content: m.content,
+                content: m.content || '...',
                 ...('tool_calls' in m && m.tool_calls?.length
                     ? { tool_calls: JSON.stringify(m.tool_calls) }
                     : {}),

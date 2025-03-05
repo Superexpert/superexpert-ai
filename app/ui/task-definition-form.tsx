@@ -33,8 +33,10 @@ export default function TaskDefinitionForm({
     isEditMode,
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
-    const [maximumOutputTokensDescription, setMaximumOutputTokensDescription] = useState('');
-    const [maximumTemperatureDescription, setMaximumTemperatureDescription] = useState('');
+    const [maximumOutputTokensDescription, setMaximumOutputTokensDescription] =
+        useState('');
+    const [maximumTemperatureDescription, setMaximumTemperatureDescription] =
+        useState('');
 
     const router = useRouter();
     const {
@@ -50,15 +52,31 @@ export default function TaskDefinitionForm({
     const selectedModelId = watch('modelId');
 
     useEffect(() => {
-        const selectedModel = models.find(model => model.id === selectedModelId);
+        const selectedModel = models.find(
+            (model) => model.id === selectedModelId
+        );
         if (selectedModel) {
-          setMaximumOutputTokensDescription(`The ${selectedModel.name} model supports a maximum of ${selectedModel.maximumOutputTokens.toLocaleString()} tokens.`);
-          setMaximumTemperatureDescription(`The ${selectedModel.name} model supports a maximum temperature of ${selectedModel.maximumTemperature.toFixed(1)}.`);
+            setMaximumOutputTokensDescription(
+                `The ${
+                    selectedModel.name
+                } model supports a maximum of ${selectedModel.maximumOutputTokens.toLocaleString()} tokens.`
+            );
+            setMaximumTemperatureDescription(
+                `The ${
+                    selectedModel.name
+                } model supports a maximum temperature of ${selectedModel.maximumTemperature.toFixed(
+                    1
+                )}.`
+            );
         } else {
-          setMaximumOutputTokensDescription('Please select a model to see its maximum output tokens.');
-          setMaximumTemperatureDescription('Please select a model to see its maximum temperature.');
+            setMaximumOutputTokensDescription(
+                'Please select a model to see its maximum output tokens.'
+            );
+            setMaximumTemperatureDescription(
+                'Please select a model to see its maximum temperature.'
+            );
         }
-      }, [selectedModelId, models]);
+    }, [selectedModelId, models]);
 
     const onSubmit = async (taskDefinition: TaskDefinition) => {
         const result = await saveTaskDefinitionAction(taskDefinition);
@@ -185,7 +203,8 @@ export default function TaskDefinitionForm({
                             {...register('modelId')}
                         />
                         <label htmlFor="model-global">
-                            global: Use the model from the global task definition
+                            global: Use the model from the global task
+                            definition
                         </label>
                     </div>
                 )}
@@ -204,35 +223,43 @@ export default function TaskDefinitionForm({
                     </div>
                 ))}
 
-                <h3>Advanced AI Model Settings</h3>
-                <div>
-                    <label>Maximum Output Tokens</label>
-                    <div>{maximumOutputTokensDescription}</div>
-                    <input
-                        {...register('maximumOutputTokens', {
-                            setValueAs: (value) => (value === '' ? null : Number(value)),
-                        })}
-                        type="text"
-                    />
-                    {errors.maximumOutputTokens && (
-                        <p className="error">{errors.maximumOutputTokens.message}</p>
-                    )}
-                </div>
+                {selectedModelId !== 'global' && (
+                    <>
+                        <h3>Advanced AI Model Settings</h3>
+                            <label>Maximum Output Tokens</label>
+                            <div>{maximumOutputTokensDescription}</div>
+                            <input
+                                {...register('maximumOutputTokens', {
+                                    setValueAs: (value) =>
+                                        !value ? null : Number(value),
+                                })}
+                                type="number"
+                            />
+                            {errors.maximumOutputTokens && (
+                                <p className="error">
+                                    {errors.maximumOutputTokens.message}
+                                </p>
+                            )}
 
-                <div>
-                    <label>Temperature</label>
-                    <div>{maximumTemperatureDescription}</div>
-                    <input
-                        {...register('temperature', {
-                            setValueAs: (value) => (value === '' ? null : Number(value)),
-                        })}
-                        type="text"
-                    />
-                    {errors.temperature && (
-                        <p className="error">{errors.temperature.message}</p>
-                    )}
-                </div>
-
+                        <div>
+                            <label>Temperature</label>
+                            <div>{maximumTemperatureDescription}</div>
+                            <input
+                                {...register('temperature', {
+                                    setValueAs: (value) =>
+                                        !value ? null : Number(value),
+                                })}
+                                type="number"
+                                step="0.01"
+                            />
+                            {errors.temperature && (
+                                <p className="error">
+                                    {errors.temperature.message}
+                                </p>
+                            )}
+                        </div>
+                    </>
+                )}
 
                 <button className="btn btnPrimary" type="submit">
                     Save

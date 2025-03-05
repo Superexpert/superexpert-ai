@@ -5,7 +5,7 @@ import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
-import { START_MESSAGE } from '@/superexpert.config';
+import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
@@ -108,7 +108,7 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
             console.error('Error sending message', error);
             appendMessage(
                 'assistant',
-                'My brain went offline for a sec — classic ‘AI brain fog.’ Trying to reboot my wisdom!'
+                CHAT_ERROR_MESSAGE
             );
         } finally {
             setBusyWaiting(false);

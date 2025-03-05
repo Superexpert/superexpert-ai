@@ -36,18 +36,17 @@ export const taskDefinitionSchema = z
         clientToolIds: z.array(z.string()),
         modelId: z.string().nonempty('Model ID is required'),
         isSystem: z.boolean(),
-        maximumOutputTokens: z.coerce
-            .number({ message: 'Expected number' })
-            .min(1, 'Maximum output tokens must be at least 1')
-            .nullable(),
-        temperature: z.coerce
-            .number({ message: 'Expected number' })
-            .min(0, 'Minimum temperature is 0')
-            .nullable(),
+
+
+        maximumOutputTokens: z.coerce.number().min(1).nullable(),
+      
+
+        temperature:     z.coerce.number().min(0).nullable(),
+  
     })
     .superRefine((data, ctx) => {
         const selectedModel = AIModelFactory.getModelById(data.modelId);
-        if (selectedModel && data.maximumOutputTokens !== null) {
+        if (selectedModel && data.maximumOutputTokens) {
             if (data.maximumOutputTokens > selectedModel.maximumOutputTokens) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
@@ -56,7 +55,7 @@ export const taskDefinitionSchema = z
                 });
             }
         }
-        if (selectedModel && data.temperature !== null) {
+        if (selectedModel && data.temperature) {
             if (data.temperature > selectedModel.maximumTemperature) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
