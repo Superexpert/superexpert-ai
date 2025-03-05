@@ -60,7 +60,7 @@ export class AnthropicAdapter extends AIAdapter {
             model: this.modelId,
             messages: anthropicInputMessages,
             // system: instructions,
-            max_tokens: 4096,
+            max_tokens: this.modelConfiguration.maximumOutputTokens || 4096,
             stream: true,
             //tool_choice: { type: 'auto', disable_parallel_tool_use: false },
             //thinking: { budget_tokens: 1024, type: 'enabled' },
