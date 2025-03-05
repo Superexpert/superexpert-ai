@@ -17,6 +17,7 @@ export class AIModelFactory {
           id: 'gpt-4.5-preview',
           description: 'Largest GPT model, good for creative tasks and agentic planning',
           maximumOutputTokens: 16384,
+          maximumTemperature: 2,
         },
         {
           name:  'OpenAI: GPT-4o',
@@ -24,6 +25,7 @@ export class AIModelFactory {
             id: 'gpt-4o',
             description: 'Fast, intelligent, flexible GPT model',
             maximumOutputTokens: 16384,
+            maximumTemperature: 2,  
         },
         {
           name: 'OpenAI: GPT-4o mini',
@@ -31,6 +33,7 @@ export class AIModelFactory {
           id: 'gpt-4o-mini',
           description: 'Fastest responses, cost-effective, customizable',
           maximumOutputTokens: 16384,
+          maximumTemperature: 2,
         },
 
         // Not yet available to all users
@@ -46,6 +49,7 @@ export class AIModelFactory {
           id: 'claude-3-7-sonnet-20250219',
           description: 'Our most intelligent model',
           maximumOutputTokens: 8192,
+          maximumTemperature: 1.0,
         },
         {
           name: 'Anthropic: Claude 3.5 Sonnet',
@@ -53,6 +57,7 @@ export class AIModelFactory {
           id: 'claude-3-5-sonnet-20241022',
           description: 'Our previous most intelligent model',
           maximumOutputTokens: 8192,
+          maximumTemperature: 1.0,
         },
         {
           name: 'Anthropic: Claude 3.5 Haiku',
@@ -60,6 +65,7 @@ export class AIModelFactory {
           id: 'claude-3-5-haiku-20241022',
           description: 'Our fastest model',
           maximumOutputTokens: 8192,
+          maximumTemperature: 1.0,
         },
         {
           name: 'Anthropic: Claude 3 Opus',
@@ -67,6 +73,7 @@ export class AIModelFactory {
           id: 'claude-3-opus-20240229',
           description: 'Powerful model for complex tasks',
           maximumOutputTokens: 4096,
+          maximumTemperature: 1.0,
         },
         {
           name:'Anthropic: Claude 3 Haiku',
@@ -74,6 +81,7 @@ export class AIModelFactory {
           id: 'claude-3-haiku-20240307',
           description: 'Fastest and most compact model for near-instant responsiveness',
           maximumOutputTokens: 4096,
+          maximumTemperature: 1.0,
         },
         {
           name: 'Google: Gemini 2.0 Flash',
@@ -81,6 +89,7 @@ export class AIModelFactory {
           id: 'gemini-2.0-flash',
           description: 'Workhorse model for all daily tasks. Strong overall performance and supports real-time streaming Live API',
           maximumOutputTokens: 8192,
+          maximumTemperature: 2.0,
         },
         {
           name: 'Google: Gemini 2.0 Pro',
@@ -88,6 +97,7 @@ export class AIModelFactory {
           id: 'gemini-2.0-pro-exp-02-05',
           description: 'Strongest model quality, especially for code & world knowledge; 2M long context',
           maximumOutputTokens: 8192,
+          maximumTemperature: 2.0,
         },
         {
           name: 'Google: Gemini 2.0 Flash-Lite',
@@ -95,6 +105,7 @@ export class AIModelFactory {
           id: 'gemini-2.0-flash-lite',
           description: 'Our cost effective offering to support high throughput',
           maximumOutputTokens: 8192,
+          maximumTemperature: 2.0,
         },
         // Does not support custom functions, "Function calling is not enabled for models"
         // 'Google: Gemini 2.0 Flash Thinking': {

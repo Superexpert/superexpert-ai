@@ -30,6 +30,7 @@ export class OpenAIAdapter extends AIAdapter {
                 model: this.modelId,
                 stream: true,
                 max_completion_tokens: this.modelConfiguration.maximumOutputTokens || 16384,
+                temperature: this.modelConfiguration.temperature || 1.0,
                 messages: inputMessages,
                 ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
             });

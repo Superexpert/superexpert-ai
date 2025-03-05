@@ -40,7 +40,10 @@ export const taskDefinitionSchema = z
             .number({ message: 'Expected number' })
             .min(1, 'Maximum output tokens must be at least 1')
             .nullable(),
-        temperature: z.coerce.number({ message: 'Expected number' }).nullable(),
+        temperature: z.coerce
+            .number({ message: 'Expected number' })
+            .min(0, 'Minimum temperature is 0')
+            .nullable(),
     })
     .superRefine((data, ctx) => {
         const selectedModel = AIModelFactory.getModelById(data.modelId);
@@ -50,6 +53,15 @@ export const taskDefinitionSchema = z
                     code: z.ZodIssueCode.custom,
                     path: ['maximumOutputTokens'],
                     message: `Maximum output tokens cannot exceed ${selectedModel.maximumOutputTokens.toLocaleString()} for the selected model.`,
+                });
+            }
+        }
+        if (selectedModel && data.temperature !== null) {
+            if (data.temperature > selectedModel.maximumTemperature) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['temperature'],
+                    message: `Temperature cannot exceed ${selectedModel.maximumTemperature.toLocaleString()} for the selected model.`,
                 });
             }
         }

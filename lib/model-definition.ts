@@ -3,5 +3,6 @@ export interface ModelDefinition{
     provider: string; 
     id: string, 
     description: string,
-    maximumOutputTokens: number 
+    maximumOutputTokens: number,
+    maximumTemperature: number,
 }

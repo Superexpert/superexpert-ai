@@ -34,6 +34,7 @@ export default function TaskDefinitionForm({
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
     const [maximumOutputTokensDescription, setMaximumOutputTokensDescription] = useState('');
+    const [maximumTemperatureDescription, setMaximumTemperatureDescription] = useState('');
 
     const router = useRouter();
     const {
@@ -52,8 +53,10 @@ export default function TaskDefinitionForm({
         const selectedModel = models.find(model => model.id === selectedModelId);
         if (selectedModel) {
           setMaximumOutputTokensDescription(`The ${selectedModel.name} model supports a maximum of ${selectedModel.maximumOutputTokens.toLocaleString()} tokens.`);
+          setMaximumTemperatureDescription(`The ${selectedModel.name} model supports a maximum temperature of ${selectedModel.maximumTemperature.toFixed(1)}.`);
         } else {
           setMaximumOutputTokensDescription('Please select a model to see its maximum output tokens.');
+          setMaximumTemperatureDescription('Please select a model to see its maximum temperature.');
         }
       }, [selectedModelId, models]);
 
@@ -218,6 +221,7 @@ export default function TaskDefinitionForm({
 
                 <div>
                     <label>Temperature</label>
+                    <div>{maximumTemperatureDescription}</div>
                     <input
                         {...register('temperature', {
                             setValueAs: (value) => (value === '' ? null : Number(value)),
