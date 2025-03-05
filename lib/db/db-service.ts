@@ -89,8 +89,6 @@ export class DBService {
             processedMessages.shift();
         }
 
-        console.log("**** Messages ***");
-        console.dir(processedMessages, { depth: null });
         return processedMessages;
     }
 

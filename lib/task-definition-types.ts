@@ -1,5 +1,6 @@
 import { User } from '@/lib/user';
 import { PrismaClient } from '@prisma/client';
+import { ClientContext } from '@/lib/client/client-context';
 import 'reflect-metadata';
 
 export function Tool(name: string, description: string) {
@@ -117,4 +118,6 @@ export abstract class ServerToolsBase {
     ) {}
 }
 
-export abstract class ClientToolsBase {}
+export abstract class ClientToolsBase {
+    constructor(protected clientContext: ClientContext) {}
+}

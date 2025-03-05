@@ -41,6 +41,8 @@ export class AnthropicAdapter extends AIAdapter {
         tools: ToolAI[],
         options = {}
     ) {
+        console.log("Using Anthropic Adapter");
+
         const client = new Anthropic({
             apiKey: process.env.ANTHROPIC_API_KEY || '',
         });

@@ -8,6 +8,7 @@ import { MessageAI, ToolCall } from '@/lib/message';
 import { START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
+import { ClientContext } from '@/lib/client/client-context';
 
 const getNow = () => {
     return new Date();
@@ -17,16 +18,12 @@ const getTimeZone = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
-
 type ChatBotProps = {
     agentId: string;
     agentName: string;
 };
 
-const ChatBot = ({
-    agentId,
-    agentName,
-}: ChatBotProps) => {
+const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
     const [threadId, setThreadId] = useState(crypto.randomUUID());
     const [taskName, setTaskName] = useState('home');
@@ -60,24 +57,25 @@ const ChatBot = ({
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let done = false;
-      
+
             while (!done) {
-                const { value, done: isDone} = await reader.read();
+                const { value, done: isDone } = await reader.read();
                 done = isDone; // Update loop condition
-        
-                if (!value) continue; 
-        
+
+                if (!value) continue;
+
                 const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
-        
+
                 // **Parse the chunk to extract JSON**
-                const events = chunk.split("\n"); // Split by newline to handle multiple messages
-        
+                const events = chunk.split('\n'); // Split by newline to handle multiple messages
+
                 for (const line of events) {
-                    if (line.startsWith("data: ")) { // Only process "data:" lines
+                    if (line.startsWith('data: ')) {
+                        // Only process "data:" lines
                         try {
-                            const jsonPart = line.replace("data: ", "").trim(); // Remove "data: "
+                            const jsonPart = line.replace('data: ', '').trim(); // Remove "data: "
                             const parsed = JSON.parse(jsonPart); // Convert to JSON
-                            
+
                             if (parsed.text) {
                                 handleTextDelta(parsed.text); // Process extracted text
                             }
@@ -86,7 +84,11 @@ const ChatBot = ({
                                 toolCalls.push(parsed.toolCall); // Store tool calls
                             }
                         } catch (error) {
-                            console.error("Failed to parse JSON from chunk:", error, line);
+                            console.error(
+                                'Failed to parse JSON from chunk:',
+                                error,
+                                line
+                            );
                         }
                     }
                 }
@@ -95,7 +97,6 @@ const ChatBot = ({
             if (toolCalls.length > 0) {
                 handleToolCalls(toolCalls);
             }
- 
         } catch (error) {
             console.error('Error sending message', error);
             appendMessage(
@@ -105,7 +106,7 @@ const ChatBot = ({
         } finally {
             setBusyWaiting(false);
             setInputDisabled(false);
-        };
+        }
     };
 
     // automatically scroll to bottom of chat
@@ -115,14 +116,15 @@ const ChatBot = ({
     };
 
     const sendInitialStartMessage = async () => {
-        if (!isInitialStartSentRef.current) {
-            isInitialStartSentRef.current = true;
+        // if (!isInitialStartSentRef.current) {
+        //     isInitialStartSentRef.current = true;
             await sendMessages([{ role: 'user', content: START_MESSAGE }]);
-        }
+        // }
     };
 
     // Send start message
     useEffect(() => {
+        console.log("thread changed");
         sendInitialStartMessage();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -160,7 +162,6 @@ const ChatBot = ({
         setUserInput('');
         scrollToBottom();
     };
-
 
     const handleToolCalls = async (toolCalls: ToolCall[]) => {
         const toolMessages: MessageAI[] = [];
@@ -205,13 +206,49 @@ const ChatBot = ({
         setBusyWaiting(false);
     };
 
-
     /*
     ===============================================
     === Handle Server and Client Function Calls ===
     ===============================================
     */
 
+    /*** Client Context */
+
+    const setTask = (taskName: string) => {
+        console.log('setting task to', taskName);
+        setTaskName(taskName);
+    };
+
+    const getTask = () => {
+        return taskName;
+    };
+
+    const setThread = (threadId: string) => {
+        console.log('setting threadId to', threadId);
+        setThreadId(threadId);
+    };
+
+    const getThread = () => {
+        return threadId;
+    };
+
+    const showModal = () => {
+        alert('show modal');
+    };
+
+    const hideModal = () => {
+        alert('hide modal');
+    };
+
+    const clientContext = new ClientContext(
+        setTask,
+        getTask,
+        setThread,
+        getThread,
+        sendMessages,
+        showModal,
+        hideModal
+    );
 
     const functionCallHandler = async (
         now: Date,
@@ -225,16 +262,14 @@ const ChatBot = ({
         const clientToolsBuilder = new ClientToolsBuilder();
         const clientTool = clientToolsBuilder.getClientTool(functionName);
         if (clientTool) {
-            const result = clientToolsBuilder.callClientTool(
+            const result = await clientToolsBuilder.callClientTool(
+                clientContext,
                 clientTool.methodName,
                 functionArgs
             );
             console.log('client tool result', result);
             return Promise.resolve(result);
         }
-
-
-
 
         // Execute server tool
         const result = await executeServerTool(
@@ -246,8 +281,6 @@ const ChatBot = ({
         console.log('server tool result', result);
         return Promise.resolve(result);
     };
-
-
 
     /*
     =======================
@@ -275,6 +308,7 @@ const ChatBot = ({
 
     return (
         <div>
+            <h1>{taskName}</h1>
             <div className={styles.chatContainer}>
                 <div className={styles.messages}>
                     {messages.map((msg, index) => (

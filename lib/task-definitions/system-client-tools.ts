@@ -3,7 +3,7 @@ import {
     Tool,
     ToolParameter,
 } from '@/lib/task-definition-types';
-import { setSessionItem } from '@/lib/session-storage';
+import { START_MESSAGE } from '@/superexpert.config';
 
 export class SystemClientTools extends ClientToolsBase {
     @Tool(
@@ -11,11 +11,26 @@ export class SystemClientTools extends ClientToolsBase {
         'Call this tool to end the current task and transition to a new task'
     )
     public async transition(
-        @ToolParameter('task', 'The task to transition to')
+        @ToolParameter({
+            name: 'taskName',
+            description: 'The task to transition to',
+        })
         task: string
     ) {
-        setSessionItem('task', task);
-        sessionStorage.removeItem('thread');
-        return `Successfully transitioned to ${task}`;
+
+        // Set new task
+        const previousTask = this.clientContext.getTask();
+        const newTask = task.toLowerCase();
+        this.clientContext.setTask(newTask);
+
+        // Set new thread
+        this.clientContext.setThread(crypto.randomUUID());
+
+
+        // Send START_MESSAGE
+        //await this.clientContext.sendMessages([{ role: 'user', content: START_MESSAGE }]);
+        
+
+        return `Successfully transitioned from ${previousTask} to ${newTask}`;
     }
 }

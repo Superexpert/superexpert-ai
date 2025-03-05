@@ -1,5 +1,6 @@
 'use client';
 import plugins from '@/superexpert.plugins';
+import { ClientContext } from '@/lib/client/client-context';
 
 export class ClientToolsBuilder {
     private filterMethods(targetClass: any) {
@@ -69,13 +70,14 @@ export class ClientToolsBuilder {
     // }
 
     public async callClientTool(
+        clientContext: ClientContext,
         toolName: string,
         toolParams: Record<string, any>
     ) {
         const clientTools = plugins.ClientTools;
     
         for (const ToolClass of clientTools) {
-            const toolInstance = new ToolClass();
+            const toolInstance = new ToolClass(clientContext);
     
             // Iterate through the methods of the class
             const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
