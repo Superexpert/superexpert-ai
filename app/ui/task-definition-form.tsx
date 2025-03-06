@@ -144,6 +144,26 @@ export default function TaskDefinitionForm({
                     )}
                 </div>
 
+                <div>
+                    <label>Start New Thread</label>
+                    <div className='instructions'>Start a new message thread when the user starts this task.</div>
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            className="checkbox"
+                            id="startNewThread"
+                            {...register('startNewThread')}
+                        />
+                        <label htmlFor="startNewThread">Enable</label>
+                    </div>
+                    {errors.startNewThread && (
+                        <p className="error">
+                            {errors.startNewThread.message}
+                        </p>
+                    )}
+                </div>
+
+
                 <h3>Server Data</h3>
                 {serverData.map((item) => (
                     <div key={item.id} className="flex items-center space-x-2">
@@ -227,7 +247,7 @@ export default function TaskDefinitionForm({
                     <>
                         <h3>Advanced AI Model Settings</h3>
                             <label>Maximum Output Tokens</label>
-                            <div>{maximumOutputTokensDescription}</div>
+                            <div className='instructions'>{maximumOutputTokensDescription}</div>
                             <input
                                 {...register('maximumOutputTokens', {
                                     setValueAs: (value) =>
@@ -243,7 +263,7 @@ export default function TaskDefinitionForm({
 
                         <div>
                             <label>Temperature</label>
-                            <div>{maximumTemperatureDescription}</div>
+                            <div className='instructions'>{maximumTemperatureDescription}</div>
                             <input
                                 {...register('temperature', {
                                     setValueAs: (value) =>

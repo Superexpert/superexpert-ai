@@ -29,6 +29,7 @@ export default async function EditTaskDefinitionPage({
         name: '',
         description: '',
         instructions: '',
+        startNewThread: false,
         serverDataIds: [],
         serverToolIds: [],
         clientToolIds: [],

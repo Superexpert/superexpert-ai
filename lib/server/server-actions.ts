@@ -6,6 +6,7 @@ import { User } from '@/lib/user';
 import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
+import { ClientTaskDefinition } from '../client/client-task-definition';
 
 export async function executeServerTool(
     now: Date,
@@ -100,4 +101,19 @@ export async function getAgentAction(resolvedParams: {
         return redirect('/not-found');
     }
     return existingAgent;
+}
+
+
+
+export async function getTasksAction(agentId: string):Promise<ClientTaskDefinition[]> {
+    const db = new DBService();
+    const tasks = await db.getTaskDefinitions(agentId);
+    return tasks.map((task) => ({
+        id: task.id,
+        name: task.name,
+        description: task.description,
+        isSystem: task.isSystem,
+        startNewThread: task.startNewThread,
+        modelId: task.modelId,
+    }));
 }

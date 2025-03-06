@@ -15,22 +15,26 @@ export class SystemClientTools extends ClientToolsBase {
             name: 'taskName',
             description: 'The task to transition to',
         })
-        task: string
+        taskName: string
     ) {
+        taskName = taskName.toLowerCase();
 
         // Set new task
-        const previousTask = this.clientContext.getTask();
-        const newTask = task.toLowerCase();
-        this.clientContext.setTask(newTask);
+        const previousTask = this.clientContext.getCurrentTask();
+        const newTask = this.clientContext.getTask(taskName);
 
-        // // Set new thread
-        // this.clientContext.setThread(crypto.randomUUID());
+        // Does the new task actually exist?
+        if (!newTask) {
+            return `Could not transition to ${taskName} because ${taskName} was not found`;
+        }
 
+        // Set the new task
+        this.clientContext.setTask(newTask.name);
 
-        // // Send START_MESSAGE
-        // await this.clientContext.sendMessages([{ role: 'user', content: 'blixen' }]);
-        
-
-        return `Successfully transitioned from ${previousTask} to ${newTask}`;
+        // Set new thread?
+        if (newTask.startNewThread) {
+            this.clientContext.setThread(crypto.randomUUID());
+        }
+        return `Successfully transitioned from ${previousTask.name} to ${newTask.name}`;
     }
 }

@@ -127,7 +127,7 @@ export class DBService {
         return user;
     }
 
-    //** AgentLayout **//
+    //** [agentName] page **//
 
     public async getAgentByName(name: string) {
         const agent = await prisma.agents.findUnique({

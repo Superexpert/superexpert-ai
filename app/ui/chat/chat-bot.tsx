@@ -9,6 +9,7 @@ import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
+import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 
 const getNow = () => {
     return new Date();
@@ -21,12 +22,11 @@ const getTimeZone = () => {
 type ChatBotProps = {
     agentId: string;
     agentName: string;
+    tasks: ClientTaskDefinition[];
 };
 
-const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
+const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
-    // const [threadId, setThreadId] = useState(crypto.randomUUID());
-    // const [taskName, setTaskName] = useState('home');
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
     const [busyWaiting, setBusyWaiting] = useState(false);
@@ -231,23 +231,32 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
 
     /*** Client Context */
 
+
+    const getCurrentTask = () => {
+        const task = tasks.find((t) => t.name === taskNameRef.current);
+        if (!task) {
+            throw new Error('Task not found');
+        }
+        return task;
+    };
+
+    const getTask = (taskName:string) => {
+        const task = tasks.find((t) => t.name === taskName);
+        return task ?? null;
+    };
+
     const setTask = (taskName: string) => {
         console.log('setting task to', taskName);
-        //setTaskName(taskName);
         taskNameRef.current = taskName;
     };
 
-    const getTask = () => {
-        return taskNameRef.current;
+    const getCurrentThread = () => {
+        return threadIdRef.current;
     };
 
     const setThread = (threadId: string) => {
         console.log('setting threadId to', threadId);
         threadIdRef.current = threadId;
-    };
-
-    const getThread = () => {
-        return threadIdRef.current;
     };
 
     const showModal = () => {
@@ -264,10 +273,12 @@ const ChatBot = ({ agentId, agentName }: ChatBotProps) => {
     };
 
     const clientContext = new ClientContext(
-        setTask,
+        tasks,
+        getCurrentTask,
         getTask,
+        setTask,
+        getCurrentThread,
         setThread,
-        getThread,
         sendQueuedMessages,
         showModal,
         hideModal,

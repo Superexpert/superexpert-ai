@@ -8,6 +8,7 @@ export interface TaskDefinition {
     name: string;
     description: string;
     instructions: string;
+    startNewThread: boolean;
     serverDataIds: string[];
     serverToolIds: string[];
     clientToolIds: string[];
@@ -31,6 +32,7 @@ export const taskDefinitionSchema = z
             .transform((val) => val.toLowerCase()),
         description: z.string().nonempty('Task Description is required'),
         instructions: z.string().optional(),
+        startNewThread: z.boolean(),
         serverDataIds: z.array(z.string()),
         serverToolIds: z.array(z.string()),
         clientToolIds: z.array(z.string()),
@@ -46,22 +48,27 @@ export const taskDefinitionSchema = z
     })
     .superRefine((data, ctx) => {
         const selectedModel = AIModelFactory.getModelById(data.modelId);
-        if (selectedModel && data.maximumOutputTokens) {
-            if (data.maximumOutputTokens > selectedModel.maximumOutputTokens) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['maximumOutputTokens'],
-                    message: `Maximum output tokens cannot exceed ${selectedModel.maximumOutputTokens.toLocaleString()} for the selected model.`,
-                });
+        if (!selectedModel) {
+            data.maximumOutputTokens = null;
+            data.temperature = null;
+        } else {
+            if (data.maximumOutputTokens) {
+                if (data.maximumOutputTokens > selectedModel.maximumOutputTokens) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        path: ['maximumOutputTokens'],
+                        message: `Maximum output tokens cannot exceed ${selectedModel.maximumOutputTokens.toLocaleString()} for the selected model.`,
+                    });
+                }
             }
-        }
-        if (selectedModel && data.temperature) {
-            if (data.temperature > selectedModel.maximumTemperature) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['temperature'],
-                    message: `Temperature cannot exceed ${selectedModel.maximumTemperature.toLocaleString()} for the selected model.`,
-                });
+            if (data.temperature) {
+                if (data.temperature > selectedModel.maximumTemperature) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        path: ['temperature'],
+                        message: `Temperature cannot exceed ${selectedModel.maximumTemperature.toLocaleString()} for the selected model.`,
+                    });
+                }
             }
         }
     });
