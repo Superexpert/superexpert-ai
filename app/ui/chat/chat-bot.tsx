@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
@@ -10,6 +10,7 @@ import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
+import Modal from '@/app/ui/modal';
 
 const getNow = () => {
     return new Date();
@@ -30,6 +31,8 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
     const [busyWaiting, setBusyWaiting] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalContent, setModalContent] = useState<ReactNode>(null);
 
     const queuedMessagesRef = useRef<MessageAI[]>([]);
     const threadIdRef = useRef(crypto.randomUUID());
@@ -259,13 +262,15 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         threadIdRef.current = threadId;
     };
 
-    const showModal = () => {
-        alert('show modal');
-    };
-
-    const hideModal = () => {
-        alert('hide modal');
-    };
+    const showModal = (content: ReactNode) => {
+        setModalContent(content);
+        setIsModalVisible(true);
+      };
+    
+      const hideModal = () => {
+        setIsModalVisible(false);
+        setModalContent(null);
+      };
 
     const sendQueuedMessages =  async (messages: MessageAI[]) => {
         console.log(`sendQueuedMessages called ${messages.length}`);
@@ -380,6 +385,9 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                     </button>
                 </form>
             </div>
+            <Modal isVisible={isModalVisible} onClose={hideModal}>
+                {modalContent}
+            </Modal>
         </div>
     );
 };

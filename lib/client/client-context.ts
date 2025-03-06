@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { MessageAI } from '@/lib/message-ai';
 import { ClientTaskDefinition } from './client-task-definition';
 
@@ -11,7 +12,7 @@ export class ClientContext {
         public setThread: (id:string) => void,
         public sendMessages: (messages:
             MessageAI[]) => Promise<void>,
-        public showModal: () => void,
+        public showModal: (content: ReactNode) => void,
         public hideModal: () => void
     ) {}
 }

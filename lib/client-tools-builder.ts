@@ -98,17 +98,14 @@ export class ClientToolsBuilder {
                         methodName
                     ) || [];
     
-                    if (!parameterMetadata.length) {
-                        throw new Error(`No parameter metadata found for tool '${toolName}'.`);
-                    }
-    
                     // Create a mapping of expected parameter names to their index in function signature
                     const expectedParams = parameterMetadata.map((param: any) => param.name);
     
                     // Rearrange toolParams according to the expected parameter order
-                    const args = expectedParams.map((paramName:string) => {
+                    const args = expectedParams.map((paramName: string) => {
                         if (!(paramName in toolParams)) {
-                            throw new Error(`Missing parameter '${paramName}' for tool '${toolName}'.`);
+                            // Handle missing parameter; here we set it to undefined
+                            return undefined;
                         }
                         return toolParams[paramName];
                     });

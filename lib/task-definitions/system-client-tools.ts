@@ -3,7 +3,6 @@ import {
     Tool,
     ToolParameter,
 } from '@/lib/task-definition-types';
-import { START_MESSAGE } from '@/superexpert.config';
 
 export class SystemClientTools extends ClientToolsBase {
     @Tool(
