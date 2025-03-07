@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode, ReactElement } from 'react';
 import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
@@ -8,7 +8,7 @@ import { MessageAI, ToolCall } from '@/lib/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
-import { ClientContext } from '@/lib/client/client-context';
+import { ClientContext, ShowModalType } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 import Modal from '@/app/ui/modal';
 
@@ -262,11 +262,29 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         threadIdRef.current = threadId;
     };
 
-    const showModal = (content: ReactNode) => {
-        setModalContent(content);
-        setIsModalVisible(true);
+    // const showModal:ShowModalType = (
+    //     ContentComponent: (props: { onSubmit: (result: string) => void }) => ReactElement,
+    //     onSubmit: (result: string) => void
+    //   ) => {
+    //     setModalContent(<ContentComponent onSubmit={onSubmit} />);
+    //     setIsModalVisible(true);
+    //   };
+
+    const showModal = async (
+        ContentComponent: (props: { onSubmit: (result: string) => void }) => ReactElement
+      ) => {
+        return new Promise<string>((resolve) => {
+          const onSubmit = (result: string) => {
+            setIsModalVisible(false);
+            resolve(result);
+          };
+          setModalContent(<ContentComponent onSubmit={onSubmit} />);
+          setIsModalVisible(true);
+        });
       };
-    
+
+
+
       const hideModal = () => {
         setIsModalVisible(false);
         setModalContent(null);

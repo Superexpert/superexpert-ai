@@ -1,6 +1,12 @@
-import { ReactNode } from 'react';
+import { ReactNode, JSX, ReactElement } from 'react';
 import { MessageAI } from '@/lib/message-ai';
 import { ClientTaskDefinition } from './client-task-definition';
+
+
+export type ShowModalType = (
+    ContentComponent: (props: { onSubmit: (result: string) => void }) => ReactElement,
+    //onSubmit: (result: string) => void
+  ) => void;
 
 export class ClientContext {
     constructor(
@@ -12,7 +18,7 @@ export class ClientContext {
         public setThread: (id:string) => void,
         public sendMessages: (messages:
             MessageAI[]) => Promise<void>,
-        public showModal: (content: ReactNode) => void,
+        public showModal: ShowModalType,
         public hideModal: () => void
     ) {}
 }
