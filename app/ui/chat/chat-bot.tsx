@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, ReactNode, ReactElement } from 'react';
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    ReactNode,
+    ReactElement,
+} from 'react';
 import styles from './chat-bot.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
@@ -37,6 +43,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const queuedMessagesRef = useRef<MessageAI[]>([]);
     const threadIdRef = useRef(crypto.randomUUID());
     const taskNameRef = useRef('home');
+    const mainContentRef = useRef<HTMLDivElement | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -109,10 +116,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
             }
         } catch (error) {
             console.error('Error sending message', error);
-            appendMessage(
-                'assistant',
-                CHAT_ERROR_MESSAGE
-            );
+            appendMessage('assistant', CHAT_ERROR_MESSAGE);
         } finally {
             setBusyWaiting(false);
             setInputDisabled(false);
@@ -128,13 +132,13 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const sendInitialStartMessage = async () => {
         // if (!isInitialStartSentRef.current) {
         //     isInitialStartSentRef.current = true;
-            await sendMessages([{ role: 'user', content: START_MESSAGE }]);
+        await sendMessages([{ role: 'user', content: START_MESSAGE }]);
         // }
     };
 
     // Send start message
     useEffect(() => {
-        console.log("thread changed");
+        console.log('thread changed');
         sendInitialStartMessage();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -234,7 +238,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 
     /*** Client Context */
 
-
     const getCurrentTask = () => {
         const task = tasks.find((t) => t.name === taskNameRef.current);
         if (!task) {
@@ -243,7 +246,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         return task;
     };
 
-    const getTask = (taskName:string) => {
+    const getTask = (taskName: string) => {
         const task = tasks.find((t) => t.name === taskName);
         return task ?? null;
     };
@@ -271,26 +274,33 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     //   };
 
     const showModal = async (
-        ContentComponent: (props: { onSubmit: (result: string) => void }) => ReactElement
-      ) => {
+        ContentComponent: (props: {
+            onSubmit: (result: string) => void;
+        }) => ReactElement
+    ) => {
         return new Promise<string>((resolve) => {
-          const onSubmit = (result: string) => {
-            setIsModalVisible(false);
-            resolve(result);
-          };
-          setModalContent(<ContentComponent onSubmit={onSubmit} />);
-          setIsModalVisible(true);
+            const onSubmit = (result: string) => {
+                if (mainContentRef.current) {
+                    mainContentRef.current.removeAttribute('inert');
+                }
+                setIsModalVisible(false);
+                resolve(result);
+            };
+            // Prevents users from clicking on the main content while the modal is open
+            if (mainContentRef.current) {
+                mainContentRef.current.setAttribute('inert', 'true');
+            }
+            setModalContent(<ContentComponent onSubmit={onSubmit} />);
+            setIsModalVisible(true);
         });
-      };
+    };
 
-
-
-      const hideModal = () => {
+    const hideModal = () => {
         setIsModalVisible(false);
         setModalContent(null);
-      };
+    };
 
-    const sendQueuedMessages =  async (messages: MessageAI[]) => {
+    const sendQueuedMessages = async (messages: MessageAI[]) => {
         console.log(`sendQueuedMessages called ${messages.length}`);
         queuedMessagesRef.current = [...queuedMessagesRef.current, ...messages];
     };
@@ -304,7 +314,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         setThread,
         sendQueuedMessages,
         showModal,
-        hideModal,
+        hideModal
     );
 
     const functionCallHandler = async (
@@ -366,7 +376,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     return (
         <div>
             <h1>{taskNameRef.current}</h1>
-            <div className={styles.chatContainer}>
+            <div className={styles.chatContainer} ref={mainContentRef}>
                 <div className={styles.messages}>
                     {messages.map((msg, index) => (
                         <Message key={index} role={msg.role} text={msg.text} />
@@ -403,9 +413,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                     </button>
                 </form>
             </div>
-            <Modal isVisible={isModalVisible} onClose={hideModal}>
-                {modalContent}
-            </Modal>
+            <Modal isVisible={isModalVisible}>{modalContent}</Modal>
         </div>
     );
 };
