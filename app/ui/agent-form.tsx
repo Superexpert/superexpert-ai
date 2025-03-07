@@ -55,6 +55,11 @@ export default function AgentForm({
 
         <div className="formCard">
             <h1>{isEditMode ? 'Edit Agent' : 'New Agent'}</h1>
+            <div className="instructions">
+                An agent performs a set of tasks. For example, you can create a 
+                'customer-service' agent to handle customer inquiries or a 
+                'marketing-assistant' agent to help develop marketing content.
+            </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     {serverError && <p className="error">{serverError}</p>}
@@ -62,6 +67,9 @@ export default function AgentForm({
 
                 <div>
                     <label>Agent Name</label>
+                    <div className="instructions">
+                        The agent name should be lower-case and a single word with hyphens allowed.
+                    </div>
                     <input type="text" {...register('name')} />
                     {errors.name && (
                         <p className="error">{errors.name.message}</p>
@@ -70,6 +78,9 @@ export default function AgentForm({
 
                 <div>
                     <label>Agent Description</label>
+                    <div className="instructions">
+                        Describe the purpose of the agent.
+                    </div>
                     <textarea {...register('description')}></textarea>
                     {errors.description && (
                         <p className="error">{errors.description.message}</p>

@@ -112,9 +112,11 @@ export default function TaskDefinitionForm({
                         ? 'Edit Task Definition'
                         : 'New Task Definition'}
                 </h1>
-                <div>
-                    sfjkjs fsfkl fsklkfsdksdkafkafs lfdsklkfsd fadskljkafsd
-                    afsklkflasdkfsadk fasd fas kjafsklf afsdklkjlafsd jlkfads
+                <div className="instructions">
+                    A task definition provides the instructions, AI model, and
+                    custom tools used by an agent. The global task provides
+                    default values for these settings. The home task is always
+                    the first task that an AI agent performs.
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div>
@@ -122,6 +124,11 @@ export default function TaskDefinitionForm({
                     </div>
                     <div>
                         <label>Task Name</label>
+                        <div className="instructions">
+                            An agent uses the task name to transition to a task.
+                            The task name should be lower-case and a single word
+                            with hyphens allowed.
+                        </div>
                         <input
                             {...register('name')}
                             type="text"
@@ -134,6 +141,11 @@ export default function TaskDefinitionForm({
 
                     <div>
                         <label>Description</label>
+                        <div className="instructions">
+                            The task description can be anything that you want.
+                            Use the task description to describe the purpose of
+                            the task.
+                        </div>
                         <textarea
                             {...register('description')}
                             readOnly={taskDefinition.isSystem}></textarea>
@@ -146,6 +158,14 @@ export default function TaskDefinitionForm({
 
                     <div>
                         <label>Instructions</label>
+                        <div className="instructions">
+                            The task instructions are for the AI agent. This is
+                            where you perform your prompt engineering. These
+                            instructions are given to the agent every time a
+                            user prompts the agent while this task is active.
+                            Instructions for individual tasks are combined with
+                            the instructions from the global task.
+                        </div>
                         <textarea {...register('instructions')}></textarea>
                         {errors.instructions && (
                             <p className="error">
@@ -158,7 +178,9 @@ export default function TaskDefinitionForm({
                         <label>Start New Thread</label>
                         <div className="instructions">
                             Start a new message thread when the user starts this
-                            task.
+                            task. Enabling this option will erase the agent's
+                            memory of the previous messages in the conversation
+                            when the user starts the new task.
                         </div>
                         <div className="flex items-center space-x-2">
                             <input
@@ -177,6 +199,14 @@ export default function TaskDefinitionForm({
                     </div>
 
                     <h3>Server Data</h3>
+                    <div className="instructions">
+                        Load custom data from the server that is shared with the
+                        agent. The server data can be anything that you want.
+                        For example, load the current user's profile, your
+                        company's vacation policies, or the latest product
+                        catalog. Enabling a tool in the global task will enable
+                        the tool for all tasks.
+                    </div>
                     {serverData.map((item) => (
                         <div
                             key={item.id}
@@ -195,6 +225,13 @@ export default function TaskDefinitionForm({
                     ))}
 
                     <h3>Server Tools</h3>
+                    <div className="instructions">
+                        Server tools are custom functions that an agent can
+                        execute on the server. For example, update the user's
+                        profile, send an email, or query a database. Enabling a
+                        tool in the global task will enable the tool for all
+                        tasks.
+                    </div>
                     {serverTools.map((item) => (
                         <div
                             key={item.id}
@@ -213,6 +250,12 @@ export default function TaskDefinitionForm({
                     ))}
 
                     <h3>Client Tools</h3>
+                    <div className="instructions">
+                        Client tools are custom functions that an agent can
+                        execute on the client. For example, transition to a new
+                        task or show a modal dialog. Enabling a tool in the
+                        global task will enable the tool for all tasks.
+                    </div>
                     {clientTools.map((item) => (
                         <div
                             key={item.id}
@@ -231,6 +274,11 @@ export default function TaskDefinitionForm({
                     ))}
 
                     <h3>AI Model</h3>
+                    <div className="instructions">
+                        Select the AI model that the agent will use for this
+                        task. The global task model is used when the task model
+                        is set to 'global'.
+                    </div>
                     {taskDefinition.name != 'global' && (
                         <div className="flex items-center space-x-2">
                             <input
@@ -266,7 +314,19 @@ export default function TaskDefinitionForm({
                     {selectedModelId !== 'global' && (
                         <>
                             <h3>Advanced AI Model Settings</h3>
+                            <div className="instructions">
+                                The advanced AI model settings allow you to
+                                customize the AI model's behavior.
+                            </div>
+
                             <label>Maximum Output Tokens</label>
+                            <div className="instructions">
+                                The maximum output tokens setting cuts off the
+                                number of tokens that the AI model can generate.
+                                This setting is useful for preventing the AI
+                                model from generating too much text.
+                            </div>
+
                             <div className="instructions">
                                 {maximumOutputTokensDescription}
                             </div>
@@ -285,6 +345,12 @@ export default function TaskDefinitionForm({
 
                             <div>
                                 <label>Temperature</label>
+                                <div className="instructions">
+                                    The temperature setting controls the
+                                    randomness of the AI model's output. A
+                                    higher temperature will produce more random
+                                    output.
+                                </div>
                                 <div className="instructions">
                                     {maximumTemperatureDescription}
                                 </div>
