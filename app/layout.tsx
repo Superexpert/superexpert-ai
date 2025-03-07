@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { signOut } from '@/auth';
 import Link from 'next/link';
+import SignOutButton from './ui/sign-out-button';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -35,15 +35,7 @@ export default function RootLayout({
                         </Link>
                     </div>
                     <div>
-                        <form
-                            action={async () => {
-                                'use server';
-                                await signOut({ redirectTo: '/login' });
-                            }}>
-                            <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3">
-                                <div className="hidden md:block">Sign Out</div>
-                            </button>
-                        </form>
+                        <SignOutButton />
                     </div>
                 </nav>
                 {children}
