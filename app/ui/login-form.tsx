@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
 
 export default function LoginForm() {
     const [serverError, setServerError] = useState('');
@@ -22,7 +24,7 @@ export default function LoginForm() {
     });
 
     const onSubmit = async (registerUser: RegisterUser) => {
-        const result = await authenticateAction(registerUser, callbackUrl);
+        const result = await authenticateAction(registerUser);
         if (result.success) {
             router.push(callbackUrl);
         } else {
@@ -62,7 +64,7 @@ export default function LoginForm() {
                 <button className="btn btnPrimary">Log in </button>
             </form>
             <div className="mt-4">
-                Don't have an account? <a href="/register">Register</a>
+                Don&apos;t have an account? <Link href="/register">Register</Link>
             </div>
         </div>
     );

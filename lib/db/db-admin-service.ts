@@ -145,7 +145,7 @@ export class DBAdminService {
     //** AgentListPage **//
 
     public async getAgentList() {
-        let agents = await prisma.agents.findMany({
+        const agents = await prisma.agents.findMany({
             where: {
                 userId: this.userId,
             },

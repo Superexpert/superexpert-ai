@@ -36,7 +36,7 @@ export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
     try {
         const db = new DBAdminService(userId);
         await db.saveTaskDefinition(taskDefinition);
-    } catch (err) {
+    } catch {
         return {
             success: false,
             serverError: 'Failed to save task definition',
@@ -53,7 +53,7 @@ export async function deleteTaskDefinitionAction(id: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    const result = await db.deleteTaskDefinition(id);
+    await db.deleteTaskDefinition(id);
     redirect('/admin');
 }
 
@@ -140,6 +140,6 @@ export async function deleteAgentAction(id: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    const result = await db.deleteAgent(id);
+    await db.deleteAgent(id);
     redirect('/');
 }

@@ -37,7 +37,7 @@ export class DBService {
 
     public async deleteOldMessages() {
         const messageRetentionHours = Number(MESSAGE_RETENTION_HOURS);
-        const messages = await prisma.messages.deleteMany({
+        await prisma.messages.deleteMany({
             where: {
                 createdAt: {
                     lt: new Date(new Date().getTime() - 1000 * 60 * 60 * messageRetentionHours),

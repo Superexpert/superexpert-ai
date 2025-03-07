@@ -24,7 +24,6 @@ interface TaskDefinitionFormProps {
 }
 
 export default function TaskDefinitionForm({
-    agentId,
     agentName,
     taskDefinition,
     serverData,
@@ -178,7 +177,7 @@ export default function TaskDefinitionForm({
                         <label>Start New Thread</label>
                         <div className="instructions">
                             Start a new message thread when the user starts this
-                            task. Enabling this option will erase the agent's
+                            task. Enabling this option will erase the agent&apos;s
                             memory of the previous messages in the conversation
                             when the user starts the new task.
                         </div>
@@ -202,8 +201,8 @@ export default function TaskDefinitionForm({
                     <div className="instructions">
                         Load custom data from the server that is shared with the
                         agent. The server data can be anything that you want.
-                        For example, load the current user's profile, your
-                        company's vacation policies, or the latest product
+                        For example, load the current user&apos;s profile, your
+                        company&apos;s vacation policies, or the latest product
                         catalog. Enabling a tool in the global task will enable
                         the tool for all tasks.
                     </div>
@@ -227,7 +226,7 @@ export default function TaskDefinitionForm({
                     <h3>Server Tools</h3>
                     <div className="instructions">
                         Server tools are custom functions that an agent can
-                        execute on the server. For example, update the user's
+                        execute on the server. For example, update the user&apos;s
                         profile, send an email, or query a database. Enabling a
                         tool in the global task will enable the tool for all
                         tasks.
@@ -277,7 +276,7 @@ export default function TaskDefinitionForm({
                     <div className="instructions">
                         Select the AI model that the agent will use for this
                         task. The global task model is used when the task model
-                        is set to 'global'.
+                        is set to &apos;global&apos;.
                     </div>
                     {taskDefinition.name != 'global' && (
                         <div className="flex items-center space-x-2">
@@ -316,7 +315,7 @@ export default function TaskDefinitionForm({
                             <h3>Advanced AI Model Settings</h3>
                             <div className="instructions">
                                 The advanced AI model settings allow you to
-                                customize the AI model's behavior.
+                                customize the AI model&apos;s behavior.
                             </div>
 
                             <label>Maximum Output Tokens</label>
@@ -347,7 +346,7 @@ export default function TaskDefinitionForm({
                                 <label>Temperature</label>
                                 <div className="instructions">
                                     The temperature setting controls the
-                                    randomness of the AI model's output. A
+                                    randomness of the AI model&apos;s output. A
                                     higher temperature will produce more random
                                     output.
                                 </div>

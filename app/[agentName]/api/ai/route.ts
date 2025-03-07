@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import OpenAI from 'openai';
-import { MessageAI, ToolCall } from '@/lib/message';
+import { MessageAI } from '@/lib/message';
 import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { User } from '@/lib/user';
@@ -26,14 +25,14 @@ export async function POST(
     }
     const user = session.user as User;
 
-    // Get agent 
-    const {agentName} = await context.params;
+    // Get agent
+    const { agentName } = await context.params;
     const db = new DBAdminService(user.id);
     const agent = await db.getAgentByName(agentName);
     if (!agent) {
         throw new Error('Agent not found');
     }
- 
+
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
 
@@ -42,15 +41,16 @@ export async function POST(
     user.now = new Date(nowString);
     user.timeZone = timeZone;
 
-
     const taskMachine = new TaskMachine();
-    let { instructions, currentMessages, tools, modelId, modelConfiguration } = await taskMachine.getAIPayload(
-        user,
-        agent.id,
-        task,
-        thread,
-        messages
-    );
+    const {
+        instructions,
+        currentMessages,
+        tools,
+        modelId: initialModelId,
+        modelConfiguration: initialModelConfiguration,
+    } = await taskMachine.getAIPayload(user, agent.id, task, thread, messages);
+    let modelId = initialModelId;
+    let modelConfiguration = initialModelConfiguration;
 
     // If DemoMode then always use GPT-4o mini
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
@@ -65,19 +65,27 @@ export async function POST(
     // Create a new AI Model
     const model = AIModelFactory.createModel(modelId, modelConfiguration);
 
-    const response = model.generateResponse(instructions, currentMessages, tools);
+    const response = model.generateResponse(
+        instructions,
+        currentMessages,
+        tools
+    );
 
     const readableStream = new ReadableStream({
         async start(controller) {
             let fullMessage = ''; // Buffer to store the full message
-            let toolCalls = []; // Store tool call IDs
+            const toolCalls = []; // Store tool call IDs
             const encoder = new TextEncoder();
             for await (const chunk of response) {
-                controller.enqueue(encoder.encode(`event: message\ndata: ${JSON.stringify(chunk)}\n\n`));
+                controller.enqueue(
+                    encoder.encode(
+                        `event: message\ndata: ${JSON.stringify(chunk)}\n\n`
+                    )
+                );
                 if (chunk.text) {
                     fullMessage += chunk.text;
                 }
-                if (chunk.toolCall) {   
+                if (chunk.toolCall) {
                     toolCalls.push(chunk.toolCall);
                 }
             }
@@ -95,7 +103,10 @@ export async function POST(
     });
 
     return new Response(readableStream, {
-        headers: { 'Content-Type': 'text/event-stream', 'Transfer-Encoding': 'chunked', 'Cache-Control': 'no-cache' },
+        headers: {
+            'Content-Type': 'text/event-stream',
+            'Transfer-Encoding': 'chunked',
+            'Cache-Control': 'no-cache',
+        },
     });
-
 }

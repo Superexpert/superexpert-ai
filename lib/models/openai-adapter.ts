@@ -9,7 +9,6 @@ export class OpenAIAdapter extends AIAdapter {
         instructions: string,
         inputMessages: MessageAI[],
         tools: ToolAI[],
-        options = {}
     ) {
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {

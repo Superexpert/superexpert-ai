@@ -7,7 +7,7 @@ export interface ChunkAI {
         type: 'function';
         function: {
             name: string;
-            arguments: any;
+            arguments: any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
     }
 }

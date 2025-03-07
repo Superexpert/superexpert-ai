@@ -1,9 +1,6 @@
 'use client';
 
 import ChatBot from '@/app/ui/chat/chat-bot';
-import { ToolCall } from '@/lib/message';
-import { executeServerTool } from '@/lib/server/server-actions';
-import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 
 export default function ChatContainer({

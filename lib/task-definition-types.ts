@@ -4,7 +4,7 @@ import { ClientContext } from '@/lib/client/client-context';
 import 'reflect-metadata';
 
 export function Tool(name: string, description: string) {
-    return (target: Object, propertyKey: string) => {
+    return (target: object, propertyKey: string) => {
         Reflect.defineMetadata(
             'tool',
             { name, description },
@@ -23,7 +23,8 @@ interface ToolParameterOptions {
 }
 
 export function ToolParameter(options: ToolParameterOptions) {
-    return (target: Object, propertyKey: string, parameterIndex: number) => {
+    return (target: object, propertyKey: string, parameterIndex: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const existingParams: any[] =
             Reflect.getMetadata('tool-parameters', target, propertyKey) || [];
         const parameterTypes = Reflect.getMetadata(
@@ -50,35 +51,10 @@ export function ToolParameter(options: ToolParameterOptions) {
     };
 }
 
-// export function ToolParameter(name: string, description: string) {
-//     return (target: Object, propertyKey: string, parameterIndex: number) => {
-//         const existingParams: any[] =
-//             Reflect.getMetadata('tool-parameters', target, propertyKey) || [];
-//         const parameterTypes = Reflect.getMetadata(
-//             'design:paramtypes',
-//             target,
-//             propertyKey
-//         );
-//         const paramType = parameterTypes?.[parameterIndex] || 'unknown';
-
-//         existingParams[parameterIndex] = {
-//             name,
-//             description,
-//             type: paramType.name || 'unknown',
-//             optional: false, // Mark as required
-//         };
-
-//         Reflect.defineMetadata(
-//             'tool-parameters',
-//             existingParams,
-//             target,
-//             propertyKey
-//         );
-//     };
-// }
 
 export function OptionalToolParameter(name: string, description: string) {
-    return (target: Object, propertyKey: string, parameterIndex: number) => {
+    return (target: object, propertyKey: string, parameterIndex: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const existingParams: any[] =
             Reflect.getMetadata('tool-parameters', target, propertyKey) || [];
         const parameterTypes = Reflect.getMetadata(

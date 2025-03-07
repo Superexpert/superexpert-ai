@@ -12,7 +12,7 @@ export async function executeServerTool(
     now: Date,
     timeZone: string,
     functionName: string,
-    functionArgs: any
+    functionArgs: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
     // Get user id
     const session = await auth();
@@ -33,7 +33,6 @@ export async function executeServerTool(
 
 export async function authenticateAction(
     user: RegisterUser,
-    callbackUrl: string
 ) {
     try {
         await signIn('credentials', {
@@ -45,7 +44,7 @@ export async function authenticateAction(
             success: true,
             serverError: '',
         };
-    } catch (error) {
+    } catch {
         return {
             success: false,
             serverError: 'Wrong username or password',

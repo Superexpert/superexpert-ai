@@ -18,7 +18,7 @@ export abstract class AIAdapter {
 
 
     protected async *retryWithBackoff<T>(
-        operation: () => Promise<AsyncGenerator<T, any, any>>,
+        operation: () => Promise<AsyncGenerator<T, any, any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
         maxRetries: number = 3
     ): AsyncGenerator<T> {
         let retries = 0;

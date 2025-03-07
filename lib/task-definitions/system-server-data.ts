@@ -1,7 +1,6 @@
 import {
     ServerDataBase,
-    Tool,
-    ToolParameter,
+    Tool
 } from '@/lib/task-definition-types';
 
 export class SystemServerData extends ServerDataBase {

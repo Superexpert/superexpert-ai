@@ -125,7 +125,6 @@ export class GoogleAdapter extends AIAdapter {
         instructions: string,
         inputMessages: MessageAI[],
         tools: ToolAI[],
-        options = {}
     ) {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -150,7 +149,7 @@ export class GoogleAdapter extends AIAdapter {
                     name: tool.function.name,
                     description: tool.function.description,
                     ...(hasValidParameters
-                        ? { parameters: parameters as any }
+                        ? { parameters: parameters as any } // eslint-disable-line @typescript-eslint/no-explicit-any 
                         : {}),
                 };
             }
@@ -198,7 +197,7 @@ export class GoogleAdapter extends AIAdapter {
 
     // If there are issues then throw to trigger a retry
     async *processChunks(
-        stream: AsyncGenerator<EnhancedGenerateContentResponse, any, any>
+        stream: AsyncGenerator<EnhancedGenerateContentResponse, any, any> // eslint-disable-line @typescript-eslint/no-explicit-any
     ): AsyncGenerator<ChunkAI> {
         // Accumulates function calls to be yielded after processing all chunks
         const functionAccumulator: ToolCall[] = [];

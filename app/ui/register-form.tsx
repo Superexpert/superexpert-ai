@@ -7,6 +7,7 @@ import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import Link from 'next/link';
 
 export default function RegisterForm() {
     const [serverError, setServerError] = useState('');
@@ -18,7 +19,6 @@ export default function RegisterForm() {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<RegisterUser>({
         resolver: zodResolver(registerUserSchema),
     });
@@ -63,7 +63,7 @@ export default function RegisterForm() {
                 </div>
                 <button className="btn btnPrimary">Register</button>
                 <div className="mt-4">
-                    Already have an account? <a href="/login">Login</a>
+                    Already have an account? <Link href="/login">Login</Link>
                 </div>
             </form>
         </div>

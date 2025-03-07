@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
 import plugins from '@/superexpert.plugins';
@@ -5,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { User } from '@/lib/user';
 
 export class ToolsBuilder {
-    private filterMethods(targetClass: any) {
+    private filterMethods(targetClass: any) { 
         const prototype = targetClass?.prototype;
         if (!prototype) {
             return [];
@@ -20,7 +21,7 @@ export class ToolsBuilder {
     }
 
     public getDecoratedServerDataMethods() {
-        const methods: any[] = [];
+        const methods: any[] = []; 
         plugins.ServerData.forEach((plugin) => {
             const tools = this.filterMethods(plugin);
             methods.push(...tools);
@@ -29,7 +30,7 @@ export class ToolsBuilder {
     }
 
     public getDecoratedServerToolMethods() {
-        const methods: any[] = [];
+        const methods: any[] = [];  
         plugins.ServerTools.forEach((plugin) => {
             const tools = this.filterMethods(plugin);
             methods.push(...tools);
@@ -38,7 +39,7 @@ export class ToolsBuilder {
     }
 
     public getDecoratedClientToolMethods() {
-        const methods: any[] = [];
+        const methods: any[] = []; 
         plugins.ClientTools.forEach((plugin) => {
             const tools = this.filterMethods(plugin);
             methods.push(...tools);

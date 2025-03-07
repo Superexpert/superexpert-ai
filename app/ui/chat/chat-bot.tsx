@@ -14,7 +14,7 @@ import { MessageAI, ToolCall } from '@/lib/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/server/server-actions';
 import { ClientToolsBuilder } from '@/lib/client-tools-builder';
-import { ClientContext, ShowModalType } from '@/lib/client/client-context';
+import { ClientContext } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 import Modal from '@/app/ui/modal';
 
@@ -32,7 +32,7 @@ type ChatBotProps = {
     tasks: ClientTaskDefinition[];
 };
 
-const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
+const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
@@ -46,8 +46,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const mainContentRef = useRef<HTMLDivElement | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
-
-    const isInitialStartSentRef = useRef(false); // Track if "start" has been sent
 
     const sendMessages = async (messages: MessageAI[]) => {
         try {
@@ -147,17 +145,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         }
     }, [inputDisabled]);
 
-    const celebrateSuccess = () => {
-        const images = [
-            '/success/cool-gold-badge.gif',
-            '/success/bird-success.gif',
-            '/success/rocket-launch.gif',
-        ];
-        const randomIndex = Math.floor(Math.random() * images.length);
-        const src = images[randomIndex];
-
-        appendMessage('success', src);
-    };
 
     const handleSubmit = (e: { preventDefault: () => void }) => {
         e.preventDefault();
@@ -205,12 +192,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         appendToLastMessage(delta);
     };
 
-    // handleRunCompleted - re-enable the input form
-    const handleRunCompleted = async () => {
-        setInputDisabled(false);
-        setBusyWaiting(false);
-    };
-
+  
     /*
     ===============================================
     === Handle Server and Client Function Calls ===

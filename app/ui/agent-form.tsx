@@ -57,8 +57,8 @@ export default function AgentForm({
             <h1>{isEditMode ? 'Edit Agent' : 'New Agent'}</h1>
             <div className="instructions">
                 An agent performs a set of tasks. For example, you can create a 
-                'customer-service' agent to handle customer inquiries or a 
-                'marketing-assistant' agent to help develop marketing content.
+                &apos;customer-service&apos; agent to handle customer inquiries or a 
+                &apos;marketing-assistant&apos; agent to help develop marketing content.
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>

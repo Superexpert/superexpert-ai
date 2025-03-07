@@ -39,7 +39,6 @@ export class AnthropicAdapter extends AIAdapter {
         instructions: string,
         inputMessages: MessageAI[],
         tools: ToolAI[],
-        options = {}
     ) {
         const client = new Anthropic({
             apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -56,6 +55,7 @@ export class AnthropicAdapter extends AIAdapter {
 
 
         // Set up the request parameters
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const requestParams: any = {
             model: this.modelId,
             messages: anthropicInputMessages,
