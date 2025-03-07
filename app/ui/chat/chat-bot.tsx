@@ -128,10 +128,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     };
 
     const sendInitialStartMessage = async () => {
-        // if (!isInitialStartSentRef.current) {
-        //     isInitialStartSentRef.current = true;
         await sendMessages([{ role: 'user', content: START_MESSAGE }]);
-        // }
     };
 
     // Send start message
@@ -177,15 +174,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const handleToolCalls = async (toolCalls: ToolCall[]) => {
         const toolMessages: MessageAI[] = [];
         for (const toolCall of toolCalls) {
-            // if (toolCall.function.name === 'celebrateSuccess') {
-            //     celebrateSuccess();
-            //     toolMessages.push({
-            //         role: 'tool',
-            //         content: 'Success message displayed.',
-            //         tool_call_id: toolCall.id,
-            //     });
-            // } else {
-
             const result = await functionCallHandler(
                 getNow(),
                 getTimeZone(),
@@ -196,12 +184,10 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                 content: result,
                 tool_call_id: toolCall.id,
             });
-            // }
         }
         await sendMessages(toolMessages);
 
         // These are messages that were queued while waiting for the tool calls to complete
-        console.dir(queuedMessagesRef, { depth: null });
         if (queuedMessagesRef.current.length > 0) {
             const messagesToSend = [...queuedMessagesRef.current];
             queuedMessagesRef.current = []; // Reset the queue
@@ -259,14 +245,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         console.log('setting threadId to', threadId);
         threadIdRef.current = threadId;
     };
-
-    // const showModal:ShowModalType = (
-    //     ContentComponent: (props: { onSubmit: (result: string) => void }) => ReactElement,
-    //     onSubmit: (result: string) => void
-    //   ) => {
-    //     setModalContent(<ContentComponent onSubmit={onSubmit} />);
-    //     setIsModalVisible(true);
-    //   };
 
     const showModal = async (
         ContentComponent: (props: {
@@ -370,7 +348,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 
     return (
         <div>
-            <h1>{taskNameRef.current}</h1>
             <div className={styles.chatContainer} ref={mainContentRef}>
                 <div className={styles.messages}>
                     {messages.map((msg, index) => (

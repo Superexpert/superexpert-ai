@@ -112,7 +112,7 @@ export class DBAdminService {
                 instructions: '',
                 serverDataIds: [],
                 serverToolIds: [],
-                clientToolIds: [],
+                clientToolIds: ['transition'],
                 modelId: 'gpt-4o',
             },
             {
@@ -216,6 +216,9 @@ export class DBAdminService {
                 description: data.description,
             },
         });
+
+        // Create system task definitions
+        await this.createSystemTaskDefinitions(newAgent.id);
 
         return newAgent;
     }

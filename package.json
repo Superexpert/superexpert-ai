@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "npx prisma generate && npx prisma db push",
+    "migrate-db:production": "dotenv -e .env.production -- npx prisma db push",
     "nuke-db": "npx prisma db push --force-reset",
     "test": "jest",
     "test-all": "jest --testPathIgnorePatterns=",
@@ -53,6 +54,7 @@
     "prisma": "^6.4.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "dotenv-cli": "^8.0.0"
   }
 }

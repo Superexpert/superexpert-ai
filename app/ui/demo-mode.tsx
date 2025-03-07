@@ -7,7 +7,7 @@ const DemoMode = () => {
     return (
         <div className="demoMode">
             You are in demo mode. This means that all agents will be deleted
-            automatically after a certain number of days. Also, for cost reasons,
+            automatically after a certain number of days. Also,
             model selection will be ignored and all tasks will run using 
             GPT-4o mini. For the full experience, download 
             Superexpert AI.
