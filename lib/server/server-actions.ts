@@ -84,6 +84,13 @@ export async function registerAction(user: RegisterUser) {
         };
     }
 
+    // Sign in user
+    await signIn('credentials', {
+        username: user.email,
+        password: user.password,
+        redirect: false,
+    });
+
     return {
         success: true,
         serverError: '',

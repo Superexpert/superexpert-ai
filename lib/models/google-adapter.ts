@@ -127,9 +127,6 @@ export class GoogleAdapter extends AIAdapter {
         tools: ToolAI[],
         options = {}
     ) {
-        console.log("Using Google Adapter");
-
-
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
             throw new Error(

@@ -50,8 +50,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const isInitialStartSentRef = useRef(false); // Track if "start" has been sent
 
     const sendMessages = async (messages: MessageAI[]) => {
-        console.log(`New Send Messages with threadId ${threadIdRef.current}`);
-        console.dir(messages, { depth: null });
         try {
             setBusyWaiting(true);
             setInputDisabled(true);
@@ -138,7 +136,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 
     // Send start message
     useEffect(() => {
-        console.log('thread changed');
         sendInitialStartMessage();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -204,10 +201,8 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         await sendMessages(toolMessages);
 
         // These are messages that were queued while waiting for the tool calls to complete
-        console.log(`queuedMessages: ${queuedMessagesRef.current.length}`);
         console.dir(queuedMessagesRef, { depth: null });
         if (queuedMessagesRef.current.length > 0) {
-            console.log(`sending queued messages`);
             const messagesToSend = [...queuedMessagesRef.current];
             queuedMessagesRef.current = []; // Reset the queue
             await sendMessages(messagesToSend);

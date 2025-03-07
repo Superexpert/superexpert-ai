@@ -11,9 +11,6 @@ export class OpenAIAdapter extends AIAdapter {
         tools: ToolAI[],
         options = {}
     ) {
-        console.log("Using OpenAI Adapter");
-
-
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
             throw new Error(
@@ -26,9 +23,6 @@ export class OpenAIAdapter extends AIAdapter {
         if (instructions) {
             inputMessages.unshift({ role: 'system', content: instructions });
         }
-
-        console.log("Input Messages");
-        console.dir(inputMessages, { depth: null });
 
         // Call OpenAI and process the chunks with retry logic
         yield* this.retryWithBackoff(async () => {

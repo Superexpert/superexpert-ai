@@ -66,8 +66,6 @@ const tools = [
             let results = [];
             const generator = adapter.generateResponse(instructions, inputMessages, tools, options);
             for await (const result of generator) {
-                //console.log("result:");
-                //console.dir(result, { depth: null });
                 results.push(result);
             }
     
