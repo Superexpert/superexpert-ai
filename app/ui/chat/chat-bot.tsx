@@ -7,7 +7,7 @@ import React, {
     ReactNode,
     ReactElement,
 } from 'react';
-import styles from './chat-bot.module.css';
+import styles from '@/styles/chat-bot/default.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';

@@ -1,4 +1,4 @@
-import styles from './chat-bot.module.css';
+import styles from '@/styles/chat-bot/default.module.css';
 import Markdown from 'react-markdown';
 
 export type MessageProps = {
