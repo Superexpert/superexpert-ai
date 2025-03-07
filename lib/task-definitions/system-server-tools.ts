@@ -12,9 +12,15 @@ export class SystemServerTools extends ServerToolsBase {
 
     @Tool('updateProfile', `Update the user's profile`)
     public async updateProfile(
-        @ToolParameter('name', 'The name of the profile property to update')
+        @ToolParameter({
+            name: 'name',
+            description: 'The name of the profile property to update',
+        })
         name: string,
-        @ToolParameter('value', 'The new value for the profile property')
+        @ToolParameter({
+            name: 'value',
+            description: 'The new value for the profile property',
+        })
         value: string
     ) {
         // Update the user's profile in the database
