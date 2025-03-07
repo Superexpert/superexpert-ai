@@ -10,6 +10,7 @@ import {
     deleteTaskDefinitionAction,
 } from '@/lib/server/admin-actions';
 import { ModelDefinition } from '@/lib/model-definition';
+import DemoMode from '@/app/ui/demo-mode';
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -102,152 +103,173 @@ export default function TaskDefinitionForm({
     };
 
     return (
-        <div className="formCard">
-            <h1>
-                {isEditMode ? 'Edit Task Definition' : 'New Task Definition'}
-            </h1>
-            <div>
-                sfjkjs fsfkl fsklkfsdksdkafkafs lfdsklkfsd fadskljkafsd
-                afsklkflasdkfsadk fasd fas kjafsklf afsdklkjlafsd jlkfads
-            </div>
-            <form onSubmit={handleSubmit(onSubmit)}>
+        <>
+            <DemoMode />
+
+            <div className="formCard">
+                <h1>
+                    {isEditMode
+                        ? 'Edit Task Definition'
+                        : 'New Task Definition'}
+                </h1>
                 <div>
-                    {serverError && <p className="error">{serverError}</p>}
+                    sfjkjs fsfkl fsklkfsdksdkafkafs lfdsklkfsd fadskljkafsd
+                    afsklkflasdkfsadk fasd fas kjafsklf afsdklkjlafsd jlkfads
                 </div>
-                <div>
-                    <label>Task Name</label>
-                    <input
-                        {...register('name')}
-                        type="text"
-                        readOnly={taskDefinition.isSystem}
-                    />
-                    {errors.name && (
-                        <p className="error">{errors.name.message}</p>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        {serverError && <p className="error">{serverError}</p>}
+                    </div>
+                    <div>
+                        <label>Task Name</label>
+                        <input
+                            {...register('name')}
+                            type="text"
+                            readOnly={taskDefinition.isSystem}
+                        />
+                        {errors.name && (
+                            <p className="error">{errors.name.message}</p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label>Description</label>
+                        <textarea
+                            {...register('description')}
+                            readOnly={taskDefinition.isSystem}></textarea>
+                        {errors.description && (
+                            <p className="error">
+                                {errors.description.message}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label>Instructions</label>
+                        <textarea {...register('instructions')}></textarea>
+                        {errors.instructions && (
+                            <p className="error">
+                                {errors.instructions.message}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label>Start New Thread</label>
+                        <div className="instructions">
+                            Start a new message thread when the user starts this
+                            task.
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                className="checkbox"
+                                id="startNewThread"
+                                {...register('startNewThread')}
+                            />
+                            <label htmlFor="startNewThread">Enable</label>
+                        </div>
+                        {errors.startNewThread && (
+                            <p className="error">
+                                {errors.startNewThread.message}
+                            </p>
+                        )}
+                    </div>
+
+                    <h3>Server Data</h3>
+                    {serverData.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="checkbox"
+                                id={`serverData-${item.id}`}
+                                value={item.id}
+                                {...register('serverDataIds')}
+                            />
+                            <label htmlFor={`serverData-${item.id}`}>
+                                {item.description}
+                            </label>
+                        </div>
+                    ))}
+
+                    <h3>Server Tools</h3>
+                    {serverTools.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="checkbox"
+                                id={`serverTools-${item.id}`}
+                                value={item.id}
+                                {...register('serverToolIds')}
+                            />
+                            <label htmlFor={`serverTools-${item.id}`}>
+                                {item.description}
+                            </label>
+                        </div>
+                    ))}
+
+                    <h3>Client Tools</h3>
+                    {clientTools.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="checkbox"
+                                id={`clientTools-${item.id}`}
+                                value={item.id}
+                                {...register('clientToolIds')}
+                            />
+                            <label htmlFor={`clientTools-${item.id}`}>
+                                {item.description}
+                            </label>
+                        </div>
+                    ))}
+
+                    <h3>AI Model</h3>
+                    {taskDefinition.name != 'global' && (
+                        <div className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="radio"
+                                id="model-global"
+                                value="global"
+                                {...register('modelId')}
+                            />
+                            <label htmlFor="model-global">
+                                global: Use the model from the global task
+                                definition
+                            </label>
+                        </div>
                     )}
-                </div>
+                    {models.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="radio"
+                                id={`model-${item.id}`}
+                                value={item.id}
+                                {...register('modelId')}
+                            />
+                            <label htmlFor={`model-${item.id}`}>
+                                {item.name}:{item.description}
+                            </label>
+                        </div>
+                    ))}
 
-                <div>
-                    <label>Description</label>
-                    <textarea
-                        {...register('description')}
-                        readOnly={taskDefinition.isSystem}></textarea>
-                    {errors.description && (
-                        <p className="error">{errors.description.message}</p>
-                    )}
-                </div>
-
-                <div>
-                    <label>Instructions</label>
-                    <textarea {...register('instructions')}></textarea>
-                    {errors.instructions && (
-                        <p className="error">{errors.instructions.message}</p>
-                    )}
-                </div>
-
-                <div>
-                    <label>Start New Thread</label>
-                    <div className='instructions'>Start a new message thread when the user starts this task.</div>
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            className="checkbox"
-                            id="startNewThread"
-                            {...register('startNewThread')}
-                        />
-                        <label htmlFor="startNewThread">Enable</label>
-                    </div>
-                    {errors.startNewThread && (
-                        <p className="error">
-                            {errors.startNewThread.message}
-                        </p>
-                    )}
-                </div>
-
-
-                <h3>Server Data</h3>
-                {serverData.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                        <input
-                            className="checkbox"
-                            type="checkbox"
-                            id={`serverData-${item.id}`}
-                            value={item.id}
-                            {...register('serverDataIds')}
-                        />
-                        <label htmlFor={`serverData-${item.id}`}>
-                            {item.description}
-                        </label>
-                    </div>
-                ))}
-
-                <h3>Server Tools</h3>
-                {serverTools.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                        <input
-                            className="checkbox"
-                            type="checkbox"
-                            id={`serverTools-${item.id}`}
-                            value={item.id}
-                            {...register('serverToolIds')}
-                        />
-                        <label htmlFor={`serverTools-${item.id}`}>
-                            {item.description}
-                        </label>
-                    </div>
-                ))}
-
-                <h3>Client Tools</h3>
-                {clientTools.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                        <input
-                            className="checkbox"
-                            type="checkbox"
-                            id={`clientTools-${item.id}`}
-                            value={item.id}
-                            {...register('clientToolIds')}
-                        />
-                        <label htmlFor={`clientTools-${item.id}`}>
-                            {item.description}
-                        </label>
-                    </div>
-                ))}
-
-                <h3>AI Model</h3>
-                {taskDefinition.name != 'global' && (
-                    <div className="flex items-center space-x-2">
-                        <input
-                            className="checkbox"
-                            type="radio"
-                            id="model-global"
-                            value="global"
-                            {...register('modelId')}
-                        />
-                        <label htmlFor="model-global">
-                            global: Use the model from the global task
-                            definition
-                        </label>
-                    </div>
-                )}
-                {models.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                        <input
-                            className="checkbox"
-                            type="radio"
-                            id={`model-${item.id}`}
-                            value={item.id}
-                            {...register('modelId')}
-                        />
-                        <label htmlFor={`model-${item.id}`}>
-                            {item.name}:{item.description}
-                        </label>
-                    </div>
-                ))}
-
-                {selectedModelId !== 'global' && (
-                    <>
-                        <h3>Advanced AI Model Settings</h3>
+                    {selectedModelId !== 'global' && (
+                        <>
+                            <h3>Advanced AI Model Settings</h3>
                             <label>Maximum Output Tokens</label>
-                            <div className='instructions'>{maximumOutputTokensDescription}</div>
+                            <div className="instructions">
+                                {maximumOutputTokensDescription}
+                            </div>
                             <input
                                 {...register('maximumOutputTokens', {
                                     setValueAs: (value) =>
@@ -261,43 +283,46 @@ export default function TaskDefinitionForm({
                                 </p>
                             )}
 
-                        <div>
-                            <label>Temperature</label>
-                            <div className='instructions'>{maximumTemperatureDescription}</div>
-                            <input
-                                {...register('temperature', {
-                                    setValueAs: (value) =>
-                                        !value ? null : Number(value),
-                                })}
-                                type="number"
-                                step="0.01"
-                            />
-                            {errors.temperature && (
-                                <p className="error">
-                                    {errors.temperature.message}
-                                </p>
-                            )}
-                        </div>
-                    </>
-                )}
+                            <div>
+                                <label>Temperature</label>
+                                <div className="instructions">
+                                    {maximumTemperatureDescription}
+                                </div>
+                                <input
+                                    {...register('temperature', {
+                                        setValueAs: (value) =>
+                                            !value ? null : Number(value),
+                                    })}
+                                    type="number"
+                                    step="0.01"
+                                />
+                                {errors.temperature && (
+                                    <p className="error">
+                                        {errors.temperature.message}
+                                    </p>
+                                )}
+                            </div>
+                        </>
+                    )}
 
-                <button className="btn btnPrimary" type="submit">
-                    Save
-                </button>
-                {isEditMode && !taskDefinition.isSystem && (
-                    <button
-                        className="btn btnDanger ml-4"
-                        type="button"
-                        onClick={handleDelete}>
-                        Delete
+                    <button className="btn btnPrimary" type="submit">
+                        Save
                     </button>
-                )}
-                <Link href={`/admin/${agentName}/task-definitions`}>
-                    <button className="btn btnCancel ml-4" type="button">
-                        Cancel
-                    </button>
-                </Link>
-            </form>
-        </div>
+                    {isEditMode && !taskDefinition.isSystem && (
+                        <button
+                            className="btn btnDanger ml-4"
+                            type="button"
+                            onClick={handleDelete}>
+                            Delete
+                        </button>
+                    )}
+                    <Link href={`/admin/${agentName}/task-definitions`}>
+                        <button className="btn btnCancel ml-4" type="button">
+                            Cancel
+                        </button>
+                    </Link>
+                </form>
+            </div>
+        </>
     );
 }

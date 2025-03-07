@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DemoMode from '@/app/ui/demo-mode';
 
 export default function TaskDefinitionList({
     agentName,
@@ -8,6 +9,8 @@ export default function TaskDefinitionList({
     taskDefinitions: { id: string; name: string; description: string }[];
 }) {
     return (
+        <>
+        <DemoMode />
         <div className="formCard">
             <h1>Task Definitions</h1>
             <p className="instructions">
@@ -45,5 +48,6 @@ export default function TaskDefinitionList({
                 </Link>
             </div>
         </div>
+        </>
     );
 }

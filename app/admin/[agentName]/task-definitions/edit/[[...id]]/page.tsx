@@ -21,7 +21,8 @@ export default async function EditTaskDefinitionPage({
 
     const isEditMode = Boolean(id);
 
-    const {serverData, serverTools, clientTools, models} = await getTaskDefinitionFormDataAction();
+    const { serverData, serverTools, clientTools, models } =
+        await getTaskDefinitionFormDataAction();
 
     let taskDefinition: TaskDefinition = {
         agentId: agent.id,
@@ -43,24 +44,22 @@ export default async function EditTaskDefinitionPage({
     }
 
     return (
-        <main className="flex items-center justify-center">
-            <div className="mx-auto flex">
-                <Suspense
-                    fallback={
-                        <div className="h-72 w-full animate-pulse bg-gray-100" />
-                    }>
-                    <TaskDefinitionForm
-                        agentId={agent.id}
-                        agentName={agent.name}
-                        taskDefinition={taskDefinition}
-                        serverData={serverData}
-                        serverTools={serverTools}
-                        clientTools={clientTools}
-                        models={models}
-                        isEditMode={isEditMode}
-                    />
-                </Suspense>
-            </div>
+        <main>
+            <Suspense
+                fallback={
+                    <div className="h-72 w-full animate-pulse bg-gray-100" />
+                }>
+                <TaskDefinitionForm
+                    agentId={agent.id}
+                    agentName={agent.name}
+                    taskDefinition={taskDefinition}
+                    serverData={serverData}
+                    serverTools={serverTools}
+                    clientTools={clientTools}
+                    models={models}
+                    isEditMode={isEditMode}
+                />
+            </Suspense>
         </main>
     );
 }

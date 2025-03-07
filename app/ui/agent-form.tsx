@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { saveAgentAction, deleteAgentAction } from '@/lib/server/admin-actions';
 import { Agent, agentSchema } from '@/lib/agent';
+import DemoMode from '@/app/ui/demo-mode';
 
 export default function AgentForm({
     agent,
@@ -49,6 +50,9 @@ export default function AgentForm({
     };
 
     return (
+        <>
+        <DemoMode />
+
         <div className="formCard">
             <h1>{isEditMode ? 'Edit Agent' : 'New Agent'}</h1>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -90,5 +94,6 @@ export default function AgentForm({
                 </Link>
             </form>
         </div>
+        </>
     );
 }

@@ -44,7 +44,7 @@ export async function POST(
 
 
     const taskMachine = new TaskMachine();
-    const { instructions, currentMessages, tools, modelId, modelConfiguration } = await taskMachine.getAIPayload(
+    let { instructions, currentMessages, tools, modelId, modelConfiguration } = await taskMachine.getAIPayload(
         user,
         agent.id,
         task,
@@ -52,6 +52,15 @@ export async function POST(
         messages
     );
 
+    // If DemoMode then always use GPT-4o mini
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+    if (isDemoMode) {
+        modelId = 'gpt-4o-mini';
+        modelConfiguration = {
+            temperature: 0.7,
+            maximumOutputTokens: 2048,
+        };
+    }
 
     // Create a new AI Model
     const model = AIModelFactory.createModel(modelId, modelConfiguration);
