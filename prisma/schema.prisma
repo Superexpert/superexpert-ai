@@ -79,3 +79,13 @@ model agents {
   @@unique([userId, name], name: "agent_userId_name") // Composite unique constraint
   @@map("superexpert_ai_agents")
 }
+
+model consents {
+  id        String @id @default(uuid())
+  userId    String
+  type      String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, type], name: "consent_userId_type") // Composite unique constraint
+  @@map("superexpert_ai_consents")
+}
