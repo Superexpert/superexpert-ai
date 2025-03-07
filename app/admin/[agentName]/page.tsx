@@ -3,11 +3,11 @@ import { Agent } from '@/lib/agent';
 import AgentForm from '@/app/ui/agent-form';
 import { getAgentByIdAction } from '@/lib/server/admin-actions';
 
-interface EditAgentPageProps {
-    params: { id?: string };
-}
-
-export default async function EditAgentPage({ params }: EditAgentPageProps) {
+export default async function EditAgentPage({
+    params,
+}: {
+    params: Promise<{ [key: string]: string }>;
+}) {
     const { id } = await params;
     const agentId = id && id.length === 1 ? id[0] : undefined;
 
