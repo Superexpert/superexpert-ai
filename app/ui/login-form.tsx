@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { authenticateAction } from '@/lib/server/server-actions';
+import { authenticateAction } from '@/lib/actions/server-actions';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';

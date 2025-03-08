@@ -8,7 +8,7 @@ import { TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
 import {
     saveTaskDefinitionAction,
     deleteTaskDefinitionAction,
-} from '@/lib/server/admin-actions';
+} from '@/lib/actions/admin-actions';
 import { ModelDefinition } from '@/lib/model-definition';
 import DemoMode from '@/app/ui/demo-mode';
 

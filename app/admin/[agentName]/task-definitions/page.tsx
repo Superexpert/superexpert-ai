@@ -1,7 +1,7 @@
 import TaskDefinitionList from '@/app/ui/task-definition-list';
-import { getAgentAction } from '@/lib/server/server-actions';
+import { getAgentAction } from '@/lib/actions/server-actions';
 import { Suspense } from 'react';
-import { getTaskDefinitionListAction } from '@/lib/server/admin-actions';
+import { getTaskDefinitionListAction } from '@/lib/actions/admin-actions';
 
 export default async function TaskListPage({
     params,

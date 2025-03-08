@@ -27,6 +27,9 @@ export class TaskMachine {
         modelId: string;
         modelConfiguration: ModelConfiguration;
     }> {
+
+        await this.augmentMessages(user.id, messages);
+
         // Save messages
         await this.saveMessages(user.id, agentId, task, thread, messages);
 
@@ -37,7 +40,7 @@ export class TaskMachine {
         );
 
         // Get task definition
-        const taskDefinitions = await this.getTaskDefinitions(agentId);
+        const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
         let taskDefinition = taskDefinitions.find((td) => td.name === task);
 
         // default task to home if not found
@@ -149,8 +152,8 @@ export class TaskMachine {
             + taskDefinition.instructions;
     }
 
-    private async getTaskDefinitions(agentId: string) {
-        const result = await this.db.getTaskDefinitions(agentId);
+    private async getTaskDefinitions(userId: string, agentId: string) {
+        const result = await this.db.getTaskDefinitions(userId, agentId);
         return result;
     }
 
@@ -170,5 +173,20 @@ export class TaskMachine {
             thread,
         );
         return result;
+    }
+
+
+    private async augmentMessages(userId:string, messages: MessageAI[]) {
+        console.log('got here1');
+        const corpusId = 'e2b8edb5-29a5-4964-875b-82059d0256a8';
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.role === 'user') {
+        console.log('got here2');
+        console.log(`lastMessage: ${lastMessage.content}`);
+        console.log(`userId: ${userId}`);
+
+            const chunk = await this.db.getRelevantCorpusChunks(userId, corpusId, lastMessage.content);
+            console.log(chunk);
+        }
     }
 }

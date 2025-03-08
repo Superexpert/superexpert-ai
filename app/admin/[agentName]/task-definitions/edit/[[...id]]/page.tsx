@@ -1,10 +1,10 @@
 import TaskDefinitionForm from '@/app/ui/task-definition-form';
 import { Suspense } from 'react';
-import { getAgentAction } from '@/lib/server/server-actions';
+import { getAgentAction } from '@/lib/actions/server-actions';
 import {
     getTaskDefinitionFormDataAction,
     getTaskDefinitionByIdAction,
-} from '@/lib/server/admin-actions';
+} from '@/lib/actions/admin-actions';
 import { TaskDefinition } from '@/lib/task-definition';
 
 export default async function EditTaskDefinitionPage({

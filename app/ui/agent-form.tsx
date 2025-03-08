@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { saveAgentAction, deleteAgentAction } from '@/lib/server/admin-actions';
+import { saveAgentAction, deleteAgentAction } from '@/lib/actions/admin-actions';
 import { Agent, agentSchema } from '@/lib/agent';
 import DemoMode from '@/app/ui/demo-mode';
 

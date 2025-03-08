@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model taskDefinitions {
@@ -85,7 +87,46 @@ model consents {
   userId    String
   type      String
   createdAt DateTime @default(now())
+  
 
   @@unique([userId, type], name: "consent_userId_type") // Composite unique constraint
   @@map("superexpert_ai_consents")
+}
+
+
+model corpora {
+  id          String @id @default(uuid())
+  userId      String
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+  corporus    corpus[]  // Relation field
+
+  @@map("superexpert_ai_corpera")
+}
+
+
+model corpus {
+  id        String @id @default(uuid())
+  userId    String
+  fileName  String
+  createdAt DateTime @default(now())
+  corporaChunks  corpusChunks[]  // Relation field
+
+  corporaId String   // Foreign key field
+  corpora   corpora  @relation(fields: [corporaId], references: [id])
+
+
+  @@map("superexpert_ai_corpus")
+}
+
+model corpusChunks {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  chunk     String
+  embedding Unsupported("vector(1536)")?
+  corpusId  String   // Foreign key field
+  corpus    corpus  @relation(fields: [corpusId], references: [id])
+
+  @@map("superexpert_ai_corpusChunks")
 }

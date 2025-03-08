@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { registerAction } from '@/lib/server/server-actions';
+import { registerAction } from '@/lib/actions/server-actions';
 import { useSearchParams } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';

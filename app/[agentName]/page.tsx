@@ -1,4 +1,4 @@
-import { getAgentAction, getTasksAction } from '@/lib/server/server-actions';
+import { getAgentAction, getTasksAction } from '@/lib/actions/server-actions';
 import ChatContainer from '@/app/ui/chat/chat-container';
 
 export default async function ChatPage({

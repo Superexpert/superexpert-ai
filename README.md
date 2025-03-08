@@ -2,6 +2,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+
+brew install pgvector
+
+
 First, run the development server:
 
 ```bash

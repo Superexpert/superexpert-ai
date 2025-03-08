@@ -1,6 +1,6 @@
 import AgentList from '@/app/ui/agent-list';
 import { Suspense } from 'react';
-import { getAgentListAction } from '@/lib/server/admin-actions';
+import { getAgentListAction } from '@/lib/actions/admin-actions';
 import { redirect } from 'next/navigation';
 
 export default async function AgentListPage() {

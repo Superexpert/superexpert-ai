@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Agent } from '@/lib/agent';
 import AgentForm from '@/app/ui/agent-form';
-import { getAgentByIdAction } from '@/lib/server/admin-actions';
+import { getAgentByIdAction } from '@/lib/actions/admin-actions';
 
 export default async function EditAgentPage({
     params,
