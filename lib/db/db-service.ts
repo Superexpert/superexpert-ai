@@ -205,6 +205,8 @@ export class DBService {
         console.log("embedding.data[0].embedding:", embedding.data[0].embedding);
         console.log("limit:", limit);
 
+        limit = 100;
+
         const relevantCorpusChunks = await prisma.$queryRaw`
             SELECT id, chunk
             FROM "superexpert_ai_corpusChunks"

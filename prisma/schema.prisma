@@ -107,11 +107,13 @@ model corpora {
 
 
 model corpus {
-  id        String @id @default(uuid())
-  userId    String
-  fileName  String
-  createdAt DateTime @default(now())
-  corporaChunks  corpusChunks[]  // Relation field
+  id            String @id @default(uuid())
+  userId        String
+  fileName      String
+  chunkSize     Int
+  chunkOverlap  Int
+  createdAt     DateTime @default(now())
+  corporaChunks corpusChunks[]  // Relation field
 
   corporaId String   // Foreign key field
   corpora   corpora  @relation(fields: [corporaId], references: [id])

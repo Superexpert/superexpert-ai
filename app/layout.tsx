@@ -34,6 +34,12 @@ export default function RootLayout({
                             <div className="text-lg font-semibold">Superexpert AI</div>
                         </Link>
                     </div>
+                        <Link href="/">
+                            Agents
+                        </Link>
+                        <Link href="/admin/corpora">
+                            Corpora
+                        </Link>
                     <div>
                         <SignOutButton />
                     </div>

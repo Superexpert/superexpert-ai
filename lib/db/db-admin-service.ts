@@ -231,4 +231,22 @@ export class DBAdminService {
         });
         return true;
     }
+
+    public async getCorporaList() {
+        const corpora = await prisma.corpora.findMany({
+            where: {
+                userId: this.userId,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+            },
+        });
+        return corpora;
+    }
+
 }

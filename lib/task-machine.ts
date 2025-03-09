@@ -177,13 +177,10 @@ export class TaskMachine {
 
 
     private async augmentMessages(userId:string, messages: MessageAI[]) {
-        console.log('got here1');
-        const corpusId = 'e2b8edb5-29a5-4964-875b-82059d0256a8';
+        const corpusId = 'dcff74ef-8e91-4713-9163-6155dbb6c56e';
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role === 'user') {
         console.log('got here2');
-        console.log(`lastMessage: ${lastMessage.content}`);
-        console.log(`userId: ${userId}`);
 
             const chunk = await this.db.getRelevantCorpusChunks(userId, corpusId, lastMessage.content);
             console.log(chunk);

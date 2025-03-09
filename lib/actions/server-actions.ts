@@ -138,7 +138,10 @@ export async function uploadChunkAction(corpusId: string, formData: FormData) {
 
     const chunk = formData.get('chunk') as string;
     const chunkIndex = parseInt(formData.get('chunkIndex') as string, 10);
+    const tokenCount = parseInt(formData.get('tokenCount') as string, 10);
     const fileName = formData.get('fileName') as string;
+
+    console.log("tokenCount:", tokenCount);
 
     //try {
         const db = new DBService();

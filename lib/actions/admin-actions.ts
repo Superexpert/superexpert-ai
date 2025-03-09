@@ -143,3 +143,12 @@ export async function deleteAgentAction(id: string) {
     await db.deleteAgent(id);
     redirect('/');
 }
+
+
+export async function getCorporaListAction() {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    const result = await db.getCorporaList();
+    return result;
+}
