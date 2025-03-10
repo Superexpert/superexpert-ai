@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import DemoMode from '@/app/ui/demo-mode';
-import { Corpora } from '@/lib/corpora';
+import { Corpus } from '@/lib/corpus';
 
 export default function CorporaList({
     corpora,
 }: {
-    corpora: Corpora[];
+    corpora: Corpus[];
 }) {
     return (
         <>
@@ -30,9 +30,9 @@ export default function CorporaList({
                             </div>
                             <div>
                                 <Link
-                                    href={`/admin/corpora/${cp.id}`}
+                                    href={`/admin/corpora/corpus/${cp.id}`}
                                     className="btn btnSecondary ml-4">
-                                    View
+                                    Edit
                                 </Link>
                             </div>
                         </div>
@@ -40,7 +40,7 @@ export default function CorporaList({
                 </div>
 
                 <div className="mt-6">
-                    <Link href="/admin/agents" className="btn btnPrimary">
+                    <Link href="/admin/corpora/corpus" className="btn btnPrimary">
                         New Corpus
                     </Link>
                 </div>

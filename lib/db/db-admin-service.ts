@@ -1,6 +1,8 @@
 import { TaskDefinition } from '../task-definition';
 import { Agent } from '../agent';
 import { prisma } from './prisma';
+import { Corpus } from '../corpus';
+import { CorpusFile } from '../corpus-file';
 
 export class DBAdminService {
     constructor(protected userId: string) {}
@@ -233,7 +235,7 @@ export class DBAdminService {
     }
 
     public async getCorporaList() {
-        const corpora = await prisma.corpora.findMany({
+        const corpora = await prisma.corpus.findMany({
             where: {
                 userId: this.userId,
             },
@@ -249,4 +251,118 @@ export class DBAdminService {
         return corpora;
     }
 
+    public async getCorpusById(id: string) {
+        const corpus = await prisma.corpus.findUnique({
+            where: {
+                id: id,
+            },
+        });
+        if (!corpus) {
+            throw new Error('Corpus not found');
+        }
+        return corpus;
+    }
+
+    //** Corpus */
+
+    public async saveCorpus(corpus: Corpus) {
+        // Update existing
+        if (corpus.id) {
+            const existingCorpus = await prisma.corpus.findUnique({
+                where: {
+                    id: corpus.id,
+                },
+            });
+            if (!existingCorpus) {
+                throw new Error('Corpus not found');
+            }
+
+            await prisma.corpus.update({
+                where: {
+                    id: corpus.id,
+                },
+                data: {
+                    name: corpus.name,
+                    description: corpus.description,
+                },
+            });
+
+            return existingCorpus;
+        }
+        // save new
+        const newCorpus = await prisma.corpus.create({
+            data: {
+                userId: this.userId,
+                name: corpus.name,
+                description: corpus.description,
+            },
+        });
+
+        return newCorpus;
+    }
+
+    public async deleteCorpus(id: string) {
+        await prisma.corpus.delete({
+            where: {
+                userId: this.userId,
+                id: id,
+            },
+        });
+        return true;
+    }
+
+
+    public async getCorpusByName(name: string) {
+        const corpus = await prisma.corpus.findUnique({
+            where: {
+                userId_name:{
+                    userId: this.userId,
+                    name,
+                }
+            },
+        });
+        return corpus;
+    }
+    
+
+    public async createCorpusFile(corpusFile: CorpusFile) {
+
+        const corpus = await prisma.corpusFiles.create({
+            data: {
+                corpusId: corpusFile.corpusId,
+                userId: this.userId,
+                fileName: corpusFile.fileName,
+                chunkSize: 1000,
+                chunkOverlap: 20,
+            },
+        });
+        return corpus.id;
+    }
+
+    public async createCorpusFileChunk(
+        userId: string,
+        corpusFileId: string,
+        chunk: string
+    ) {
+        const corpusFileChunk = await prisma.corpusFileChunks.create({
+            data: {
+                userId,
+                corpusFileId,
+                chunk,
+            },
+        });
+        return corpusFileChunk.id;
+    }
+
+    public async updateCorpusChunkEmbedding(
+        userId: string,
+        corpusChunkId: number,
+        embedding: number[]
+    ) {
+        await prisma.$executeRaw`
+        UPDATE "superexpert_ai_corpusChunks"
+        SET embedding = ${embedding}::vector
+        WHERE id = ${corpusChunkId} AND "userId" = ${userId};
+    `;
+    }
 }

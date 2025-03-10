@@ -141,54 +141,7 @@ export class DBService {
     }
 
 
-    //** Corpus */
-
-    public async createCorpora(userId: string, name: string, description: string) {
-        const corpora = await prisma.corpora.create({
-            data: {
-                userId: userId,
-                name: name,
-                description: description,
-            },
-        });
-        return corpora.id;
-    }
-
-
-    public async createCorpus(userId: string, fileName: string) {
-        // TEMP
-        const corporaId = await this.createCorpora(userId, 'animals', 'everything about animals');
-
-        const corpus = await prisma.corpus.create({
-            data: {
-                corporaId: corporaId,
-                userId: userId,
-                fileName: fileName,
-            },
-        });
-        return corpus.id;
-    }
-
-
-    public async createCorpusChunk(userId:string, corpusId: string, chunk: string) {
-        const corpusChunk = await prisma.corpusChunks.create({
-            data: {
-                userId,
-                corpusId,
-                chunk,
-            },
-        });
-        return corpusChunk.id;
-    }
-
-    public async updateCorpusChunkEmbedding(userId:string, corpusChunkId: number, embedding: number[]) {
-
-        await prisma.$executeRaw`
-            UPDATE "superexpert_ai_corpusChunks"
-            SET embedding = ${embedding}::vector
-            WHERE id = ${corpusChunkId} AND "userId" = ${userId};
-        `;
-    }
+ 
 
     public async getRelevantCorpusChunks(
         userId: string,

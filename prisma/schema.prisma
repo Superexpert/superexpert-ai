@@ -94,41 +94,48 @@ model consents {
 }
 
 
-model corpora {
-  id          String @id @default(uuid())
-  userId      String
-  name        String
-  description String
-  createdAt   DateTime @default(now())
-  corporus    corpus[]  // Relation field
-
-  @@map("superexpert_ai_corpera")
-}
-
-
 model corpus {
   id            String @id @default(uuid())
   userId        String
-  fileName      String
-  chunkSize     Int
-  chunkOverlap  Int
+  name          String
+  description   String
   createdAt     DateTime @default(now())
-  corporaChunks corpusChunks[]  // Relation field
+// One-to-Many: corpora to corporaFiles
+  corpusFiles  corpusFiles[] @relation("CorpusToFiles")
 
-  corporaId String   // Foreign key field
-  corpora   corpora  @relation(fields: [corporaId], references: [id])
-
+ // Unique constraint on (userId, name)
+  @@unique([userId, name])
 
   @@map("superexpert_ai_corpus")
 }
 
-model corpusChunks {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  chunk     String
-  embedding Unsupported("vector(1536)")?
-  corpusId  String   // Foreign key field
-  corpus    corpus  @relation(fields: [corpusId], references: [id])
 
-  @@map("superexpert_ai_corpusChunks")
+model corpusFiles {
+  id                String @id @default(uuid())
+  userId            String
+  fileName          String
+  chunkSize         Int
+  chunkOverlap      Int
+  createdAt         DateTime @default(now())
+   // Foreign Key: corpusId (Many-to-One relationship with corpus)
+  corpusId          String
+  corpus            corpus   @relation("CorpusToFiles", fields: [corpusId], references: [id])
+
+  // One-to-Many: corporaFiles to corporaFileChunks
+  corporaFileChunks corpusFileChunks[] @relation("FilesToChunks")
+
+
+  @@map("superexpert_ai_corpusFiles")
+}
+
+model corpusFileChunks {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  chunk           String
+  embedding       Unsupported("vector(1536)")?
+  // Foreign Key: corporaFileId (Many-to-One relationship with corporaFiles)
+  corpusFileId    String
+  corpusFile     corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id])
+
+  @@map("superexpert_ai_corpusFileChunks")
 }

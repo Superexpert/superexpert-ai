@@ -34,16 +34,12 @@ export default function RootLayout({
                             <div className="text-lg font-semibold">Superexpert AI</div>
                         </Link>
                     </div>
-                        <Link href="/">
-                            Agents
-                        </Link>
-                        <Link href="/admin/corpora">
-                            Corpora
-                        </Link>
-                    <div>
+                    <div className="flex items-center gap-4">
+                        <Link href="/">Agents</Link>
+                        <Link href="/admin/corpora">Corpora</Link>
                         <SignOutButton />
                     </div>
-                </nav>
+                </nav>                
                 {children}
             </body>
         </html>

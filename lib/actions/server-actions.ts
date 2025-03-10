@@ -7,7 +7,6 @@ import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
 import { ClientTaskDefinition } from '../client/client-task-definition';
-import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-embedding-adapter';
 
 export async function executeServerTool(
     now: Date,
@@ -126,44 +125,3 @@ export async function getTasksAction(
 }
 
 
-export async function createCorpusAction(fileName: string) {
-    const userId = await getUserId();
-    const db = new DBService();
-    const corpusId = await db.createCorpus(userId, fileName);
-    return corpusId;
-}
-
-export async function uploadChunkAction(corpusId: string, formData: FormData) {
-    const userId = await getUserId();
-
-    const chunk = formData.get('chunk') as string;
-    const chunkIndex = parseInt(formData.get('chunkIndex') as string, 10);
-    const tokenCount = parseInt(formData.get('tokenCount') as string, 10);
-    const fileName = formData.get('fileName') as string;
-
-    console.log("tokenCount:", tokenCount);
-
-    //try {
-        const db = new DBService();
-        const corpusChunkId = await db.createCorpusChunk(
-            userId,
-            corpusId,
-            chunk
-        );
-
-        const adapter = new OpenAIEmbeddingAdapter();
-        const embedding = await adapter.getEmbedding(chunk);
-        await db.updateCorpusChunkEmbedding(
-            userId,
-            corpusChunkId,
-            embedding.data[0].embedding
-        );
-
-        console.log(
-            `Successfully saved chunk ${chunkIndex} for file ${fileName}`
-        );
-    // } catch (error) {
-    //     console.error(`Failed to save chunk ${chunkIndex}`, error);
-    //     throw new Error(`Failed to save chunk ${chunkIndex}`);
-    // }
-}
