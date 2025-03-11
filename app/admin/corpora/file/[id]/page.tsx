@@ -1,7 +1,5 @@
 import { Suspense } from 'react';
 import CorpusFileForm from '@/app/ui/corpus-file-form';
-import { getCorpusByIdAction } from '@/lib/actions/admin-actions';
-import { Corpus } from '@/lib/corpus';
 
 export default async function CorpusFilePage({
     params,
@@ -9,7 +7,6 @@ export default async function CorpusFilePage({
     params: Promise<{ [key: string]: string }>;
 }) {
     const { id } = await params;
-    const corpusId = id && id.length === 1 ? id[0] : undefined;
 
  
     return (
@@ -19,7 +16,7 @@ export default async function CorpusFilePage({
                     fallback={
                         <div className="h-72 w-full animate-pulse bg-gray-100" />
                     }>
-                    <CorpusFileForm />
+                    <CorpusFileForm corpusId={id} />
                 </Suspense>
             </div>
         </main>

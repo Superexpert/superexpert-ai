@@ -234,6 +234,9 @@ export class DBAdminService {
         return true;
     }
 
+    //** Corpus */
+
+
     public async getCorporaList() {
         const corpora = await prisma.corpus.findMany({
             where: {
@@ -256,14 +259,19 @@ export class DBAdminService {
             where: {
                 id: id,
             },
+            include: {
+                corpusFiles: true,
+            },
         });
         if (!corpus) {
             throw new Error('Corpus not found');
         }
+        console.log("db dump");
+        console.dir(corpus, { depth: null });
+
         return corpus;
     }
 
-    //** Corpus */
 
     public async saveCorpus(corpus: Corpus) {
         // Update existing
@@ -325,18 +333,17 @@ export class DBAdminService {
     }
     
 
-    public async createCorpusFile(corpusFile: CorpusFile) {
-
-        const corpus = await prisma.corpusFiles.create({
+    public async createCorpusFile(data: CorpusFile) {
+        const corpusFile = await prisma.corpusFiles.create({
             data: {
-                corpusId: corpusFile.corpusId,
                 userId: this.userId,
-                fileName: corpusFile.fileName,
+                corpusId: data.corpusId,
+                fileName: data.fileName,
                 chunkSize: 1000,
                 chunkOverlap: 20,
             },
         });
-        return corpus.id;
+        return corpusFile.id;
     }
 
     public async createCorpusFileChunk(
@@ -360,7 +367,7 @@ export class DBAdminService {
         embedding: number[]
     ) {
         await prisma.$executeRaw`
-        UPDATE "superexpert_ai_corpusChunks"
+        UPDATE "superexpert_ai_corpusFileChunks"
         SET embedding = ${embedding}::vector
         WHERE id = ${corpusChunkId} AND "userId" = ${userId};
     `;

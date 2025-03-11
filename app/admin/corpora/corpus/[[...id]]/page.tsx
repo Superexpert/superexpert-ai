@@ -15,6 +15,7 @@ export default async function EditCorpusPage({
     let corpus: Corpus = {
         name: '',
         description: '',
+        corpusFiles: [],
     };
 
     if (isEditMode) {

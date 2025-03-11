@@ -1,10 +1,11 @@
 import { z } from 'zod';
-
+import { CorpusFile } from './corpus-file';
 
 export interface Corpus {
     id?: string;
     name: string;
     description: string;
+    corpusFiles: CorpusFile[];
 }
 
 export const corpusSchema = z.object({

@@ -89,6 +89,22 @@ export default function CorpusForm({
                     <div>
                         <label>Files</label>
 
+                        {corpus.corpusFiles.map((corpusFile) => (
+                        <div
+                            key={corpusFile.id}
+                            className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
+                            <div>
+                                <h2>{corpusFile.fileName}</h2>
+                            </div>
+                            <div>
+                                <Link
+                                    href={`/admin/agents/${corpusFile.id}`}
+                                    className="btn btnSecondary ml-4">
+                                    Delete
+                                </Link>
+                            </div>
+                        </div>
+                    ))} 
 
                         <Link href={`/admin/corpora/file/${corpus.id}`}>
                             Add File

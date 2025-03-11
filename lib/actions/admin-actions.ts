@@ -9,6 +9,7 @@ import { collapseErrors } from '@/lib/validation';
 import { AIModelFactory } from '../models/ai-model-factory';
 import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-embedding-adapter';
 import { Corpus, corpusSchema } from '@/lib/corpus';
+import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 
 
 //** TaskDefinitionForm **//
@@ -166,7 +167,40 @@ export async function getCorpusByIdAction(id:string) {
 }
 
 
-export async function uploadChunkAction(corpusId: string, formData: FormData) {
+export async function saveCorpusFileAction(
+    newCorpusFile: CorpusFile
+): Promise<{ success: boolean; serverError: string; corpusFileId?: string }> {
+    const userId = await getUserId();
+
+    // Validate using Zod
+    const result = corpusFileSchema.safeParse(newCorpusFile);
+    if (!result.success) {
+        return {
+            success: false,
+            serverError: collapseErrors(result.error),
+        };
+    }
+
+    const db = new DBAdminService(userId);
+
+    try {
+        const corpusFileId = await db.createCorpusFile(newCorpusFile);
+        return {
+            success: true,
+            serverError: '',
+            corpusFileId: corpusFileId,
+        };
+    } catch (error) {
+        console.error('Error saving corpus:', error);
+        return {
+            success: false,
+            serverError: 'Failed to save corpus.',
+        };
+    }
+}
+
+
+export async function uploadChunkAction(corpusFileId: string, formData: FormData) {
     const userId = await getUserId();
 
     const chunk = formData.get('chunk') as string;
@@ -180,7 +214,7 @@ export async function uploadChunkAction(corpusId: string, formData: FormData) {
         const db = new DBAdminService(userId);
         const corpusChunkId = await db.createCorpusFileChunk(
             userId,
-            corpusId,
+            corpusFileId,
             chunk
         );
 
