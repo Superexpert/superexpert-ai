@@ -7,7 +7,6 @@ import { User } from '@/lib/user';
 import { ModelConfiguration } from './model-configuration';
 
 export class TaskMachine {
-
     private db: DBService;
 
     constructor() {
@@ -27,18 +26,6 @@ export class TaskMachine {
         modelId: string;
         modelConfiguration: ModelConfiguration;
     }> {
-
-        await this.augmentMessages(user.id, messages);
-
-        // Save messages
-        await this.saveMessages(user.id, agentId, task, thread, messages);
-
-        // Get previous messages
-        const previousMessages = await this.getPreviousMessages(
-            user.id,
-            thread
-        );
-
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
         let taskDefinition = taskDefinitions.find((td) => td.name === task);
@@ -66,7 +53,22 @@ export class TaskMachine {
                 : taskDefinition.modelId;
 
         // get model configuration
-        const modelConfiguration = this.getModelConfiguration(taskDefinition, globalTaskDefinition);
+        const modelConfiguration = this.getModelConfiguration(
+            taskDefinition,
+            globalTaskDefinition
+        );
+
+        await this.augmentMessages(user.id, taskDefinition, messages);
+
+        // Save messages
+        await this.saveMessages(user.id, agentId, task, thread, messages);
+
+        // Get previous messages
+        const previousMessages = await this.getPreviousMessages(
+            user.id,
+            thread
+        );
+
 
         // Get instructions
         const instructions = await this.getInstructions(
@@ -83,7 +85,7 @@ export class TaskMachine {
             currentMessages: previousMessages,
             tools,
             modelId,
-            modelConfiguration
+            modelConfiguration,
         };
     }
 
@@ -92,8 +94,11 @@ export class TaskMachine {
         globalTaskDefinition: TaskDefinition
     ): ModelConfiguration {
         return {
-            maximumOutputTokens: taskDefinition.maximumOutputTokens || globalTaskDefinition.maximumOutputTokens,
-            temperature: taskDefinition.temperature || globalTaskDefinition.temperature,
+            maximumOutputTokens:
+                taskDefinition.maximumOutputTokens ||
+                globalTaskDefinition.maximumOutputTokens,
+            temperature:
+                taskDefinition.temperature || globalTaskDefinition.temperature,
         };
     }
 
@@ -147,9 +152,11 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
-        return serverData 
-            + globalTaskDefinition.instructions
-            + taskDefinition.instructions;
+        return (
+            serverData +
+            globalTaskDefinition.instructions +
+            taskDefinition.instructions
+        );
     }
 
     private async getTaskDefinitions(userId: string, agentId: string) {
@@ -168,19 +175,30 @@ export class TaskMachine {
     }
 
     private async getPreviousMessages(userId: string, thread: string) {
-        const result = await this.db.getMessages(
-            userId,
-            thread,
-        );
+        const result = await this.db.getMessages(userId, thread);
         return result;
     }
 
-
-    private async augmentMessages(userId:string, messages: MessageAI[]) {
-        const corpusId = '7def52dd-ed4a-47a3-9f23-28aa0d86a9c3';
+    private async augmentMessages(
+        userId: string,
+        taskDefinition: TaskDefinition,
+        messages: MessageAI[]
+    ) {
+        // Only proceed if there is a user last message
         const lastMessage = messages[messages.length - 1];
-        if (lastMessage.role === 'user') {
-            const chunk = await this.db.queryCorpus(userId, corpusId, lastMessage.content);
+        if (lastMessage.role !== 'user') return;
+
+        // Let's loop through the corpora
+        for (const corpusId of taskDefinition.corpusIds) {
+            const chunks = await this.db.queryCorpus(
+                userId,
+                corpusId,
+                lastMessage.content,
+                taskDefinition.corpusLimit
+            );
+            for (const chunk of chunks) {
+                lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
+            }
         }
     }
 }

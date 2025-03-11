@@ -202,8 +202,18 @@ export default function TaskDefinitionForm({
                     <h3>Retrieval Augmented Generation</h3>
                     <div className="instructions">
                         Retrieval Augmented Generation augments each user chat message
-                        with text chunks retrieved from a corpus. Use limit to specify the 
-                        number of matching text chunks to retrieve. 
+                        with text chunks retrieved from a corpus.  
+                    </div>
+                    <div>
+                        <label>Corpus Limit</label>
+                        <div className="instructions">
+                            The maximum number of text chunks to retrieve from the corpus.
+                        </div>
+                        <input
+                            type="number"
+                            placeholder="Limit"
+                            {...register(`corpusLimit`, { valueAsNumber: true })}
+                        />
                     </div>
                     {corpora.map((item) => (
                         <div
@@ -219,6 +229,8 @@ export default function TaskDefinitionForm({
                             <label htmlFor={`corpus-${item.id}`}>
                                 {item.name} {item.description}
                             </label>
+
+
                         </div>
                     ))}
 

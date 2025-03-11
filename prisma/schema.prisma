@@ -10,14 +10,15 @@ datasource db {
 }
 
 model taskDefinitions {
-  id                    String   @id @default(uuid())
+  id                    String    @id @default(uuid())
   userId                String
   agentId               String
-  isSystem              Boolean  @default(false)
+  isSystem              Boolean   @default(false)
   name                  String
   description           String
   instructions          String
-  startNewThread        Boolean  @default(false)
+  startNewThread        Boolean   @default(false)
+  corpusLimit           Int       @default(3)
   corpusIds             String[]
   serverDataIds         String[]
   serverToolIds         String[]

@@ -143,12 +143,12 @@ export class DBService {
 
  
 
-    public async queryCorpus(
+    public async queryCorpus (
         userId: string,
         corpusId: string,
         query: string,
         limit: number = 3
-    ) {
+    ):Promise<string[]> {
         const adapter = new OpenAIEmbeddingAdapter();
         const embedding = await adapter.getEmbedding(query);
 
@@ -161,9 +161,12 @@ export class DBService {
             AND cfc."userId" = ${userId}
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
-            `;
+            ` as { id: number; chunk: string }[];
 
-        return relevantCorpusChunks;
+        console.log("rcc:");
+        console.dir(relevantCorpusChunks, { depth: null });
+
+        return relevantCorpusChunks.map((rcc) => rcc.chunk) as string[];
     }
 
     public async getCorporaList(userId: string) {
