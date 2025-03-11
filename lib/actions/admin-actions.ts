@@ -2,6 +2,7 @@
 import { ToolsBuilder } from '@/lib/tools-builder';
 import { TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
 import { DBAdminService } from '@/lib/db/db-admin-service';
+import { DBService } from '@/lib/db/db-service';
 import { redirect } from 'next/navigation';
 import { getUserId } from '@/lib/user';
 import { Agent, agentSchema } from '@/lib/agent';
@@ -15,6 +16,11 @@ import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 //** TaskDefinitionForm **//
 
 export async function getTaskDefinitionFormDataAction() {
+    const userId = await getUserId();
+
+    const db = new DBService();
+    const corpora = await db.getCorporaList(userId);
+
     const builder = new ToolsBuilder();
 
     const serverData = builder.getServerDataList();
@@ -22,7 +28,7 @@ export async function getTaskDefinitionFormDataAction() {
     const clientTools = builder.getClientToolList();
     const models = AIModelFactory.getAvailableModels();
     
-    return { serverData, serverTools, clientTools, models };
+    return { corpora, serverData, serverTools, clientTools, models };
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
@@ -208,9 +214,7 @@ export async function uploadChunkAction(corpusFileId: string, formData: FormData
     const tokenCount = parseInt(formData.get('tokenCount') as string, 10);
     const fileName = formData.get('fileName') as string;
 
-    console.log("tokenCount:", tokenCount);
-
-    //try {
+    try {
         const db = new DBAdminService(userId);
         const corpusChunkId = await db.createCorpusFileChunk(
             userId,
@@ -229,10 +233,10 @@ export async function uploadChunkAction(corpusFileId: string, formData: FormData
         console.log(
             `Successfully saved chunk ${chunkIndex} for file ${fileName}`
         );
-    // } catch (error) {
-    //     console.error(`Failed to save chunk ${chunkIndex}`, error);
-    //     throw new Error(`Failed to save chunk ${chunkIndex}`);
-    // }
+    } catch (error) {
+        console.error(`Failed to save chunk ${chunkIndex}`, error);
+        throw new Error(`Failed to save chunk ${chunkIndex}`);
+    }
 }
 
 /* Edit Corpus Form */
@@ -282,4 +286,13 @@ export async function deleteCorpusAction(id: string) {
     const db = new DBAdminService(userId);
     await db.deleteCorpus(id);
     redirect('/admin/corpora');
+}
+
+export async function queryCorpusAction(corpusId: string, query: string, limit:number) {
+    const userId = await getUserId();
+
+    // Call DBService instead of AdminService because we want the real experience
+    const db = new DBService();
+    const result = await db.queryCorpus(userId, corpusId, query, limit);
+    return result;
 }

@@ -16,6 +16,7 @@ interface TaskDefinitionFormProps {
     agentId: string;
     agentName: string;
     taskDefinition: TaskDefinition;
+    corpora: { id: string; name: string, description: string }[];
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
@@ -26,6 +27,7 @@ interface TaskDefinitionFormProps {
 export default function TaskDefinitionForm({
     agentName,
     taskDefinition,
+    corpora,
     serverData,
     serverTools,
     clientTools,
@@ -197,7 +199,33 @@ export default function TaskDefinitionForm({
                         )}
                     </div>
 
-                    <h3>Server Data</h3>
+                    <h3>Retrieval Augmented Generation</h3>
+                    <div className="instructions">
+                        Retrieval Augmented Generation augments each user chat message
+                        with text chunks retrieved from a corpus. Use limit to specify the 
+                        number of matching text chunks to retrieve. 
+                    </div>
+                    {corpora.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            <input
+                                className="checkbox"
+                                type="checkbox"
+                                id={`corpus-${item.id}`}
+                                value={item.id}
+                                {...register('corpusIds')}
+                            />
+                            <label htmlFor={`corpus-${item.id}`}>
+                                {item.name} {item.description}
+                            </label>
+                        </div>
+                    ))}
+
+
+
+
+                    <h3>Server Data Tools</h3>
                     <div className="instructions">
                         Load custom data from the server that is shared with the
                         agent. The server data can be anything that you want.

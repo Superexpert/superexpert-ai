@@ -143,34 +143,44 @@ export class DBService {
 
  
 
-    public async getRelevantCorpusChunks(
+    public async queryCorpus(
         userId: string,
         corpusId: string,
         query: string,
-        limit: number = 5
+        limit: number = 3
     ) {
         const adapter = new OpenAIEmbeddingAdapter();
         const embedding = await adapter.getEmbedding(query);
 
-        console.log("userId:", userId);
-        console.log("corpusId:", corpusId);
-        console.log("query:", query);
-        console.log("embedding.data[0].embedding:", embedding.data[0].embedding);
-        console.log("limit:", limit);
-
-        limit = 100;
-
         const relevantCorpusChunks = await prisma.$queryRaw`
-            SELECT id, chunk
-            FROM "superexpert_ai_corpusChunks"
-            WHERE "userId" = ${userId} AND "corpusId" = ${corpusId} 
-            ORDER BY embedding <=> ${embedding.data[0].embedding}::vector
+            SELECT cfc.id, cfc.chunk
+            FROM "superexpert_ai_corpusFileChunks" AS cfc
+            INNER JOIN "superexpert_ai_corpusFiles" AS cf
+            ON cfc."corpusFileId" = cf.id
+            WHERE cf."corpusId" = ${corpusId}
+            AND cfc."userId" = ${userId}
+            ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
-        `;
-
-        console.log("GOT HERE NOW");
+            `;
 
         return relevantCorpusChunks;
+    }
+
+    public async getCorporaList(userId: string) {
+        const corpora = await prisma.corpus.findMany({
+            where: {
+                userId: userId,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+            },
+        });
+        return corpora;
     }
 
 

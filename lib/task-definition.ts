@@ -9,6 +9,7 @@ export interface TaskDefinition {
     description: string;
     instructions: string;
     startNewThread: boolean;
+    corpusIds: string[];
     serverDataIds: string[];
     serverToolIds: string[];
     clientToolIds: string[];
@@ -33,6 +34,7 @@ export const taskDefinitionSchema = z
         description: z.string().nonempty('Task Description is required'),
         instructions: z.string().optional(),
         startNewThread: z.boolean(),
+        corpusIds: z.array(z.string()),
         serverDataIds: z.array(z.string()),
         serverToolIds: z.array(z.string()),
         clientToolIds: z.array(z.string()),

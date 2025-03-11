@@ -256,7 +256,6 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
     };
 
     const sendQueuedMessages = async (messages: MessageAI[]) => {
-        console.log(`sendQueuedMessages called ${messages.length}`);
         queuedMessagesRef.current = [...queuedMessagesRef.current, ...messages];
     };
 

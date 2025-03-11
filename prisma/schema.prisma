@@ -18,6 +18,7 @@ model taskDefinitions {
   description           String
   instructions          String
   startNewThread        Boolean  @default(false)
+  corpusIds             String[]
   serverDataIds         String[]
   serverToolIds         String[]
   clientToolIds         String[]

@@ -143,11 +143,26 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
         formData.append('chunkIndex', index.toString());
         formData.append('fileName', fileName);
 
-        await uploadChunkAction(corpusFileId, formData);
+        //await uploadChunkAction(corpusFileId, formData);
+        const sendFunction = () => uploadChunkAction(corpusFileId, formData);
+        await sendWithRetry(sendFunction);
+
         console.log(
             `Chunk ${index} sent, size: ${chunk.length} characters, tokenCount: ${tokenCount}`
         );
-        //console.log(chunk);
+    };
+
+    const sendWithRetry = async (sendFunction:()=>Promise<void>, retries = 3, delay = 500) => {
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                return await sendFunction();
+            } catch (error) {
+                if (attempt === retries) throw error;
+                console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2; // Exponential backoff
+            }
+        }
     };
 
     return (

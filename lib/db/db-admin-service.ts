@@ -10,6 +10,9 @@ export class DBAdminService {
     //** TaskDefinitionForm **//
 
     public async saveTaskDefinition(data: TaskDefinition) {
+        console.log("fire:");
+        console.log(data);
+
         // Update existing
         if (data.id) {
             const existingTaskDefinition =
@@ -27,16 +30,8 @@ export class DBAdminService {
                     id: data.id,
                 },
                 data: {
-                    name: data.name,
-                    description: data.description,
-                    instructions: data.instructions,
-                    startNewThread: data.startNewThread,
-                    serverDataIds: data.serverDataIds,
-                    serverToolIds: data.serverToolIds,
-                    clientToolIds: data.clientToolIds,
-                    modelId: data.modelId,
-                    maximumOutputTokens: data.maximumOutputTokens,
-                    temperature: data.temperature,
+                    userId: this.userId,
+                    ...data,
                 },
             });
 
@@ -46,15 +41,7 @@ export class DBAdminService {
         const newTaskDefinition = await prisma.taskDefinitions.create({
             data: {
                 userId: this.userId,
-                agentId: data.agentId,
-                name: data.name,
-                description: data.description,
-                instructions: data.instructions,
-                startNewThread: data.startNewThread,
-                serverToolIds: data.serverToolIds,
-                modelId: data.modelId,
-                maximumOutputTokens: data.maximumOutputTokens,
-                temperature: data.temperature,
+                ...data,
             },
         });
 
@@ -266,9 +253,6 @@ export class DBAdminService {
         if (!corpus) {
             throw new Error('Corpus not found');
         }
-        console.log("db dump");
-        console.dir(corpus, { depth: null });
-
         return corpus;
     }
 
