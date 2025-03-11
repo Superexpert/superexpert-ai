@@ -60,6 +60,36 @@ export class DBAdminService {
         return td;
     }
 
+    public async saveAttachment(
+        taskDefinitionId: string,
+        fileName: string,
+        file: string
+    ) {
+        const newAttachment = await prisma.attachments.create({
+            data: {
+                userId: this.userId,
+                taskDefinitionId,
+                fileName,
+                file,
+            },
+            select: {
+                id: true
+            }
+        });
+
+        return newAttachment.id;
+    }
+
+
+    public async deleteAttachment(attachmentId: string) {
+        await prisma.attachments.delete({
+            where: {
+                userId: this.userId,
+                id: attachmentId,
+            },
+        });
+    }
+
     public async deleteTaskDefinition(id: string) {
         await prisma.taskDefinitions.delete({
             where: {

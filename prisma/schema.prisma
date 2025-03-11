@@ -141,3 +141,15 @@ model corpusFileChunks {
 
   @@map("superexpert_ai_corpusFileChunks")
 }
+
+
+model attachments {
+  id                String    @id @default(uuid())
+  userId            String
+  taskDefinitionId  String
+  fileName          String
+  createdAt         DateTime  @default(now())
+  file              String    @db.Text
+
+  @@map("superexpert_ai_attachments")
+}

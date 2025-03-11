@@ -15,20 +15,25 @@ import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 
 //** TaskDefinitionForm **//
 
-export async function getTaskDefinitionFormDataAction() {
+export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const userId = await getUserId();
 
     const db = new DBService();
+
+    let attachments:{id:string, fileName:string}[] = [];
+    if (taskId) {
+        attachments = await db.getAttachmentList(userId, taskId);
+    }
+
     const corpora = await db.getCorporaList(userId);
 
     const builder = new ToolsBuilder();
-
     const serverData = builder.getServerDataList();
     const serverTools = builder.getServerToolList();
     const clientTools = builder.getClientToolList();
     const models = AIModelFactory.getAvailableModels();
     
-    return { corpora, serverData, serverTools, clientTools, models };
+    return { attachments, corpora, serverData, serverTools, clientTools, models };
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
@@ -295,4 +300,21 @@ export async function queryCorpusAction(corpusId: string, query: string, limit:n
     const db = new DBService();
     const result = await db.queryCorpus(userId, corpusId, query, limit);
     return result;
+}
+
+
+
+export async function saveAttachmentAction(taskDefinitionId: string, fileName: string, file: string) {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    const attachmentId = await db.saveAttachment(taskDefinitionId, fileName, file);
+    return attachmentId;
+}
+
+export async function deleteAttachmentAction(attachmentId: string) {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    await db.deleteAttachment(attachmentId);
 }

@@ -152,6 +152,8 @@ export class DBService {
         const adapter = new OpenAIEmbeddingAdapter();
         const embedding = await adapter.getEmbedding(query);
 
+        const similarityThreshold = 0.5;
+
         const relevantCorpusChunks = await prisma.$queryRaw`
             SELECT cfc.id, cfc.chunk
             FROM "superexpert_ai_corpusFileChunks" AS cfc
@@ -159,6 +161,7 @@ export class DBService {
             ON cfc."corpusFileId" = cf.id
             WHERE cf."corpusId" = ${corpusId}
             AND cfc."userId" = ${userId}
+            AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${similarityThreshold}
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
             ` as { id: number; chunk: string }[];
@@ -186,6 +189,40 @@ export class DBService {
         return corpora;
     }
 
+    // gets ids and filenames for attachments associated with a task
+    public async getAttachmentList(userId: string, taskDefinitionId: string) {
+        const attachmentList = await prisma.attachments.findMany({
+            where: {
+                userId,
+                taskDefinitionId,
+            },
+            orderBy: {
+                fileName: 'asc',
+            },
+            select: {
+                id: true,
+                fileName: true,
+                createdAt: true,
+            },
+        });
+        return attachmentList;
+    }
+
+    public async getFullAttachments(userId: string, taskDefinitionId: string) {
+        const attachments = await prisma.attachments.findMany({
+            where: {
+                userId,
+                taskDefinitionId,
+            },
+            select: {
+                id: true,
+                fileName: true,
+                file: true,
+                createdAt: true
+            }
+        });
+        return attachments;
+    }
 
 }
 

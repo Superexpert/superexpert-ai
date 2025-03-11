@@ -69,7 +69,6 @@ export class TaskMachine {
             thread
         );
 
-
         // Get instructions
         const instructions = await this.getInstructions(
             user,
@@ -152,10 +151,27 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
+        const attachments = await this.db.getFullAttachments(
+            user.id,
+            taskDefinition.id!
+        );
+        const attachmentsBlob =
+            `\n\nRetrieved information:\n` +
+            attachments
+                .map(
+                    (attachment) => `
+File Name: ${attachment.fileName}
+\nFile:\n ${attachment.file} 
+\nCreatedAt: ${attachment.createdAt}
+`
+                )
+                .join('\n\n');
+
         return (
-            serverData +
             globalTaskDefinition.instructions +
-            taskDefinition.instructions
+            taskDefinition.instructions +
+            serverData +
+            attachmentsBlob
         );
     }
 
@@ -200,5 +216,6 @@ export class TaskMachine {
                 lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
             }
         }
+        console.log('augmented messages:', lastMessage.content);
     }
 }

@@ -8,15 +8,19 @@ import { TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
 import {
     saveTaskDefinitionAction,
     deleteTaskDefinitionAction,
+    saveAttachmentAction,
+    deleteAttachmentAction,
 } from '@/lib/actions/admin-actions';
 import { ModelDefinition } from '@/lib/model-definition';
 import DemoMode from '@/app/ui/demo-mode';
+import React, { ChangeEvent } from 'react';
 
 interface TaskDefinitionFormProps {
     agentId: string;
     agentName: string;
     taskDefinition: TaskDefinition;
-    corpora: { id: string; name: string, description: string }[];
+    attachments: { id: string; fileName: string }[];
+    corpora: { id: string; name: string; description: string }[];
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
@@ -27,6 +31,7 @@ interface TaskDefinitionFormProps {
 export default function TaskDefinitionForm({
     agentName,
     taskDefinition,
+    attachments,
     corpora,
     serverData,
     serverTools,
@@ -35,6 +40,7 @@ export default function TaskDefinitionForm({
     isEditMode,
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
+    const [currentAttachments, setCurrentAttachments] = useState(attachments);
     const [maximumOutputTokensDescription, setMaximumOutputTokensDescription] =
         useState('');
     const [maximumTemperatureDescription, setMaximumTemperatureDescription] =
@@ -101,6 +107,52 @@ export default function TaskDefinitionForm({
         } catch (error) {
             console.error('Failed to delete task', error);
         }
+    };
+
+    const handleUploadAttachment = async (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        const files = event.target.files;
+
+        if (files && files.length > 0) {
+            const file = files[0];
+            const fileName = file.name;
+            if (file.type.startsWith('text/')) {
+                // Check if it's a text file
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+                    const text = e.target?.result as string; // Get the file content as a string
+                    // Now you can store the 'text' variable in your database.
+                    const attachmentId = await saveAttachmentAction(
+                        taskDefinition.id!,
+                        fileName,
+                        text
+                    );
+                    setCurrentAttachments((prevAttachments) => [
+                        ...prevAttachments,
+                        { id: attachmentId, fileName },
+                    ]);
+                };
+
+                reader.onerror = (error) => {
+                    console.error('Error reading file:', error);
+                };
+
+                reader.readAsText(file); // Read the file as text
+            } else {
+                console.error('Selected file is not a text file.');
+            }
+        }
+    };
+
+    const handleDeleteAttachment = async (attachmentId: string) => {
+        await deleteAttachmentAction(attachmentId);
+        setCurrentAttachments((prevAttachments) =>
+            prevAttachments.filter(
+                (attachment) => attachment.id !== attachmentId
+            )
+        );
     };
 
     return (
@@ -179,9 +231,9 @@ export default function TaskDefinitionForm({
                         <label>Start New Thread</label>
                         <div className="instructions">
                             Start a new message thread when the user starts this
-                            task. Enabling this option will erase the agent&apos;s
-                            memory of the previous messages in the conversation
-                            when the user starts the new task.
+                            task. Enabling this option will erase the
+                            agent&apos;s memory of the previous messages in the
+                            conversation when the user starts the new task.
                         </div>
                         <div className="flex items-center space-x-2">
                             <input
@@ -199,20 +251,48 @@ export default function TaskDefinitionForm({
                         )}
                     </div>
 
+                    <h3>Attachments</h3>
+                    <div className="instructions">
+                        Attach one or more files to this task.
+                    </div>
+                    {currentAttachments.map((item) => (
+                        <div
+                            key={item.id}
+                            className="flex items-center space-x-2">
+                            {item.fileName}
+                            <button
+                                type="button"
+                                className="ml-4 btn btnSmall btnDanger"
+                                onClick={() => handleDeleteAttachment(item.id)}>
+                                Delete
+                            </button>
+                        </div>
+                    ))}
+                    <div>
+                        <input
+                            type="file"
+                            form="none"
+                            onChange={handleUploadAttachment}
+                        />
+                    </div>
+
                     <h3>Retrieval Augmented Generation</h3>
                     <div className="instructions">
-                        Retrieval Augmented Generation augments each user chat message
-                        with text chunks retrieved from a corpus.  
+                        Retrieval Augmented Generation augments each user chat
+                        message with text chunks retrieved from a corpus.
                     </div>
                     <div>
                         <label>Corpus Limit</label>
                         <div className="instructions">
-                            The maximum number of text chunks to retrieve from the corpus.
+                            The maximum number of text chunks to retrieve from
+                            the corpus.
                         </div>
                         <input
                             type="number"
                             placeholder="Limit"
-                            {...register(`corpusLimit`, { valueAsNumber: true })}
+                            {...register(`corpusLimit`, {
+                                valueAsNumber: true,
+                            })}
                         />
                     </div>
                     {corpora.map((item) => (
@@ -229,13 +309,8 @@ export default function TaskDefinitionForm({
                             <label htmlFor={`corpus-${item.id}`}>
                                 {item.name} {item.description}
                             </label>
-
-
                         </div>
                     ))}
-
-
-
 
                     <h3>Server Data Tools</h3>
                     <div className="instructions">
@@ -266,10 +341,10 @@ export default function TaskDefinitionForm({
                     <h3>Server Tools</h3>
                     <div className="instructions">
                         Server tools are custom functions that an agent can
-                        execute on the server. For example, update the user&apos;s
-                        profile, send an email, or query a database. Enabling a
-                        tool in the global task will enable the tool for all
-                        tasks.
+                        execute on the server. For example, update the
+                        user&apos;s profile, send an email, or query a database.
+                        Enabling a tool in the global task will enable the tool
+                        for all tasks.
                     </div>
                     {serverTools.map((item) => (
                         <div
