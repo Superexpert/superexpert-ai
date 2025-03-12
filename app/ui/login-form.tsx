@@ -29,7 +29,7 @@ export default function LoginForm() {
         console.log('Astro 1', result);
 
         if (result.success) {
-            console.log('Astro 2');
+            console.log('Astro 2', callbackUrl);
             router.push(callbackUrl);
             console.log('Astro 3');
 

@@ -16,10 +16,15 @@ export const authConfig = {
             auth: any;
             request: { nextUrl: URL };
         }) {
+            console.log('Rufus 1');
             // Allow access to the register page without a logged-in session.
             if (request.nextUrl.pathname === '/register') {
+                console.log('Rufus 2');
+
                 return true;
             }
+            console.log('Rufus 3');
+
             const isLoggedIn = !!auth?.user;
             return isLoggedIn;
         },
