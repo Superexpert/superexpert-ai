@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { authenticateAction } from '@/lib/actions/server-actions';
-import { useSearchParams } from 'next/navigation';
+//import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,8 +12,9 @@ import Link from 'next/link';
 export default function LoginForm() {
     const [serverError, setServerError] = useState('');
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/';
+    //const searchParams = useSearchParams();
+    //const callbackUrl = searchParams.get('callbackUrl') || '/';
+    const callbackUrl = '/';
 
     const {
         register,
