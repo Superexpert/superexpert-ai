@@ -5,7 +5,7 @@ export default function CorpusQuery({ corpusId }: { corpusId: string }) {
     const [query, setQuery] = useState('');
     const [limit, setLimit] = useState<number>(3);
     const [similarityThreshold, setSimilarityThreshold] = useState<number>(50);
-    const [matches, setMatches] = useState<string[]>([]);
+    const [matches, setMatches] = useState<string[]|null>(null);
 
 
  // Handle limit change with validation
@@ -84,15 +84,22 @@ const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             </form>
 
             {/* Display results here */}
+            {matches === null && <p>Enter a query to search</p>}
 
-            {matches.length > 0 && (
+            {matches && matches.length === 0 && (
+                <p>No matches found</p>
+            )}
+
+            {matches && matches.length > 0 && (
                 <div>
                     <h2>Matches</h2>
-                    <ul>
+                    <div>
                         {matches.map((match) => (
-                            <li className="mt-4 bg-slate-50" key={match}>{match}</li>
+                            <div className="mt-6 break-all bg-slate-100" key={match}>
+                                {match}
+                            </div>
                         ))}
-                    </ul>   
+                    </div>   
                 </div>
             )}
         </div>

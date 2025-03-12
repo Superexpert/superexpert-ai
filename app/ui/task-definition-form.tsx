@@ -114,11 +114,12 @@ export default function TaskDefinitionForm({
         event: ChangeEvent<HTMLInputElement>
     ) => {
         const files = event.target.files;
-
         if (files && files.length > 0) {
             const file = files[0];
             const fileName = file.name;
-            if (file.type.startsWith('text/')) {
+            const validTypes = ['text/plain', 'application/json', 'text/csv'];
+
+            if (validTypes.includes(file.type)) {
                 // Check if it's a text file
                 const reader = new FileReader();
 
@@ -315,6 +316,7 @@ export default function TaskDefinitionForm({
                     <div>
                         <input
                             type="file"
+                            accept=".txt,application/json,text/csv"
                             form="none"
                             onChange={handleUploadAttachment}
                         />

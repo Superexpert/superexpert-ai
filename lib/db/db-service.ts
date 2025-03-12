@@ -142,7 +142,7 @@ export class DBService {
 
     public async queryCorpus(
         userId: string,
-        corpusId: string,
+        corpusIds: string[],
         query: string,
         limit: number,
         similarityThreshold: number
@@ -152,16 +152,19 @@ export class DBService {
 
         // Convert similarity threshold to a value between 0 and 1
         const decimalSimilarityThreshold = similarityThreshold / 100;
+        const uniqueCorpusIds = [...new Set(corpusIds)];
 
         console.log("limit: ", limit);
         console.log("decimalSimilarityThreshold: ", decimalSimilarityThreshold);
+        console.log("corpusIds: ", corpusIds);
+        console.log("query: ", query);
 
         const relevantCorpusChunks = (await prisma.$queryRaw`
             SELECT cfc.id, cfc.chunk
             FROM "superexpert_ai_corpusFileChunks" AS cfc
             INNER JOIN "superexpert_ai_corpusFiles" AS cf
             ON cfc."corpusFileId" = cf.id
-            WHERE cf."corpusId" = ${corpusId}
+            WHERE cf."corpusId" IN (${uniqueCorpusIds.join(',')})
             AND cfc."userId" = ${userId}
             AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${decimalSimilarityThreshold}
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
@@ -210,11 +213,13 @@ export class DBService {
         return attachmentList;
     }
 
-    public async getFullAttachments(userId: string, taskDefinitionId: string) {
+    public async getFullAttachments(userId: string, taskDefinitionIds: string[]) {
         const attachments = await prisma.attachments.findMany({
             where: {
                 userId,
-                taskDefinitionId,
+                taskDefinitionId: {
+                    in: taskDefinitionIds,
+                },
             },
             select: {
                 id: true,

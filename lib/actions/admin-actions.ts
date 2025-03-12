@@ -311,7 +311,7 @@ export async function queryCorpusAction(corpusId: string, query: string, limit:n
 
     // Call DBService instead of AdminService because we want the real experience
     const db = new DBService();
-    const result = await db.queryCorpus(userId, corpusId, query, limit, similarityThreshold);
+    const result = await db.queryCorpus(userId, [corpusId], query, limit, similarityThreshold);
     return result;
 }
 

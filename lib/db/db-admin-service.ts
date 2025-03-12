@@ -366,8 +366,8 @@ export class DBAdminService {
                 userId: this.userId,
                 corpusId: data.corpusId,
                 fileName: data.fileName,
-                chunkSize: 1000,
-                chunkOverlap: 20,
+                chunkSize: data.chunkSize,
+                chunkOverlap: data.chunkOverlap,
             },
         });
         return corpusFile.id;

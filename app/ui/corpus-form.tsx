@@ -21,6 +21,7 @@ export default function CorpusForm({
     isEditMode: boolean;
 }) {
     const [serverError, setServerError] = useState('');
+    const [currentCorpusFiles, setCurrentCorpusFiles] = useState(corpus.corpusFiles);
     const router = useRouter();
     const {
         register,
@@ -65,6 +66,13 @@ export default function CorpusForm({
         } catch (error) {
             console.error('Failed to delete corpus file', error);
         }
+
+        setCurrentCorpusFiles((prevCorpusFiles) =>
+            prevCorpusFiles.filter(
+                (cp) => cp.id !== corpusFileId
+            )
+        );
+
     }
 
     return (
@@ -129,7 +137,7 @@ export default function CorpusForm({
                         <div>
                             <h1>Files</h1>
 
-                            {corpus.corpusFiles.map((corpusFile) => (
+                            {currentCorpusFiles.map((corpusFile) => (
                                 <div
                                     key={corpusFile.id}
                                     className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">

@@ -58,7 +58,12 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
-        await this.augmentMessages(user.id, taskDefinition, messages);
+        await this.augmentMessages(
+            user.id,
+            taskDefinition,
+            globalTaskDefinition,
+            messages
+        );
 
         // Save messages
         await this.saveMessages(user.id, agentId, task, thread, messages);
@@ -79,8 +84,7 @@ export class TaskMachine {
         // Get tools
         const tools = await this.getTools(taskDefinition, globalTaskDefinition);
 
-
-        console.log("Instructions");
+        console.log('Instructions');
         console.log(instructions);
 
         return {
@@ -155,10 +159,10 @@ export class TaskMachine {
             globalTaskDefinition
         );
 
-        const attachments = await this.db.getFullAttachments(
-            user.id,
-            taskDefinition.id!
-        );
+        const attachments = await this.db.getFullAttachments(user.id, [
+            taskDefinition.id!,
+            globalTaskDefinition.id!,
+        ]);
         const attachmentsBlob =
             `\n\nRetrieved information:\n` +
             attachments
@@ -202,6 +206,7 @@ File Name: ${attachment.fileName}
     private async augmentMessages(
         userId: string,
         taskDefinition: TaskDefinition,
+        globalTaskDefinition: TaskDefinition,
         messages: MessageAI[]
     ) {
         // Only proceed if there is a user last message
@@ -212,7 +217,10 @@ File Name: ${attachment.fileName}
         for (const corpusId of taskDefinition.corpusIds) {
             const chunks = await this.db.queryCorpus(
                 userId,
-                corpusId,
+                [
+                    ...taskDefinition.corpusIds,
+                    ...globalTaskDefinition.corpusIds,
+                ],
                 lastMessage.content,
                 taskDefinition.corpusLimit,
                 taskDefinition.corpusSimilarityThreshold

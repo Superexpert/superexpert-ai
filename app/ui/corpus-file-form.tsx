@@ -8,6 +8,8 @@ import {
 import { encodingForModel } from 'js-tiktoken';
 import Link from 'next/link';
 import DemoMode from './demo-mode';
+import { useRouter } from 'next/navigation';
+
 
 export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -17,6 +19,8 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
     const chunkSizeRef = useRef<HTMLInputElement>(null);
     const chunkOverlapRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const router = useRouter();
 
     const handleClick = async () => {
         // Get file
@@ -45,6 +49,11 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
             return;
         }
 
+        // Show progress bar immediately with initial status
+        setUploading(true);
+        setUploadProgress(0.5);  // Start with a small value to show the bar immediately
+
+
         // Calculate the number of tokens to overlap between chunks
         const overlapTokens = Math.floor((chunkOverlapPercentage / 100) * chunkSize);
 
@@ -57,15 +66,13 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
         });
         const corpusFileId = result.corpusFileId!;
 
-        // Start uploading
-        setUploading(true);
+
 
         // Initialize the tokenizer for the specific model
         const encoding = encodingForModel('text-embedding-3-small');
 
         try {
             setError('');
-            setUploadProgress(0);
 
             const reader = file.stream().getReader();
             const decoder = new TextDecoder('utf-8');
@@ -130,11 +137,12 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
                     const progress = Math.round(
                         (totalSizeUploaded / file.size) * 100
                     );
-                    setUploadProgress(Math.min(progress, 100));
+                    setUploadProgress(Math.min(0.5, progress, 100));
                 }
             }
 
             setUploadProgress(100);
+            router.push(`/admin/corpora/corpus/${corpusId}`);
         } catch (err) {
             console.error('Upload error:', err);
             setError(
