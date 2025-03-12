@@ -11,6 +11,8 @@
     "migrate": "npx prisma generate && npx prisma db push",
     "migrate:production": "dotenv -e .env.production -- npx prisma db push",
     "nuke-db": "npx prisma db push --force-reset",
+    "nuke-db:production": "dotenv -e .env.production npx prisma migrate reset --force && dotenv -e .env.production npx prisma db push",
+    "trim-demo-agents": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/trim-demo-agents.ts",
     "test": "jest",
     "test-all": "jest --testPathIgnorePatterns=",
     "test-current": "jest __tests__/adapters/function.test.ts --testPathIgnorePatterns="

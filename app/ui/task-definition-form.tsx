@@ -48,6 +48,9 @@ export default function TaskDefinitionForm({
         useState('');
 
     const router = useRouter();
+
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
     const {
         register,
         handleSubmit,
@@ -323,7 +326,10 @@ export default function TaskDefinitionForm({
                             accept=".txt,application/json,text/csv"
                             form="none"
                             onChange={handleUploadAttachment}
+                            disabled={isDemoMode}
                         />
+
+                        <DemoMode text="In Demo Mode, attachments are disabled." />
                     </div>
 
                     <h2>Retrieval Augmented Generation</h2>
@@ -458,6 +464,8 @@ export default function TaskDefinitionForm({
                         task. The global task model is used when the task model
                         is set to &apos;global&apos;.
                     </div>
+                    <DemoMode text="In Demo Mode, you can only use GPT-4o mini." />
+
                     {taskDefinition.name != 'global' && (
                         <div className="flex items-center space-x-2">
                             <input

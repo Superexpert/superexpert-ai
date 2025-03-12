@@ -82,6 +82,7 @@ model agents {
   userId      String
   name        String @unique
   description String
+  createdAt   DateTime @default(now())
 
   @@unique([userId, name], name: "agent_userId_name") // Composite unique constraint
   @@map("superexpert_ai_agents")

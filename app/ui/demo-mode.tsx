@@ -1,17 +1,19 @@
 'use client';
 
-const DemoMode = () => {
+const DemoMode = ({
+    text = `You are in demo mode with reduced functionality. For the full experience, download 
+            the open-source <a className="font-bold" href="https://github.com/superexpert/superexpert-ai">Superexpert AI</a> project from GitHub.
+`,
+}: {
+    text?: string;
+}) => {
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
     if (!isDemoMode) return;
 
     return (
-        <div className="demoMode">
-            You are in demo mode. This means that all agents will be deleted
-            automatically after a certain number of days. Also,
-            model selection will be ignored and all tasks will run using 
-            GPT-4o mini. For the full experience, download 
-            Superexpert AI.
-        </div>
+        <div
+            className="demoMode"
+            dangerouslySetInnerHTML={{ __html: text }}></div>
     );
 };
 
