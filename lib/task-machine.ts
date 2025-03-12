@@ -214,20 +214,15 @@ File Name: ${attachment.fileName}
         if (lastMessage.role !== 'user') return;
 
         // Let's loop through the corpora
-        for (const corpusId of taskDefinition.corpusIds) {
-            const chunks = await this.db.queryCorpus(
-                userId,
-                [
-                    ...taskDefinition.corpusIds,
-                    ...globalTaskDefinition.corpusIds,
-                ],
-                lastMessage.content,
-                taskDefinition.corpusLimit,
-                taskDefinition.corpusSimilarityThreshold
-            );
-            for (const chunk of chunks) {
-                lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
-            }
+        const chunks = await this.db.queryCorpus(
+            userId,
+            [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds],
+            lastMessage.content,
+            taskDefinition.corpusLimit,
+            taskDefinition.corpusSimilarityThreshold
+        );
+        for (const chunk of chunks) {
+            lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
         }
     }
 }
