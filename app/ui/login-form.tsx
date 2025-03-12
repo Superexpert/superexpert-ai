@@ -26,9 +26,16 @@ export default function LoginForm() {
 
     const onSubmit = async (registerUser: RegisterUser) => {
         const result = await authenticateAction(registerUser);
+        console.log('Astro 1', result);
+
         if (result.success) {
+            console.log('Astro 2');
             router.push(callbackUrl);
+            console.log('Astro 3');
+
         } else {
+            console.log('Astro 4');
+
             setServerError(result.serverError);
         }
     };
