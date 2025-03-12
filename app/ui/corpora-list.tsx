@@ -5,7 +5,7 @@ import { Corpus } from '@/lib/corpus';
 export default function CorporaList({
     corpora,
 }: {
-    corpora: Corpus[];
+    corpora: {id:string;name:string;description:string}[];
 }) {
     return (
         <>
