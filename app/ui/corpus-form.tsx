@@ -7,6 +7,7 @@ import Link from 'next/link';
 import {
     saveCorpusAction,
     deleteCorpusAction,
+    deleteCorpusFileAction,
 } from '@/lib/actions/admin-actions';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import DemoMode from '@/app/ui/demo-mode';
@@ -39,7 +40,7 @@ export default function CorpusForm({
         }
     };
 
-    const handleDelete = async () => {
+    const handleDeleteCorpus = async () => {
         if (!corpus.id) return;
         const confirmed = window.confirm(
             'Are you sure you want to delete this corpus?'
@@ -52,6 +53,19 @@ export default function CorpusForm({
             console.error('Failed to delete corpus', error);
         }
     };
+
+    const handleDeleteCorpusFile = async (corpusFileId:string) => {
+        const confirmed = window.confirm(
+            'Are you sure you want to delete this corpus file?'
+        );
+        if (!confirmed) return; // Do nothing if the user cancels   
+
+        try {
+            await deleteCorpusFileAction(corpusFileId);
+        } catch (error) {
+            console.error('Failed to delete corpus file', error);
+        }
+    }
 
     return (
         <>
@@ -99,7 +113,7 @@ export default function CorpusForm({
                         <button
                             className="btn btnDanger ml-4"
                             type="button"
-                            onClick={handleDelete}>
+                            onClick={handleDeleteCorpus}>
                             Delete
                         </button>
                     )}
@@ -129,11 +143,12 @@ export default function CorpusForm({
                                         </p>
                                     </div>
                                     <div>
-                                        <Link
-                                            href={`/admin/agents/${corpusFile.id}`}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteCorpusFile(corpusFile.id!)}
                                             className="btn btnSecondary ml-4">
                                             Delete
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
                             ))}

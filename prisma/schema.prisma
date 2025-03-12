@@ -10,22 +10,23 @@ datasource db {
 }
 
 model taskDefinitions {
-  id                    String    @id @default(uuid())
-  userId                String
-  agentId               String
-  isSystem              Boolean   @default(false)
-  name                  String
-  description           String
-  instructions          String
-  startNewThread        Boolean   @default(false)
-  corpusLimit           Int       @default(3)
-  corpusIds             String[]
-  serverDataIds         String[]
-  serverToolIds         String[]
-  clientToolIds         String[]
-  modelId               String
-  maximumOutputTokens   Int?
-  temperature           Float?
+  id                          String    @id @default(uuid())
+  userId                      String
+  agentId                     String
+  isSystem                    Boolean   @default(false)
+  name                        String
+  description                 String
+  instructions                String
+  startNewThread              Boolean   @default(false)
+  corpusLimit                 Int       @default(3)
+  corpusSimilarityThreshold   Int       @default(50)
+  corpusIds                   String[]
+  serverDataIds               String[]
+  serverToolIds               String[]
+  clientToolIds               String[]
+  modelId                     String
+  maximumOutputTokens         Int?
+  temperature                 Float?
 
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")
@@ -137,7 +138,7 @@ model corpusFileChunks {
   embedding       Unsupported("vector(1536)")?
   // Foreign Key: corporaFileId (Many-to-One relationship with corporaFiles)
   corpusFileId    String
-  corpusFile     corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id])
+  corpusFile     corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id], onDelete: Cascade)
 
   @@map("superexpert_ai_corpusFileChunks")
 }

@@ -210,12 +210,12 @@ File Name: ${attachment.fileName}
                 userId,
                 corpusId,
                 lastMessage.content,
-                taskDefinition.corpusLimit
+                taskDefinition.corpusLimit,
+                taskDefinition.corpusSimilarityThreshold
             );
             for (const chunk of chunks) {
                 lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
             }
         }
-        console.log('augmented messages:', lastMessage.content);
     }
 }

@@ -32,6 +32,7 @@ export default async function EditTaskDefinitionPage({
         instructions: '',
         startNewThread: false,
         corpusLimit: 3,
+        corpusSimilarityThreshold: 50,
         corpusIds: [],
         serverDataIds: [],
         serverToolIds: [],

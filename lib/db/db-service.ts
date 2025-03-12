@@ -96,7 +96,7 @@ export class DBService {
         return processedMessages;
     }
 
-    public async getTaskDefinitions(userId:string, agentId: string) {
+    public async getTaskDefinitions(userId: string, agentId: string) {
         const taskDefinitions = await prisma.taskDefinitions.findMany({
             where: {
                 userId: userId,
@@ -140,33 +140,35 @@ export class DBService {
         return agent;
     }
 
-
- 
-
-    public async queryCorpus (
+    public async queryCorpus(
         userId: string,
         corpusId: string,
         query: string,
-        limit: number = 3
-    ):Promise<string[]> {
+        limit: number,
+        similarityThreshold: number
+    ): Promise<string[]> {
         const adapter = new OpenAIEmbeddingAdapter();
         const embedding = await adapter.getEmbedding(query);
 
-        const similarityThreshold = 0.5;
+        // Convert similarity threshold to a value between 0 and 1
+        const decimalSimilarityThreshold = similarityThreshold / 100;
 
-        const relevantCorpusChunks = await prisma.$queryRaw`
+        console.log("limit: ", limit);
+        console.log("decimalSimilarityThreshold: ", decimalSimilarityThreshold);
+
+        const relevantCorpusChunks = (await prisma.$queryRaw`
             SELECT cfc.id, cfc.chunk
             FROM "superexpert_ai_corpusFileChunks" AS cfc
             INNER JOIN "superexpert_ai_corpusFiles" AS cf
             ON cfc."corpusFileId" = cf.id
             WHERE cf."corpusId" = ${corpusId}
             AND cfc."userId" = ${userId}
-            AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${similarityThreshold}
+            AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${decimalSimilarityThreshold}
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
-            ` as { id: number; chunk: string }[];
+            `) as { id: number; chunk: string }[];
 
-        console.log("rcc:");
+        console.log('rcc:');
         console.dir(relevantCorpusChunks, { depth: null });
 
         return relevantCorpusChunks.map((rcc) => rcc.chunk) as string[];
@@ -218,12 +220,9 @@ export class DBService {
                 id: true,
                 fileName: true,
                 file: true,
-                createdAt: true
-            }
+                createdAt: true,
+            },
         });
         return attachments;
     }
-
 }
-
-

@@ -295,6 +295,21 @@ export default function TaskDefinitionForm({
                             })}
                         />
                     </div>
+                    <div>
+                        <label>Corpus Similarity Threshold</label>
+                        <div className="instructions">
+                            Results are only returned if the similarity score
+                            between the user message and the corpus text is above
+                            this threshold.
+                        </div>
+                        <input
+                            type="number"
+                            placeholder="Threshold"
+                            {...register(`corpusSimilarityThreshold`, {
+                                valueAsNumber: true,
+                            })}
+                        />
+                    </div>
                     {corpora.map((item) => (
                         <div
                             key={item.id}

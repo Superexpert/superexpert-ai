@@ -333,6 +333,17 @@ export class DBAdminService {
         return true;
     }
 
+    public async deleteCorpusFile(corpusFileId: string) {
+        await prisma.corpusFiles.delete({
+            where: {
+                userId: this.userId,
+                id: corpusFileId,
+            },
+        });
+        return true;
+    }
+
+
 
     public async getCorpusByName(name: string) {
         const corpus = await prisma.corpus.findUnique({

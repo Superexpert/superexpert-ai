@@ -10,6 +10,7 @@ export interface TaskDefinition {
     instructions: string;
     startNewThread: boolean;
     corpusLimit: number;
+    corpusSimilarityThreshold: number;
     corpusIds: string[];
     serverDataIds: string[];
     serverToolIds: string[];
@@ -36,19 +37,15 @@ export const taskDefinitionSchema = z
         instructions: z.string().optional(),
         startNewThread: z.boolean(),
         corpusLimit: z.number().min(0).max(50).default(1),
+        corpusSimilarityThreshold: z.number().int().min(0).max(100).default(50),
         corpusIds: z.array(z.string()),
         serverDataIds: z.array(z.string()),
         serverToolIds: z.array(z.string()),
         clientToolIds: z.array(z.string()),
         modelId: z.string().nonempty('Model ID is required'),
         isSystem: z.boolean(),
-
-
         maximumOutputTokens: z.coerce.number().min(1).nullable(),
-      
-
         temperature:     z.coerce.number().min(0).nullable(),
-  
     })
     .superRefine((data, ctx) => {
         const selectedModel = AIModelFactory.getModelById(data.modelId);

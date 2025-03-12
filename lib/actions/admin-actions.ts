@@ -235,6 +235,10 @@ export async function uploadChunkAction(corpusFileId: string, formData: FormData
             embedding.data[0].embedding
         );
 
+        console.log('**************');
+        console.log(chunk);
+
+
         console.log(
             `Successfully saved chunk ${chunkIndex} for file ${fileName}`
         );
@@ -293,12 +297,21 @@ export async function deleteCorpusAction(id: string) {
     redirect('/admin/corpora');
 }
 
-export async function queryCorpusAction(corpusId: string, query: string, limit:number) {
+export async function deleteCorpusFileAction(corpusFileId: string) {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    await db.deleteCorpusFile(corpusFileId);
+}
+
+
+
+export async function queryCorpusAction(corpusId: string, query: string, limit:number, similarityThreshold:number) {
     const userId = await getUserId();
 
     // Call DBService instead of AdminService because we want the real experience
     const db = new DBService();
-    const result = await db.queryCorpus(userId, corpusId, query, limit);
+    const result = await db.queryCorpus(userId, corpusId, query, limit, similarityThreshold);
     return result;
 }
 
