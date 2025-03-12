@@ -14,6 +14,7 @@ import {
 import { ModelDefinition } from '@/lib/model-definition';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
+import { Themes } from '@/styles/chat-bot/themes';
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -227,6 +228,49 @@ export default function TaskDefinitionForm({
                         )}
                     </div>
 
+                    <h1>Theme</h1>
+                    <div>
+                        <label>Theme</label>
+                        <div className="instructions">
+                            The theme determines the appearance of your chat
+                            bot.
+                        </div>
+                        {taskDefinition.name != 'global' && (
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="radio"
+                                    id="theme-global"
+                                    value="global"
+                                    {...register('theme')}
+                                />
+                                <label htmlFor="theme-global">
+                                    global: Use the theme from the global task
+                                    definition
+                                </label>
+                            </div>
+                        )}
+                        {Themes.themes.map((theme) => (
+                            <div
+                                key={theme.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="radio"
+                                    id={theme.id}
+                                    value={theme.id}
+                                    {...register('theme')}
+                                />
+                                <label htmlFor={`${theme.id}`}>
+                                    {theme.name}
+                                </label>
+                            </div>
+                        ))}
+                        {errors.theme && (
+                            <p className="error">{errors.theme.message}</p>
+                        )}
+                    </div>
+
                     <div>
                         <label>Start New Thread</label>
                         <div className="instructions">
@@ -299,8 +343,8 @@ export default function TaskDefinitionForm({
                         <label>Corpus Similarity Threshold</label>
                         <div className="instructions">
                             Results are only returned if the similarity score
-                            between the user message and the corpus text is above
-                            this threshold.
+                            between the user message and the corpus text is
+                            above this threshold.
                         </div>
                         <input
                             type="number"

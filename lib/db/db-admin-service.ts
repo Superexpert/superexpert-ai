@@ -133,6 +133,7 @@ export class DBAdminService {
                 serverToolIds: [],
                 clientToolIds: ['transition'],
                 modelId: 'gpt-4o',
+                theme: 'default',
             },
             {
                 name: 'home',
@@ -143,6 +144,7 @@ export class DBAdminService {
                 serverToolIds: [],
                 clientToolIds: [],
                 modelId: 'global',
+                theme: 'global',
             },
         ];
 

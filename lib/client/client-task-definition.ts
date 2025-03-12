@@ -5,4 +5,5 @@ export interface ClientTaskDefinition {
     description: string;
     startNewThread: boolean;
     modelId: string;
+    theme: string;
 }

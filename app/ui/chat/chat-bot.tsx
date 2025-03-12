@@ -7,7 +7,6 @@ import React, {
     ReactNode,
     ReactElement,
 } from 'react';
-import styles from '@/styles/chat-bot/default.module.css';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
@@ -17,6 +16,7 @@ import { ClientToolsBuilder } from '@/lib/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 import Modal from '@/app/ui/modal';
+import { Themes } from '@/styles/chat-bot/themes';
 
 const getNow = () => {
     return new Date();
@@ -145,7 +145,6 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
         }
     }, [inputDisabled]);
 
-
     const handleSubmit = (e: { preventDefault: () => void }) => {
         e.preventDefault();
         if (!userInput.trim()) return;
@@ -192,7 +191,6 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
         appendToLastMessage(delta);
     };
 
-  
     /*
     ===============================================
     === Handle Server and Client Function Calls ===
@@ -205,6 +203,14 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
         const task = tasks.find((t) => t.name === taskNameRef.current);
         if (!task) {
             throw new Error('Task not found');
+        }
+        return task;
+    };
+
+    const getGlobalTask = () => {
+        const task = tasks.find((t) => t.name === 'global');
+        if (!task) {
+            throw new Error('Global task not found');
         }
         return task;
     };
@@ -326,6 +332,14 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
     ) => {
         setMessages((prevMessages) => [...prevMessages, { role, text }]);
     };
+
+    // Determine the current theme
+    const currentTheme =
+        getCurrentTask().theme === 'global'
+            ? getGlobalTask().theme
+            : getCurrentTask().theme;
+
+    const styles = Themes.getTheme(currentTheme);
 
     return (
         <div>

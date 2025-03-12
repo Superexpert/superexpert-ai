@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { queryCorpusAction } from '@/lib/actions/admin-actions';
-import { match } from 'assert';
 
 export default function CorpusQuery({ corpusId }: { corpusId: string }) {
     const [query, setQuery] = useState('');

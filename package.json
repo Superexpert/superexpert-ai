@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "npx prisma generate && npx prisma db push",
-    "migrate-db:production": "dotenv -e .env.production -- npx prisma db push",
+    "migrate:production": "dotenv -e .env.production -- npx prisma db push",
     "nuke-db": "npx prisma db push --force-reset",
     "test": "jest",
     "test-all": "jest --testPathIgnorePatterns=",
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9.22.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -50,14 +51,16 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv-cli": "^8.0.0",
-    "eslint": "^9",
+    "eslint": "^9.22.0",
     "eslint-config-next": "15.1.6",
+    "globals": "^16.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
     "prisma": "^6.5.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.26.1"
   }
 }

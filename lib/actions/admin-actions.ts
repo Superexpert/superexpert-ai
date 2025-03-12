@@ -240,7 +240,7 @@ export async function uploadChunkAction(corpusFileId: string, formData: FormData
 
 
         console.log(
-            `Successfully saved chunk ${chunkIndex} for file ${fileName}`
+            `Successfully saved chunk ${chunkIndex} for file ${fileName} using ${tokenCount} tokens`
         );
     } catch (error) {
         console.error(`Failed to save chunk ${chunkIndex}`, error);

@@ -27,6 +27,8 @@ model taskDefinitions {
   modelId                     String
   maximumOutputTokens         Int?
   temperature                 Float?
+  theme                       String    @default("global")
+  createdAt                   DateTime  @default(now())
 
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")

@@ -79,6 +79,10 @@ export class TaskMachine {
         // Get tools
         const tools = await this.getTools(taskDefinition, globalTaskDefinition);
 
+
+        console.log("Instructions");
+        console.log(instructions);
+
         return {
             instructions,
             currentMessages: previousMessages,

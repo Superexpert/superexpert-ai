@@ -18,6 +18,7 @@ export interface TaskDefinition {
     modelId: string;
     maximumOutputTokens: number | null;
     temperature: number | null;
+    theme: string;
 }
 
 export const taskDefinitionSchema = z
@@ -45,7 +46,8 @@ export const taskDefinitionSchema = z
         modelId: z.string().nonempty('Model ID is required'),
         isSystem: z.boolean(),
         maximumOutputTokens: z.coerce.number().min(1).nullable(),
-        temperature:     z.coerce.number().min(0).nullable(),
+        temperature: z.coerce.number().min(0).nullable(),
+        theme: z.string().nonempty('Theme is required'),
     })
     .superRefine((data, ctx) => {
         const selectedModel = AIModelFactory.getModelById(data.modelId);

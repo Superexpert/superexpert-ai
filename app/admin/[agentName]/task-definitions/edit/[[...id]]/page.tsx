@@ -40,6 +40,7 @@ export default async function EditTaskDefinitionPage({
         modelId: 'global',
         maximumOutputTokens: null,
         temperature: null,
+        theme: 'global',
     };
 
     if (isEditMode) {

@@ -121,6 +121,7 @@ export async function getTasksAction(
         isSystem: task.isSystem,
         startNewThread: task.startNewThread,
         modelId: task.modelId,
+        theme: task.theme,
     }));
 }
 
