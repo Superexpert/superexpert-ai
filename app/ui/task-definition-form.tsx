@@ -178,6 +178,7 @@ export default function TaskDefinitionForm({
                         {serverError && <p className="error">{serverError}</p>}
                     </div>
                     <div>
+                        <h2>Task Name</h2>
                         <label>Task Name</label>
                         <div className="instructions">
                             An agent uses the task name to transition to a task.
@@ -195,6 +196,7 @@ export default function TaskDefinitionForm({
                     </div>
 
                     <div>
+                        <h2>Description</h2>
                         <label>Description</label>
                         <div className="instructions">
                             The task description can be anything that you want.
@@ -212,6 +214,7 @@ export default function TaskDefinitionForm({
                     </div>
 
                     <div>
+                        <h2>Instructions</h2>
                         <label>Instructions</label>
                         <div className="instructions">
                             The task instructions are for the AI agent. This is
@@ -229,8 +232,8 @@ export default function TaskDefinitionForm({
                         )}
                     </div>
 
-                    <h1>Theme</h1>
                     <div>
+                        <h2>Theme</h2>
                         <label>Theme</label>
                         <div className="instructions">
                             The theme determines the appearance of your chat
@@ -273,6 +276,7 @@ export default function TaskDefinitionForm({
                     </div>
 
                     <div>
+                        <h2>Start New Thread</h2>
                         <label>Start New Thread</label>
                         <div className="instructions">
                             Start a new message thread when the user starts this
@@ -296,7 +300,7 @@ export default function TaskDefinitionForm({
                         )}
                     </div>
 
-                    <h3>Attachments</h3>
+                    <h2>Attachments</h2>
                     <div className="instructions">
                         Attach one or more files to this task.
                     </div>
@@ -322,7 +326,7 @@ export default function TaskDefinitionForm({
                         />
                     </div>
 
-                    <h3>Retrieval Augmented Generation</h3>
+                    <h2>Retrieval Augmented Generation</h2>
                     <div className="instructions">
                         Retrieval Augmented Generation augments each user chat
                         message with text chunks retrieved from a corpus.
@@ -373,7 +377,7 @@ export default function TaskDefinitionForm({
                         </div>
                     ))}
 
-                    <h3>Server Data Tools</h3>
+                    <h2>Server Data Tools</h2>
                     <div className="instructions">
                         Load custom data from the server that is shared with the
                         agent. The server data can be anything that you want.
@@ -399,7 +403,7 @@ export default function TaskDefinitionForm({
                         </div>
                     ))}
 
-                    <h3>Server Tools</h3>
+                    <h2>Server Tools</h2>
                     <div className="instructions">
                         Server tools are custom functions that an agent can
                         execute on the server. For example, update the
@@ -424,7 +428,7 @@ export default function TaskDefinitionForm({
                         </div>
                     ))}
 
-                    <h3>Client Tools</h3>
+                    <h2>Client Tools</h2>
                     <div className="instructions">
                         Client tools are custom functions that an agent can
                         execute on the client. For example, transition to a new
@@ -448,7 +452,7 @@ export default function TaskDefinitionForm({
                         </div>
                     ))}
 
-                    <h3>AI Model</h3>
+                    <h2>AI Model</h2>
                     <div className="instructions">
                         Select the AI model that the agent will use for this
                         task. The global task model is used when the task model
@@ -488,7 +492,7 @@ export default function TaskDefinitionForm({
 
                     {selectedModelId !== 'global' && (
                         <>
-                            <h3>Advanced AI Model Settings</h3>
+                            <h2>Advanced AI Model Settings</h2>
                             <div className="instructions">
                                 The advanced AI model settings allow you to
                                 customize the AI model&apos;s behavior.
