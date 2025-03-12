@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import DemoMode from '@/app/ui/demo-mode';
-import { Corpus } from '@/lib/corpus';
 
 export default function CorporaList({
     corpora,
