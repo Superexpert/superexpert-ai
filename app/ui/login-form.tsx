@@ -31,7 +31,7 @@ export default function LoginForm() {
         if (result.success) {
             console.log('Astro 2', callbackUrl);
             //router.push(callbackUrl);
-            router.push('/');
+            window.location.href = '/';
             console.log('Astro 3');
 
         } else {
