@@ -37,6 +37,7 @@ export async function authenticateAction(user: RegisterUser) {
             username: user.email,
             password: user.password,
             redirect: false,
+            //redirectTo: '/',
         });
         return {
             success: true,
