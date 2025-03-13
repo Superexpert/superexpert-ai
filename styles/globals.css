@@ -107,11 +107,7 @@ a {
         @apply text-red-600 bg-red-50 border border-red-200 p-3 rounded-md flex items-center;
     }
 
-    /* Form container */
-    form {
-        @apply space-y-6;
-    }
-
+    
     /* Form field wrapper */
     .form-field {
         @apply space-y-2;
