@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 import { registerAction } from '@/lib/actions/server-actions';
-import { useSearchParams } from 'next/navigation';
+//import { useSearchParams } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+//import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 
 export default function RegisterForm() {
     const [serverError, setServerError] = useState('');
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/';
+    //const router = useRouter();
+    //const searchParams = useSearchParams();
+    //const callbackUrl = searchParams.get('callbackUrl') || '/';
 
     const {
         register,
@@ -26,7 +26,8 @@ export default function RegisterForm() {
     const onSubmit = async (registerUser: RegisterUser) => {
         const result = await registerAction(registerUser);
         if (result.success) {
-            router.push(callbackUrl);
+            //router.push(callbackUrl);
+            window.location.href = '/';
         } else {
             setServerError(result.serverError);
         }
