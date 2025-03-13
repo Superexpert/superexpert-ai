@@ -234,11 +234,6 @@ export async function uploadChunkAction(corpusFileId: string, formData: FormData
             corpusChunkId,
             embedding.data[0].embedding
         );
-
-        console.log('**************');
-        console.log(chunk);
-
-
         console.log(
             `Successfully saved chunk ${chunkIndex} for file ${fileName} using ${tokenCount} tokens`
         );

@@ -154,11 +154,6 @@ export class DBService {
         const decimalSimilarityThreshold = similarityThreshold / 100;
         const uniqueCorpusIds = [...new Set(corpusIds)];
 
-        console.log("limit: ", limit);
-        console.log("decimalSimilarityThreshold: ", decimalSimilarityThreshold);
-        console.log("corpusIds: ", corpusIds);
-        console.log("query: ", query);
-
         const relevantCorpusChunks = (await prisma.$queryRaw`
             SELECT cfc.id, cfc.chunk
             FROM "superexpert_ai_corpusFileChunks" AS cfc
@@ -170,9 +165,6 @@ export class DBService {
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
             `) as { id: number; chunk: string }[];
-
-        console.log('rcc:');
-        console.dir(relevantCorpusChunks, { depth: null });
 
         return relevantCorpusChunks.map((rcc) => rcc.chunk) as string[];
     }
