@@ -8,6 +8,7 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
+    "deploy:staging": "git push --force origin \"$(git rev-parse --abbrev-ref HEAD):staging\"",
     "migrate": "npx prisma generate && npx prisma db push",
     "migrate:staging": "dotenv -e .env.staging -- npx prisma db push",
     "migrate:production": "dotenv -e .env.production -- npx prisma db push",

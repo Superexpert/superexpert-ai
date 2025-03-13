@@ -12,6 +12,20 @@ export default async function EditTaskDefinitionPage({
 }: {
     params: Promise<{ [key: string]: string }>;
 }) {
+
+    if (process.env.VERCEL_ENV === 'production') {
+        console.log('This is a production environment');
+      } else if (process.env.VERCEL_ENV === 'preview') {
+        // Preview-specific code
+        console.log('This is a preview environment');
+      } else {
+        // Development-specific code
+        console.log('This is a development environment');
+      }
+      console.log("vercel env");
+      console.log(process.env.VERCEL_ENV);
+
+
     // Check for valid agent name
     const resolvedParams = await params;
     const agent = await getAgentAction(resolvedParams);

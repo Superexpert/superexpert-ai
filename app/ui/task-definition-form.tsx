@@ -50,6 +50,7 @@ export default function TaskDefinitionForm({
     const router = useRouter();
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+    console.log("demo mode?", isDemoMode);
 
     const {
         register,
