@@ -5,13 +5,13 @@ import { authenticateAction } from '@/lib/actions/server-actions';
 import { useForm } from 'react-hook-form';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+//import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 
 export default function LoginForm() {
     const [serverError, setServerError] = useState('');
-    const router = useRouter();
+    //const router = useRouter();
     //const searchParams = useSearchParams();
     //const callbackUrl = searchParams.get('callbackUrl') || '/';
     const callbackUrl = '/';
