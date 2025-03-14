@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model taskDefinitions {
+  id                          String    @id @default(uuid())
+  userId                      String
+  agentId                     String
+  isSystem                    Boolean   @default(false)
+  name                        String
+  description                 String
+  instructions                String
+  startNewThread              Boolean   @default(false)
+  corpusLimit                 Int       @default(3)
+  corpusSimilarityThreshold   Int       @default(50)
+  corpusIds                   String[]
+  serverDataIds               String[]
+  serverToolIds               String[]
+  clientToolIds               String[]
+  modelId                     String
+  maximumOutputTokens         Int?
+  temperature                 Float?
+  theme                       String    @default("global")
+  createdAt                   DateTime  @default(now())
+
+  @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
+  @@map("superexpert_ai_taskDefinitions")
+}
+
+model messages {
+  id           Int      @id @default(autoincrement())
+  agentId      String
+  userId       String
+  task         String
+  thread       String
+  role         String
+  content      String
+  tool_calls   Json?
+  tool_call_id String?
+  createdAt    DateTime @default(now())
+
+  @@map("superexpert_ai_messages")
+}
+
+model memories {
+  id            Int      @id @default(autoincrement())
+  userId        String
+  content       String
+  expiresInDays Int
+  createdAt     DateTime @default(now())
+
+  @@map("superexpert_ai_memories")
+}
+
+model users {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  @@map("superexpert_ai_users")
+}
+
+model profiles {
+  id     String @id @default(uuid())
+  userId String
+  name   String
+  value  String
+
+  @@unique([userId, name], name: "userId_name") // Composite unique constraint
+  @@map("superexpert_ai_profiles")
+}
+
+model agents {
+  id          String @id @default(uuid())
+  userId      String
+  name        String @unique
+  description String
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, name], name: "agent_userId_name") // Composite unique constraint
+  @@map("superexpert_ai_agents")
+}
+
+model consents {
+  id        String @id @default(uuid())
+  userId    String
+  type      String
+  createdAt DateTime @default(now())
+  
+
+  @@unique([userId, type], name: "consent_userId_type") // Composite unique constraint
+  @@map("superexpert_ai_consents")
+}
+
+
+model corpus {
+  id            String @id @default(uuid())
+  userId        String
+  name          String
+  description   String
+  createdAt     DateTime @default(now())
+// One-to-Many: corpora to corporaFiles
+  corpusFiles  corpusFiles[] @relation("CorpusToFiles")
+
+ // Unique constraint on (userId, name)
+  @@unique([userId, name])
+
+  @@map("superexpert_ai_corpus")
+}
+
+
+model corpusFiles {
+  id                String @id @default(uuid())
+  userId            String
+  fileName          String
+  chunkSize         Int
+  chunkOverlap      Int
+  createdAt         DateTime @default(now())
+   // Foreign Key: corpusId (Many-to-One relationship with corpus)
+  corpusId          String
+  corpus            corpus   @relation("CorpusToFiles", fields: [corpusId], references: [id])
+
+  // One-to-Many: corporaFiles to corporaFileChunks
+  corporaFileChunks corpusFileChunks[] @relation("FilesToChunks")
+
+
+  @@map("superexpert_ai_corpusFiles")
+}
+
+model corpusFileChunks {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  chunk           String
+  embedding       Unsupported("vector(1536)")?
+  // Foreign Key: corporaFileId (Many-to-One relationship with corporaFiles)
+  corpusFileId    String
+  corpusFile     corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id], onDelete: Cascade)
+
+  @@map("superexpert_ai_corpusFileChunks")
+}
+
+
+model attachments {
+  id                String    @id @default(uuid())
+  userId            String
+  taskDefinitionId  String
+  fileName          String
+  createdAt         DateTime  @default(now())
+  file              String    @db.Text
+
+  @@map("superexpert_ai_attachments")
+}
