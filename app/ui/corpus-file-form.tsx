@@ -8,9 +8,13 @@ import {
 import { encodingForModel } from 'js-tiktoken';
 import Link from 'next/link';
 import DemoMode from './demo-mode';
-import { useRouter } from 'next/navigation';
+import { Corpus } from '@/lib/corpus';
+import { deleteCorpusFileAction } from '@/lib/actions/admin-actions';
 
-export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
+export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
+    const [currentCorpusFiles, setCurrentCorpusFiles] = useState(
+        corpus.corpusFiles
+    );
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
@@ -18,8 +22,6 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
     const chunkSizeRef = useRef<HTMLInputElement>(null);
     const chunkOverlapRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const router = useRouter();
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
@@ -65,7 +67,7 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
 
         // Create new corpus file id
         const result = await saveCorpusFileAction({
-            corpusId: corpusId,
+            corpusId: corpus.id!,
             chunkSize: chunkSize,
             chunkOverlap: chunkOverlapPercentage,
             fileName: file.name,
@@ -145,8 +147,18 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
                 }
             }
 
+            // All done
             setUploadProgress(100);
-            router.push(`/admin/corpora/corpus/${corpusId}`);
+            setCurrentCorpusFiles((prevCorpusFiles) => [
+                ...prevCorpusFiles,
+                {
+                    id: corpusFileId,
+                    corpusId: corpus.id!,
+                    chunkSize,
+                    chunkOverlap: chunkOverlapPercentage,
+                    fileName: file.name,
+                },
+            ]);
         } catch (err) {
             console.error('Upload error:', err);
             setError(
@@ -196,11 +208,59 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
         }
     };
 
+    const handleDeleteCorpusFile = async (corpusFileId: string) => {
+        const confirmed = window.confirm(
+            'Are you sure you want to delete this corpus file?'
+        );
+        if (!confirmed) return; // Do nothing if the user cancels
+
+        try {
+            await deleteCorpusFileAction(corpusFileId);
+        } catch (error) {
+            console.error('Failed to delete corpus file', error);
+        }
+
+        setCurrentCorpusFiles((prevCorpusFiles) =>
+            prevCorpusFiles.filter((cp) => cp.id !== corpusFileId)
+        );
+    };
+
     return (
         <>
             <DemoMode />
 
             <div className="formCard">
+                <div>
+                    <Link href="/admin/corpora">&lt; Back</Link>
+                </div>
+
+                <h1>{corpus.name} Files</h1>
+
+                {currentCorpusFiles.map((corpusFile) => (
+                    <div
+                        key={corpusFile.id}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
+                        <div>
+                            <h2>{corpusFile.fileName}</h2>
+                            <p>
+                                Chunk Size:{' '}
+                                {corpusFile.chunkSize.toLocaleString()} tokens,
+                                Chunk Overlap {corpusFile.chunkOverlap}%
+                            </p>
+                        </div>
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleDeleteCorpusFile(corpusFile.id!)
+                                }
+                                className="btn btnDanger">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
                 <h1>New Corpus File</h1>
 
                 <div>{error && <p className="error">{error}</p>}</div>
@@ -258,9 +318,9 @@ export default function CorpusFileForm({ corpusId }: { corpusId: string }) {
                     className="btn btnPrimary"
                     onClick={handleClick}
                     disabled={uploading || isDemoMode}>
-                    Save
+                    Upload
                 </button>
-                <Link href={`/admin/corpora/corpus/${corpusId}`}>
+                <Link href={`/admin/corpora`}>
                     <button
                         className="btn btnCancel ml-4"
                         type="button"

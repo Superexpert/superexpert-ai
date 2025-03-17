@@ -12,7 +12,11 @@ export default function TaskDefinitionList({
         <>
             <DemoMode />
             <div className="formCard">
-                <h1>Task Definitions</h1>
+                <div>
+                    <Link href="/">&lt; Back</Link>
+                </div>
+
+                <h1>{agentName} Task Definitions</h1>
                 <div className="instructions">
                     A task definition provides the instructions, AI model, and
                     custom tools used by an agent. The global task provides

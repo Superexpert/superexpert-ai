@@ -56,7 +56,6 @@ export class CustomServerTools extends ServerToolsBase {
     })
     public async whichAgent(
     ) {
-        console.log(`I am ${this.agent.id} with name ${this.agent.name} and I am awesome`);
         return `I am ${this.agent.id} with name ${this.agent.name} and I am awesome`;
     }
 

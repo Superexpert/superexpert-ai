@@ -388,5 +388,3 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 };
 
 export default ChatBot;
-
-// https://github.com/openai/openai-assistants-quickstart/blob/main/app/components/chat.tsx

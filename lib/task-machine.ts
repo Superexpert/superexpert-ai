@@ -226,8 +226,9 @@ File Name: ${attachment.fileName}
             taskDefinition.corpusLimit,
             taskDefinition.corpusSimilarityThreshold
         );
+
         for (const chunk of chunks) {
-            lastMessage.content += `\n\nRetrieved information:\n${chunk}`;
+            lastMessage.content += `\n\Retrieved information:\n${chunk.chunk}\n\nSource: ${chunk.fileName}`;
         }
     }
 }

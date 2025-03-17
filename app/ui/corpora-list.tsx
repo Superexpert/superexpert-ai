@@ -33,6 +33,17 @@ export default function CorporaList({
                                     className="btn btnSecondary ml-4">
                                     Edit
                                 </Link>
+                                <Link
+                                    href={`/admin/corpora/file/${cp.id}`}
+                                    className="btn btnSecondary ml-4">
+                                    Files
+                                </Link>
+                                <Link
+                                    href={`/admin/corpora/query/${cp.id}`}
+                                    className="btn btnSecondary ml-4">
+                                    Test
+                                </Link>
+
                             </div>
                         </div>
                     ))}

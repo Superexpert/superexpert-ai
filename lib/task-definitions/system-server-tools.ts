@@ -31,8 +31,9 @@ export class SystemServerTools extends ServerToolsBase {
         // Update the user's profile in the database
         await this.db.profiles.upsert({
             where: {
-                userId_name: {
+                userId_agentId_name: {
                     userId: this.user.id,
+                    agentId: this.agent.id,
                     name,
                 },
             },
@@ -41,11 +42,12 @@ export class SystemServerTools extends ServerToolsBase {
             },
             create: {
                 userId: this.user.id,
+                agentId: this.agent.id,
                 name,
                 value,
             },
         });
 
-        return `Successfully updated profile property ${name} to ${value}`;
+        return `Successfully updated profile property ${name} to ${value} for agent ${this.agent.name} (${this.agent.id})}`;
     }
 }

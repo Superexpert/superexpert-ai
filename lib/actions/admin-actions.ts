@@ -11,7 +11,7 @@ import { AIModelFactory } from '../models/ai-model-factory';
 import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-embedding-adapter';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
-
+import { CorpusQuery} from '@/lib/corpus-query';
 
 //** TaskDefinitionForm **//
 
@@ -20,7 +20,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
 
     const db = new DBService();
 
-    let attachments:{id:string, fileName:string}[] = [];
+    let attachments: { id: string; fileName: string }[] = [];
     if (taskId) {
         attachments = await db.getAttachmentList(userId, taskId);
     }
@@ -32,8 +32,15 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const serverTools = builder.getServerToolList();
     const clientTools = builder.getClientToolList();
     const models = AIModelFactory.getAvailableModels();
-    
-    return { attachments, corpora, serverData, serverTools, clientTools, models };
+
+    return {
+        attachments,
+        corpora,
+        serverData,
+        serverTools,
+        clientTools,
+        models,
+    };
 }
 
 export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
@@ -169,14 +176,13 @@ export async function getCorporaListAction() {
     return result;
 }
 
-export async function getCorpusByIdAction(id:string) {
+export async function getCorpusByIdAction(id: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
     const result = await db.getCorpusById(id);
     return result;
 }
-
 
 export async function saveCorpusFileAction(
     newCorpusFile: CorpusFile
@@ -210,8 +216,10 @@ export async function saveCorpusFileAction(
     }
 }
 
-
-export async function uploadChunkAction(corpusFileId: string, formData: FormData) {
+export async function uploadChunkAction(
+    corpusFileId: string,
+    formData: FormData
+) {
     const userId = await getUserId();
 
     const chunk = formData.get('chunk') as string;
@@ -299,24 +307,34 @@ export async function deleteCorpusFileAction(corpusFileId: string) {
     await db.deleteCorpusFile(corpusFileId);
 }
 
-
-
-export async function queryCorpusAction(corpusId: string, query: string, limit:number, similarityThreshold:number) {
+export async function queryCorpusAction(corpusId: string, corpusQuery: CorpusQuery) {
     const userId = await getUserId();
 
     // Call DBService instead of AdminService because we want the real experience
     const db = new DBService();
-    const result = await db.queryCorpus(userId, [corpusId], query, limit, similarityThreshold);
+    const result = await db.queryCorpus(
+        userId,
+        [corpusId],
+        corpusQuery.query,
+        corpusQuery.limit,
+        corpusQuery.similarityThreshold
+    );
     return result;
 }
 
-
-
-export async function saveAttachmentAction(taskDefinitionId: string, fileName: string, file: string) {
+export async function saveAttachmentAction(
+    taskDefinitionId: string,
+    fileName: string,
+    file: string
+) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    const attachmentId = await db.saveAttachment(taskDefinitionId, fileName, file);
+    const attachmentId = await db.saveAttachment(
+        taskDefinitionId,
+        fileName,
+        file
+    );
     return attachmentId;
 }
 

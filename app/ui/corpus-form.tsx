@@ -7,11 +7,9 @@ import Link from 'next/link';
 import {
     saveCorpusAction,
     deleteCorpusAction,
-    deleteCorpusFileAction,
 } from '@/lib/actions/admin-actions';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import DemoMode from '@/app/ui/demo-mode';
-import CorpusQuery from '@/app/ui/corpus-query';
 
 export default function CorpusForm({
     corpus,
@@ -21,7 +19,6 @@ export default function CorpusForm({
     isEditMode: boolean;
 }) {
     const [serverError, setServerError] = useState('');
-    const [currentCorpusFiles, setCurrentCorpusFiles] = useState(corpus.corpusFiles);
     const router = useRouter();
     const {
         register,
@@ -55,31 +52,14 @@ export default function CorpusForm({
         }
     };
 
-    const handleDeleteCorpusFile = async (corpusFileId:string) => {
-        const confirmed = window.confirm(
-            'Are you sure you want to delete this corpus file?'
-        );
-        if (!confirmed) return; // Do nothing if the user cancels   
-
-        try {
-            await deleteCorpusFileAction(corpusFileId);
-        } catch (error) {
-            console.error('Failed to delete corpus file', error);
-        }
-
-        setCurrentCorpusFiles((prevCorpusFiles) =>
-            prevCorpusFiles.filter(
-                (cp) => cp.id !== corpusFileId
-            )
-        );
-
-    }
-
     return (
         <>
             <DemoMode />
 
             <div className="formCard">
+                <div>
+                    <Link href="/admin/corpora">&lt; Back</Link>
+                </div>
                 <h1>{isEditMode ? 'Edit Corpus' : 'New Corpus'}</h1>
                 <div className="instructions">
                     A corpus contains a set of files that can be semantically
@@ -131,44 +111,6 @@ export default function CorpusForm({
                         </button>
                     </Link>
                 </form>
-
-                {isEditMode && (
-                    <>
-                        <div>
-                            <h1>Files</h1>
-
-                            {currentCorpusFiles.map((corpusFile) => (
-                                <div
-                                    key={corpusFile.id}
-                                    className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
-                                    <div>
-                                        <h2>{corpusFile.fileName}</h2>
-                                        <p>
-                                            Chunk Size:{' '}
-                                            {corpusFile.chunkSize.toLocaleString()}{' '}
-                                            tokens, Chunk Overlap{' '}
-                                            {corpusFile.chunkOverlap}%
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDeleteCorpusFile(corpusFile.id!)}
-                                            className="btn btnSecondary ml-4">
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-
-                            <Link href={`/admin/corpora/file/${corpus.id}`}>
-                                Add File
-                            </Link>
-                        </div>
-
-                            <CorpusQuery corpusId={corpus.id!} />
-                    </>
-                )}
             </div>
         </>
     );
