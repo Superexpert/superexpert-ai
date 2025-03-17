@@ -5,12 +5,17 @@ import {
 } from '@/lib/task-definition-types';
 
 export class SystemServerTools extends ServerToolsBase {
-    @Tool('getCurrentTime', 'Get the current time')
+    @Tool({
+        name: 'getCurrentTime',
+        description: 'Gets the current time including the time zone.',
+    })
     public async getCurrentTime() {
-        return new Date().toISOString();
+        return `The current time is ${this.user.now.toLocaleString()} in the time zone ${
+            this.user.timeZone
+        }`;
     }
 
-    @Tool('updateProfile', `Update the user's profile`)
+    @Tool({ name: 'updateProfile', description: `Update the user's profile` })
     public async updateProfile(
         @ToolParameter({
             name: 'name',

@@ -5,10 +5,10 @@ import {
 } from '@/lib/task-definition-types';
 
 export class SystemClientTools extends ClientToolsBase {
-    @Tool(
-        'transition',
-        'Call this tool to end the current task and transition to a new task'
-    )
+    @Tool({
+        name: 'transition',
+        description: 'Call this tool to end the current task and transition to a new task'
+    })
     public async transition(
         @ToolParameter({
             name: 'taskName',

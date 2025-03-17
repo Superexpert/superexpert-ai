@@ -16,6 +16,7 @@ export class TaskMachine {
     public async getAIPayload(
         user: User,
         agentId: string,
+        agentName: string,
         task: string,
         thread: string,
         messages: MessageAI[]
@@ -77,6 +78,8 @@ export class TaskMachine {
         // Get instructions
         const instructions = await this.getInstructions(
             user,
+            agentId,
+            agentName,
             taskDefinition,
             globalTaskDefinition
         );
@@ -126,6 +129,7 @@ export class TaskMachine {
 
     private async getServerData(
         user: User,
+        agent: {id:string, name:string},
         taskDefinition: TaskDefinition,
         globalTaskDefinition: TaskDefinition
     ): Promise<string> {
@@ -139,7 +143,7 @@ export class TaskMachine {
         let result = '';
         const builder = new ToolsBuilder();
         for (const serverDataId of serverDataIds) {
-            const serverData = await builder.callServerData(user, serverDataId);
+            const serverData = await builder.callServerData(user, agent, serverDataId);
             result += `${serverData}\n`;
         }
         return result;
@@ -147,11 +151,15 @@ export class TaskMachine {
 
     private async getInstructions(
         user: User,
+        agentId: string,
+        agentName: string,
         taskDefinition: TaskDefinition,
         globalTaskDefinition: TaskDefinition
     ): Promise<string> {
+        const agent = {id: agentId, name: agentName};
         const serverData = await this.getServerData(
             user,
+            agent,
             taskDefinition,
             globalTaskDefinition
         );

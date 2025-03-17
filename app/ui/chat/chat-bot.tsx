@@ -12,7 +12,7 @@ import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
-import { ClientToolsBuilder } from '@/lib/client-tools-builder';
+import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 import Modal from '@/app/ui/modal';
@@ -32,7 +32,7 @@ type ChatBotProps = {
     tasks: ClientTaskDefinition[];
 };
 
-const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
+const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     const [userInput, setUserInput] = useState('');
     const [messages, setMessages] = useState<MessageProps[]>([]);
     const [inputDisabled, setInputDisabled] = useState(true);
@@ -300,6 +300,8 @@ const ChatBot = ({ agentName, tasks }: ChatBotProps) => {
 
         // Execute server tool
         const result = await executeServerTool(
+            agentId,
+            agentName,
             now,
             timeZone,
             functionName,

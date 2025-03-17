@@ -1,10 +1,7 @@
-import {
-    ServerDataBase,
-    Tool
-} from '@/lib/task-definition-types';
+import { ServerDataBase, Tool } from '@/lib/task-definition-types';
 
 export class SystemServerData extends ServerDataBase {
-    @Tool('loadProfile', 'Load the user profile')
+    @Tool({ name: 'loadProfile', description: 'Load the user profile' })
     public async loadProfile() {
         // Load the current user's profile from the database
         const profile = await this.db.profiles.findMany({
