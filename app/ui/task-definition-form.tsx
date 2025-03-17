@@ -165,6 +165,10 @@ export default function TaskDefinitionForm({
             <DemoMode />
 
             <div className="formCard">
+                <div>
+                    <Link href={`/admin/${agentName}/task-definitions`}>&lt; Back</Link>
+                </div>
+
                 <h1>
                     {isEditMode
                         ? 'Edit Task Definition'

@@ -54,6 +54,9 @@ export default function AgentForm({
         <DemoMode />
 
         <div className="formCard">
+            <div>
+                <Link href="/">&lt; Back</Link>
+            </div>
             <h1>{isEditMode ? 'Edit Agent' : 'New Agent'}</h1>
             <div className="instructions">
                 An agent performs a set of tasks. For example, you can create a 

@@ -52,6 +52,7 @@ model messages {
 model memories {
   id            Int      @id @default(autoincrement())
   userId        String
+  agentId       String
   content       String
   expiresInDays Int
   createdAt     DateTime @default(now())
@@ -68,12 +69,13 @@ model users {
 }
 
 model profiles {
-  id     String @id @default(uuid())
-  userId String
-  name   String
-  value  String
+  id      String @id @default(uuid())
+  userId  String
+  agentId String
+  name    String
+  value   String
 
-  @@unique([userId, name], name: "userId_name") // Composite unique constraint
+  @@unique([userId, agentId, name], name: "userId_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_profiles")
 }
 
@@ -94,8 +96,6 @@ model consents {
   type      String
   createdAt DateTime @default(now())
   
-
-  @@unique([userId, type], name: "consent_userId_type") // Composite unique constraint
   @@map("superexpert_ai_consents")
 }
 

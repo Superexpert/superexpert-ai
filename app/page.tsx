@@ -11,8 +11,8 @@ export default async function AgentListPage() {
         redirect('/admin/agents');
     }
     return (
-        <main className="flex items-center justify-center md:h-screen">
-            <div className="relative mx-auto flex w-full flex-col space-y-2.5 p-4 md:-mt-32">
+        <main>
+            <div>
                 <Suspense
                     fallback={
                         <div className="h-72 w-full animate-pulse bg-gray-100" />

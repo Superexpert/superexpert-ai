@@ -10,9 +10,6 @@ export class DBAdminService {
     //** TaskDefinitionForm **//
 
     public async saveTaskDefinition(data: TaskDefinition) {
-        console.log("fire:");
-        console.log(data);
-
         // Update existing
         if (data.id) {
             const existingTaskDefinition =

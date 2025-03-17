@@ -3,6 +3,7 @@ import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 import { OpenAIEmbeddingAdapter } from '@/lib/adapters/embedding-adapters/openai-embedding-adapter';
 import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert.config';
+import { CorpusQueryResult } from '../corpus-query-result';
 
 export class DBService {
     public async saveMessages(
@@ -146,7 +147,7 @@ export class DBService {
         query: string,
         limit: number,
         similarityThreshold: number
-    ): Promise<string[]> {
+    ): Promise<CorpusQueryResult[]> {
         const adapter = new OpenAIEmbeddingAdapter();
         const embedding = await adapter.getEmbedding(query);
 
@@ -155,7 +156,8 @@ export class DBService {
         const uniqueCorpusIds = [...new Set(corpusIds)];
 
         const relevantCorpusChunks = (await prisma.$queryRaw`
-            SELECT cfc.id, cfc.chunk
+            SELECT cfc.id, cfc.chunk, cf."fileName",
+            (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) AS similarity
             FROM "superexpert_ai_corpusFileChunks" AS cfc
             INNER JOIN "superexpert_ai_corpusFiles" AS cf
             ON cfc."corpusFileId" = cf.id
@@ -164,9 +166,9 @@ export class DBService {
             AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${decimalSimilarityThreshold}
             ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
             LIMIT ${limit};
-            `) as { id: number; chunk: string }[];
+            `) as { id: number; chunk: string; fileName: string, similarity: number }[];
 
-        return relevantCorpusChunks.map((rcc) => rcc.chunk) as string[];
+        return relevantCorpusChunks;
     }
 
     public async getCorporaList(userId: string) {
