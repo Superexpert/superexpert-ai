@@ -48,7 +48,7 @@ export async function POST(
         tools,
         modelId: initialModelId,
         modelConfiguration: initialModelConfiguration,
-    } = await taskMachine.getAIPayload(user, agent.id, task, thread, messages);
+    } = await taskMachine.getAIPayload(user, agent.id, agentName, task, thread, messages);
     let modelId = initialModelId;
     let modelConfiguration = initialModelConfiguration;
 

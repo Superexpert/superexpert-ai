@@ -5,7 +5,11 @@ import {
 } from '@/lib/task-definition-types';
 
 export class CustomServerTools extends ServerToolsBase {
-    @Tool('getWeather', 'This is a tool to get a description of the weather in plain language. For example, "The weather in San Francisco in Celsius is foggy or unimaginably awful."')
+    @Tool({
+        name: 'getWeather',
+        description:
+            'This is a tool to get a description of the weather in plain language. For example, "The weather in San Francisco in Celsius is foggy or unimaginably awful."',
+    })
     public async gw(
         @ToolParameter({
             name: 'location',
@@ -31,7 +35,10 @@ export class CustomServerTools extends ServerToolsBase {
         return `The weather in ${location} is unimaginably awful`;
     }
 
-    @Tool('saveMemory', 'This is a tool to save a memory')
+    @Tool({
+        name: 'saveMemory',
+        description: 'This is a tool to save a memory',
+    })
     public async sm(
         @ToolParameter({
             name: 'favColor',
@@ -41,4 +48,16 @@ export class CustomServerTools extends ServerToolsBase {
     ) {
         console.log('saveMemory is awesome');
     }
+
+
+    @Tool({
+        name: 'whichAgent',
+        description: 'This tool returns the current agent id',
+    })
+    public async whichAgent(
+    ) {
+        console.log(`I am ${this.agent.id} with name ${this.agent.name} and I am awesome`);
+        return `I am ${this.agent.id} with name ${this.agent.name} and I am awesome`;
+    }
+
 }

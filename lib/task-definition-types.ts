@@ -3,11 +3,21 @@ import { PrismaClient } from '@prisma/client';
 import { ClientContext } from '@/lib/client/client-context';
 import 'reflect-metadata';
 
-export function Tool(name: string, description: string) {
+interface ToolOptions {
+    name: string;
+    description: string;
+}
+/**
+ * Decorator to define a tool for a method.
+ * @param name - The name of the tool.
+ * @param description - The description of the tool.
+ * @returns A decorator function that adds metadata to the method.
+ */
+export function Tool(options: ToolOptions) {
     return (target: object, propertyKey: string) => {
         Reflect.defineMetadata(
             'tool',
-            { name, description },
+            { name: options.name, description: options.description },
             target,
             propertyKey
         );
@@ -83,6 +93,7 @@ export function OptionalToolParameter(name: string, description: string) {
 export abstract class ServerDataBase {
     constructor(
         protected user: User,
+        protected agent: {id:string, name: string},
         protected db: PrismaClient
     ) {}
 }
@@ -90,6 +101,7 @@ export abstract class ServerDataBase {
 export abstract class ServerToolsBase {
     constructor(
         protected user: User,
+        protected agent: {id:string, name: string},
         protected db: PrismaClient
     ) {}
 }

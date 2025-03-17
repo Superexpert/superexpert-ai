@@ -9,6 +9,8 @@ import { collapseErrors } from '@/lib/validation';
 import { ClientTaskDefinition } from '../client/client-task-definition';
 
 export async function executeServerTool(
+    agentId: string,
+    agentName: string,
     now: Date,
     timeZone: string,
     functionName: string,
@@ -23,9 +25,11 @@ export async function executeServerTool(
     user.now = now;
     user.timeZone = timeZone;
 
+    const agent = {id: agentId, name: agentName};
+
     // Execute server tool
     const builder = new ToolsBuilder();
-    const result = builder.callServerTool(user, functionName, functionArgs);
+    const result = builder.callServerTool(user, agent, functionName, functionArgs);
     return result;
 }
 

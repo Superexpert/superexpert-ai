@@ -186,53 +186,24 @@ export class ToolsBuilder {
         }
     }
 
-    // public async callServerTool(
-    //     user: User,
-    //     toolName: string,
-    //     toolParams: Record<string, any>
-    // ) {
-    //     const serverTools = plugins.ServerTools;
-
-    //     for (const ToolClass of serverTools) {
-    //         const toolInstance = new ToolClass(user, prisma);
-
-    //         // Iterate through the methods of the class
-    //         const methodNames = Object.getOwnPropertyNames(
-    //             ToolClass.prototype
-    //         ).filter((method) => method !== 'constructor');
-
-    //         for (const methodName of methodNames) {
-    //             const metadata = Reflect.getMetadata(
-    //                 'tool',
-    //                 ToolClass.prototype,
-    //                 methodName
-    //             );
-
-    //             if (metadata && metadata.name === toolName) {
-    //                 // Get method reference
-    //                 const method = (toolInstance as any)[methodName];
-
-    //                 if (typeof method === 'function') {
-    //                     // Call the tool method with arguments
-    //                     const args = Object.values(toolParams);
-    //                     return await method.apply(toolInstance, args);
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     throw new Error(`Tool '${toolName}' not found.`);
-    // }
-
+    /**
+     * Calls a server tool method by its name and passes the parameters to it.
+     * @param user The user object.
+     * @param toolName The name of the tool to call.
+     * @param toolParams The parameters to pass to the tool
+     * @returns The result of the tool method call.
+     * @throws Error if the tool is not found or if required parameters are missing.
+     */
     public async callServerTool(
         user: User,
+        agent: {id:string, name:string},
         toolName: string,
-        toolParams: Record<string, any>
+        toolParams: Record<string, any> = {}
     ) {
         const serverTools = plugins.ServerTools;
     
         for (const ToolClass of serverTools) {
-            const toolInstance = new ToolClass(user, prisma);
+            const toolInstance = new ToolClass(user, agent, prisma);
     
             // Iterate through the methods of the class
             const methodNames = Object.getOwnPropertyNames(ToolClass.prototype)
@@ -246,32 +217,31 @@ export class ToolsBuilder {
                 );
     
                 if (metadata && metadata.name === toolName) {
-                    // Retrieve the parameter metadata
+                    // Retrieve the parameter metadata (or an empty array if none exists)
                     const parameterMetadata = Reflect.getMetadata(
                         'tool-parameters',
                         ToolClass.prototype,
                         methodName
                     ) || [];
     
-                    if (!parameterMetadata.length) {
-                        throw new Error(`No parameter metadata found for tool '${toolName}'.`);
-                    }
-    
-                    // Create a mapping of expected parameter names to their index in function signature
-                    const expectedParams = parameterMetadata.map((param: any) => param.name);
-    
-                    // Rearrange toolParams according to the expected parameter order
-                    const args = expectedParams.map((paramName:string) => {
-                        if (!(paramName in toolParams)) {
-                            throw new Error(`Missing parameter '${paramName}' for tool '${toolName}'.`);
-                        }
-                        return toolParams[paramName];
-                    });
-    
-                    // Get method reference
+                    // Get the method reference
                     const method = (toolInstance as any)[methodName];
     
                     if (typeof method === 'function') {
+                        // If no parameters are required, call the method without arguments
+                        if (parameterMetadata.length === 0) {
+                            return await method.apply(toolInstance);
+                        }
+    
+                        // Otherwise, rearrange toolParams according to the expected parameter order
+                        const expectedParams = parameterMetadata.map((param: any) => param.name);
+                        const args = expectedParams.map((paramName: string) => {
+                            if (!(paramName in toolParams)) {
+                                throw new Error(`Missing parameter '${paramName}' for tool '${toolName}'.`);
+                            }
+                            return toolParams[paramName];
+                        });
+    
                         return await method.apply(toolInstance, args);
                     }
                 }
@@ -281,15 +251,14 @@ export class ToolsBuilder {
         throw new Error(`Tool '${toolName}' not found.`);
     }
 
-
-    public async callServerData(user: User, toolName: string) {
+    public async callServerData(user: User, agent: {id:string, name:string}, toolName: string) {
         const serverData = plugins.ServerData;
 
         // Form constructor args
         const db = prisma;
 
         for (const ToolClass of serverData) {
-            const toolInstance = new ToolClass(user, db);
+            const toolInstance = new ToolClass(user, agent, db);
 
             // Iterate through the methods of the class
             const methodNames = Object.getOwnPropertyNames(
