@@ -64,11 +64,12 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 
             if (!response.body) return;
 
-            handleTextCreated();
+            //handleTextCreated();
 
             const toolCalls = [];
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let hasText = false;
             let done = false;
 
             while (!done) {
@@ -78,6 +79,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                 if (!value) continue;
 
                 const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
+
 
                 // **Parse the chunk to extract JSON**
                 const events = chunk.split('\n'); // Split by newline to handle multiple messages
@@ -90,6 +92,10 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                             const parsed = JSON.parse(jsonPart); // Convert to JSON
 
                             if (parsed.text) {
+                                if (!hasText) {
+                                    hasText = true; // Set flag to true on first text
+                                    handleTextCreated();
+                                }
                                 handleTextDelta(parsed.text); // Process extracted text
                             }
 
