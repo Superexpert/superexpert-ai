@@ -1,5 +1,5 @@
 import { getAgentAction, getTasksAction } from '@/lib/actions/server-actions';
-import ChatContainer from '@/app/ui/chat/chat-container';
+import ChatBot from '@/app/ui/chat/chat-bot';
 
 export default async function ChatPage({
     params,
@@ -11,5 +11,15 @@ export default async function ChatPage({
     const agent = await getAgentAction(resolvedParams);
     const tasks = await getTasksAction(agent.id);
 
-    return <ChatContainer agentId={agent.id} agentName={agent.name} tasks={tasks} />;
+    return (
+        <div className="mx-auto max-w-[800px]">
+        <div>
+            <ChatBot
+                agentId={agent.id}
+                agentName={agent.name}
+                tasks={tasks}
+            />
+        </div>
+    </div>
+    );
 }
