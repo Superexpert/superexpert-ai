@@ -4,7 +4,7 @@ import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { User } from '@/lib/user';
 import { DBAdminService } from '@/lib/db/db-admin-service';
-import { AIModelFactory } from '@/lib/models/ai-model-factory';
+import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 
 interface RequestBody {
     nowString: string;
@@ -63,7 +63,7 @@ export async function POST(
     }
 
     // Create a new AI Model
-    const model = AIModelFactory.createModel(modelId, modelConfiguration);
+    const model = LLMModelFactory.createModel(modelId, modelConfiguration);
 
     const response = model.generateResponse(
         instructions,

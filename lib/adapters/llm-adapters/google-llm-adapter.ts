@@ -1,18 +1,18 @@
-import { AIAdapter } from '@/lib/models/ai-adapter';
+import { LLMAdapter } from '@/lib/adapters/llm-adapters/llm-adapter';
 import {
     GoogleGenerativeAI,
     Part,
     Content,
     FunctionDeclaration,
-    EnhancedGenerateContentResponse,
+    EnhancedGenerateContentResponse, 
 } from '@google/generative-ai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolCall } from '@/lib/tool-call';
-import { ChunkAI } from '../chunk-ai';
+import { ChunkAI } from '@/lib/chunk-ai';
 import { START_MESSAGE } from '@/superexpert.config';
 
-export class GoogleAdapter extends AIAdapter {
+export class GoogleLLMAdapter extends LLMAdapter {
     // Gemini wants function responses to be collapsed into a single function response
     // (Unlike OpenAI which returns each function response separately)
     private collapseFunctionResponses(messages: Content[]): Content[] {
@@ -77,7 +77,7 @@ export class GoogleAdapter extends AIAdapter {
     }
 
     // Gemini uses 'model' for 'assistant' and 'function' for 'tool'
-    private mapMessages(inputMessages: MessageAI[]) {
+    public mapMessages(inputMessages: MessageAI[]): Content[] {
         // Map messages to Content objects
         let history: Content[] = inputMessages.map((message) => {
             switch (message.role) {
@@ -118,22 +118,10 @@ export class GoogleAdapter extends AIAdapter {
         });
 
         history = this.collapseFunctionResponses(history);
-        return history;
+        return history as unknown as Content[];
     }
 
-    async *generateResponse(
-        instructions: string,
-        inputMessages: MessageAI[],
-        tools: ToolAI[],
-    ) {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error(
-                'Gemini API key not found. Please set the GEMINI_API_KEY environment variable.'
-            );
-        }
-        const genAI = new GoogleGenerativeAI(apiKey);
-
+    public mapTools(tools: ToolAI[]): FunctionDeclaration[] {
         const functionDeclarations: FunctionDeclaration[] = tools.map(
             (tool) => {
                 const { parameters } = tool.function;
@@ -154,14 +142,32 @@ export class GoogleAdapter extends AIAdapter {
                 };
             }
         );
+        return functionDeclarations;
+    }
+
+    async *generateResponse(
+        instructions: string,
+        inputMessages: MessageAI[],
+        tools: ToolAI[],
+    ) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error(
+                'Gemini API key not found. Please set the GEMINI_API_KEY environment variable.'
+            );
+        }
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+
+        const functionDeclarations = this.mapTools(tools);
 
         const model = genAI.getGenerativeModel({
             model: this.modelId,
-            tools: [
-                {
-                    functionDeclarations: functionDeclarations,
-                },
-            ],
+            ...(functionDeclarations.length && {
+                    tools: [{
+                        functionDeclarations,
+                    }]
+            })
         });
 
         // Convert messages to the format that Gemini expects
@@ -172,6 +178,7 @@ export class GoogleAdapter extends AIAdapter {
         if (!lastMessage) {
             lastMessage = { role: 'user', parts: [{ text: START_MESSAGE }] };
         }
+
 
         // Call Gemini and process the chunks with retry logic
         yield* this.retryWithBackoff(async () => {
@@ -186,13 +193,14 @@ export class GoogleAdapter extends AIAdapter {
                 }),
                 generationConfig: {
                     maxOutputTokens:
-                        this.modelConfiguration.maximumOutputTokens || 8192,
+                        this.modelConfiguration?.maximumOutputTokens || 8192,
+                    temperature: this.modelConfiguration?.temperature || 0.7,
                 },
             });
 
             const result = await chat.sendMessageStream(lastMessage.parts);
             return this.processChunks(result.stream);
-        });
+        }, 0);
     }
 
     // If there are issues then throw to trigger a retry
