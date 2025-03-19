@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { getUserId } from '@/lib/user';
 import { Agent, agentSchema } from '@/lib/agent';
 import { collapseErrors } from '@/lib/validation';
-import { AIModelFactory } from '../models/ai-model-factory';
+import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-embedding-adapter';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
@@ -31,7 +31,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const serverData = builder.getServerDataList();
     const serverTools = builder.getServerToolList();
     const clientTools = builder.getClientToolList();
-    const models = AIModelFactory.getAvailableModels();
+    const models = LLMModelFactory.getAvailableModels();
 
     return {
         attachments,

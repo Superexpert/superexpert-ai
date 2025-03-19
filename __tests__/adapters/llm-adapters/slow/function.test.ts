@@ -1,12 +1,20 @@
-import 'openai/shims/node';
-import { OpenAIAdapter } from '@/lib/models/openai-adapter';
-import { AIModelFactory } from '@/lib/models/ai-model-factory';
+import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
+import { MessageAI } from '@/lib/message-ai';
+import { ToolAI } from '@/lib/tool-ai';
 
-const models = AIModelFactory.getAvailableModels();
+
+/***********
+ * 
+ * This test suite is for testing the function adapter of the LLM models.
+ * It verifies that the models can correctly call a function (getWeather)
+ * when prompted with a specific instruction.
+ */
+
+const models = LLMModelFactory.getAvailableModels();
 
 const testCases = models.map(model => [model.id, model.name]);
 
-const tools = [
+const tools: ToolAI[] = [
     {
       type: 'function',
       function: {
@@ -34,9 +42,9 @@ const tools = [
         'should work with model: %s (%s)',
         async (modelId, modelName) => {
             // Arrange
-            const adapter = AIModelFactory.createModel(modelId);
+            const adapter = LLMModelFactory.createModel(modelId);
             const instructions = 'You are a helpful assistant. Call the getWeather function when asked about the weather.';
-            const inputMessages = [{
+            const inputMessages: MessageAI[] = [{
                 role: 'user',
                 content: 'What is the weather in San Francisco in Fahrenheit?'
             }];
@@ -58,30 +66,14 @@ const tools = [
                     toolCall: {
                         ...item.toolCall,
                         function: {
-                            ...item.toolCall.function,
-                            arguments: JSON.parse(item.toolCall.function.arguments),
+                            ...item.toolCall?.function,
+                            arguments: JSON.parse(item.toolCall?.function.arguments),
                     },
                 },
             }));
 
     
             // Assert
-            /* Expect the response to contain the weather in San Francisco
-            [
-             {
-                 "toolCall": 
-                     {
-                         "function": {
-                             "arguments": "{\"location\":\"San Francisco\",\"unit\":\"Fahrenheit\"}", 
-                             "name": "getWeather"
-                         }, 
-                         "id": "call_5lmiVsGtB5mg6b1FqVAUYDCV", 
-                         "type": "function"
-                     }
-             }
-            ]
-            */
-
             expect(parsedResults).toEqual(
                 expect.arrayContaining([
                   expect.objectContaining({

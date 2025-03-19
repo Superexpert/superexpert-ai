@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AIModelFactory } from './models/ai-model-factory';
+import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 
 export interface TaskDefinition {
     id?: string;
@@ -50,7 +50,7 @@ export const taskDefinitionSchema = z
         theme: z.string().nonempty('Theme is required'),
     })
     .superRefine((data, ctx) => {
-        const selectedModel = AIModelFactory.getModelById(data.modelId);
+        const selectedModel = LLMModelFactory.getModelById(data.modelId);
         if (!selectedModel) {
             data.maximumOutputTokens = null;
             data.temperature = null;

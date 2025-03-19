@@ -1,38 +1,48 @@
-import { AIAdapter } from '@/lib/models/ai-adapter';
+import { LLMAdapter } from '@/lib/adapters/llm-adapters/llm-adapter';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import Anthropic from '@anthropic-ai/sdk';
 
-export class AnthropicAdapter extends AIAdapter {
+export class AnthropicLLMAdapter extends LLMAdapter {
 
     // Anthropic uses 'user' role instead of 'tool' role
     // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#example-api-response-with-a-tool-use-content-block
-    private mapMessages(inputMessages: MessageAI[]) {
+    public mapMessages(inputMessages: MessageAI[]): MessageAI[] {
         return inputMessages.map(message => {
             if (message.role === 'tool') {
                 return {
+                    ...message,
                     role: 'user',
-                    content: [{
+                    content: JSON.stringify([{
                         type: "tool_result",
                         tool_use_id: message.tool_call_id,
                         content: message.content,
-                    }]
-                };
+                    }])
+                } as MessageAI;
             }
             // https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#chain-of-thought
             if (message.role == 'assistant' && message.tool_calls) {
                 return {
+                    ...message,
                     role: 'assistant',
-                    content: [{
+                    content: JSON.stringify([{
                         type: "tool_use",
                         id: message.tool_calls[0].id,
                         name: message.tool_calls[0].function.name,
                         input: JSON.parse(message.tool_calls[0].function.arguments),
-                    }]
-                };    
+                    }])
+                } as MessageAI;    
             }
             return message;
         });
+    }
+
+    public mapTools(tools: ToolAI[]) {
+        return tools.map(tool => ({
+            name: tool.function.name,
+            description: tool.function.description,
+            input_schema: tool.function.parameters,
+        }));
     }
 
     async *generateResponse(
@@ -60,7 +70,8 @@ export class AnthropicAdapter extends AIAdapter {
             model: this.modelId,
             messages: anthropicInputMessages,
             // system: instructions,
-            max_tokens: this.modelConfiguration.maximumOutputTokens || 4096,
+            max_tokens: this.modelConfiguration?.maximumOutputTokens || 4096,
+            temperature: this.modelConfiguration?.temperature || 0.7,
             stream: true,
             //tool_choice: { type: 'auto', disable_parallel_tool_use: false },
             //thinking: { budget_tokens: 1024, type: 'enabled' },
@@ -69,11 +80,7 @@ export class AnthropicAdapter extends AIAdapter {
 
         // Add tools if provided
         if (tools.length > 0) {
-            requestParams.tools = tools.map(tool => ({
-                name: tool.function.name,
-                description: tool.function.description,
-                input_schema: tool.function.parameters,
-            }));
+            requestParams.tools = this.mapTools(tools);
         }
 
         // Call OpenAI and process the chunks with retry logic

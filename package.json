@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "NODE_OPTIONS='--disable-warning=DEP0040' next dev --turbopack",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
@@ -16,13 +16,13 @@
     "nuke-db:staging": "dotenv -e .env.staging npx prisma migrate reset --force && dotenv -e .env.production npx prisma db push",
     "nuke-db:production": "dotenv -e .env.production npx prisma migrate reset --force && dotenv -e .env.production npx prisma db push",
     "trim-demo-agents": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/trim-demo-agents.ts",
-    "test": "jest",
-    "test-all": "jest --testPathIgnorePatterns=",
-    "test-current": "jest __tests__/adapters/function.test.ts --testPathIgnorePatterns="
+    "test": "NODE_OPTIONS='--disable-warning=DEP0040' jest",
+    "test-all": "NODE_OPTIONS='--disable-warning=DEP0040' jest --testPathIgnorePatterns=",
+    "test-current": "NODE_OPTIONS='--disable-warning=DEP0040' jest __tests__/known-issues/gemini.test.ts --testPathIgnorePatterns="
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
-    "@google/generative-ai": "^0.22.0",
+    "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.5.0",
     "@typescript-eslint/parser": "^8.23.0",

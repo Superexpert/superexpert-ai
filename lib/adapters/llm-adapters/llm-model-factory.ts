@@ -1,11 +1,11 @@
-import { AIAdapter } from '@/lib/models/ai-adapter';
-import { OpenAIAdapter } from '@/lib/models/openai-adapter';
-import { GoogleAdapter } from '@/lib/models/google-adapter';
-import { AnthropicAdapter } from '@/lib/models/anthropic-adapter';
-import { ModelDefinition } from '../model-definition';
-import { ModelConfiguration } from '../model-configuration';
+import { LLMAdapter } from '@/lib/adapters/llm-adapters/llm-adapter';
+import { OpenAILLMAdapter } from '@/lib/adapters/llm-adapters/openai-llm-adapter';
+import { GoogleLLMAdapter } from '@/lib/adapters/llm-adapters/google-llm-adapter';
+import { AnthropicLLMAdapter } from '@/lib/adapters/llm-adapters/anthropic-llm-adapter';
+import { ModelDefinition } from '@/lib/model-definition';
+import { ModelConfiguration } from '@/lib/model-configuration';
 
-export class AIModelFactory {
+export class LLMModelFactory {
     // Define available models with human-readable names
     // https://platform.openai.com/docs/models
     // https://docs.anthropic.com/en/docs/about-claude/models/all-models#model-comparison-table
@@ -125,7 +125,7 @@ export class AIModelFactory {
     }
 
     /** Create an AI model instance based on the selected id */
-    static createModel(modelId: string, modelConfiguration: ModelConfiguration): AIAdapter {
+    static createModel(modelId: string, modelConfiguration?: ModelConfiguration): LLMAdapter {
       const modelEntry = this.getModelById(modelId);
       if (!modelEntry) {
           throw new Error(`Unsupported AI model ID: ${modelId}`);
@@ -133,11 +133,11 @@ export class AIModelFactory {
 
       switch (modelEntry.provider) {
           case 'openai':
-              return new OpenAIAdapter(modelEntry.id, modelConfiguration);
+              return new OpenAILLMAdapter(modelEntry.id, modelConfiguration);
           case 'google':
-              return new GoogleAdapter(modelEntry.id, modelConfiguration);
+              return new GoogleLLMAdapter(modelEntry.id, modelConfiguration);
           case 'anthropic':
-              return new AnthropicAdapter(modelEntry.id,  modelConfiguration);
+              return new AnthropicLLMAdapter(modelEntry.id,  modelConfiguration);
           default:
               throw new Error(`Unknown provider: ${modelEntry.provider}`);
       }

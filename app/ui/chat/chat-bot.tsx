@@ -64,8 +64,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
 
             if (!response.body) return;
 
-            //handleTextCreated();
-
             const toolCalls = [];
             const reader = response.body.getReader();
             const decoder = new TextDecoder();

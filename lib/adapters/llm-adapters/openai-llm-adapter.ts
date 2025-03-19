@@ -1,10 +1,23 @@
-import { AIAdapter } from '@/lib/models/ai-adapter';
+import { LLMAdapter } from './llm-adapter';
 import { OpenAI } from 'openai';
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolCall } from '@/lib/tool-call';
 
-export class OpenAIAdapter extends AIAdapter {
+export class OpenAILLMAdapter extends LLMAdapter {
+
+    public mapMessages(inputMessages: MessageAI[]): MessageAI[] {
+        // OpenAI's API expects the messages to be in the format of MessageAI
+        // No transformation is needed for OpenAI
+        return inputMessages;
+    }
+
+    public mapTools(inputTools: ToolAI[]): ToolAI[] {
+        // OpenAI's API expects the tools to be in the format of ToolAI
+        // No transformation is needed for OpenAI
+        return inputTools;
+    }
+
     async *generateResponse(
         instructions: string,
         inputMessages: MessageAI[],
@@ -28,8 +41,8 @@ export class OpenAIAdapter extends AIAdapter {
             const response = await client.chat.completions.create({
                 model: this.modelId,
                 stream: true,
-                max_completion_tokens: this.modelConfiguration.maximumOutputTokens || 16384,
-                temperature: this.modelConfiguration.temperature || 1.0,
+                max_completion_tokens: this.modelConfiguration?.maximumOutputTokens || 16384,
+                temperature: this.modelConfiguration?.temperature || 1.0,
                 messages: inputMessages,
                 ...(tools.length > 0 && { tools }), // Only add tools if tools.length > 0
             });
