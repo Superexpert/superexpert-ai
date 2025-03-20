@@ -1,3 +1,5 @@
+import { registerClientTool } from '@/lib/plugin-registry';
+
 import {
     ClientToolsBase,
     Tool,
@@ -37,3 +39,6 @@ export class SystemClientTools extends ClientToolsBase {
         return `Successfully transitioned from ${previousTask.name} to ${newTask.name}`;
     }
 }
+
+registerClientTool(SystemClientTools);
+

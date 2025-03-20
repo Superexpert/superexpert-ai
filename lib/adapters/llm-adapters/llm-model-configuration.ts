@@ -1,6 +1,6 @@
 
 
-export interface ModelConfiguration {
+export interface LLMModelConfiguration {
     temperature: number|null;
     maximumOutputTokens: number|null;
 }

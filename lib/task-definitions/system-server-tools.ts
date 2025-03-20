@@ -1,3 +1,5 @@
+import { registerServerTool } from '@/lib/plugin-registry';
+
 import {
     ServerToolsBase,
     Tool,
@@ -51,3 +53,6 @@ export class SystemServerTools extends ServerToolsBase {
         return `Successfully updated profile property ${name} to ${value} for agent ${this.agent.name} (${this.agent.id})}`;
     }
 }
+
+registerServerTool(SystemServerTools);
+

@@ -1,3 +1,4 @@
+import { registerClientTool } from '@/lib/plugin-registry';
 import { ClientToolsBase, Tool } from '@/lib/task-definition-types';
 import { TextMessageConsentContent } from '@/forms/text-message-consent';
 
@@ -13,3 +14,5 @@ export class CustomClientTools extends ClientToolsBase {
         return result;
     }
 }
+
+registerClientTool(CustomClientTools);

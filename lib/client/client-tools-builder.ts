@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import plugins from '@/superexpert.plugins';
+import '@/superexpertai.plugins.client'; // Ensure client plugins are loaded
 import { ClientContext } from '@/lib/client/client-context';
+import { getClientTools } from '@/lib/plugin-registry';
 
 export class ClientToolsBuilder {
     private filterMethods(targetClass: any) {
@@ -21,7 +22,8 @@ export class ClientToolsBuilder {
     public getClientTool(
         toolName: string
     ): { methodName: string; metadata: Record<string, any> } | null {
-        for (const plugin of plugins.ClientTools) {
+        const clientTools = getClientTools();
+        for (const plugin of clientTools) {
             const tools = this.filterMethods(plugin);
             const foundTool = tools.find(
                 (tool) => tool.metadata.name === toolName
@@ -38,8 +40,7 @@ export class ClientToolsBuilder {
         toolName: string,
         toolParams: Record<string, any>
     ) {
-        const clientTools = plugins.ClientTools;
-    
+        const clientTools = getClientTools();    
         for (const ToolClass of clientTools) {
             const toolInstance = new ToolClass(clientContext);
     

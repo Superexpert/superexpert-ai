@@ -10,7 +10,7 @@ import React, {
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
-import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert.config';
+import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpertai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
 import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';

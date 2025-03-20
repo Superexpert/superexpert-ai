@@ -1,12 +1,12 @@
 import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ChunkAI } from '@/lib/chunk-ai';
-import { ModelConfiguration } from '@/lib/model-configuration';
+import { LLMModelConfiguration } from '@/lib/adapters/llm-adapters/llm-model-configuration';
 
 export abstract class LLMAdapter {
     constructor(
         public modelId: string,
-        public modelConfiguration?: ModelConfiguration
+        public modelConfiguration?: LLMModelConfiguration
     ) {}
 
     // Map input messages to the format required by the LLM

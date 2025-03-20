@@ -1,3 +1,4 @@
+import { registerServerDataTool } from '@/lib/plugin-registry';
 import { Tool, ServerDataBase } from '@/lib/task-definition-types';
 
 export class CustomServerData extends ServerDataBase {
@@ -10,12 +11,12 @@ export class CustomServerData extends ServerDataBase {
         name: 'agentInfo',
         description: 'This tool returns the current agent id and name',
     })
-    public async whichAgent(
-    ) {
-        console.log(`I am ${this.agent.id} with name ${this.agent.name} and I am awesome`);
-        return `I am ${this.agent.id} with name ${this.agent.name} and I am awesome`;
+    public async whichAgent() {
+        console.log(
+            `My agent id is ${this.agent.id} and my agent name is ${this.agent.name} and I am awesome`
+        );
+        return `My agent id is ${this.agent.id} and my agent name is ${this.agent.name} and I am awesome`;
     }
-
-
-
 }
+
+registerServerDataTool(CustomServerData);

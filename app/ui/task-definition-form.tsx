@@ -4,14 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
+import { TaskDefinition, clientTaskDefinitionSchema } from '@/lib/task-definition';
 import {
     saveTaskDefinitionAction,
     deleteTaskDefinitionAction,
     saveAttachmentAction,
     deleteAttachmentAction,
 } from '@/lib/actions/admin-actions';
-import { ModelDefinition } from '@/lib/model-definition';
+import { LLMModelDefinition } from '@/lib/adapters/llm-adapters/llm-model-definition';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
 import { Themes } from '@/styles/chat-bot/themes';
@@ -25,7 +25,7 @@ interface TaskDefinitionFormProps {
     serverData: { id: string; description: string }[];
     serverTools: { id: string; description: string }[];
     clientTools: { id: string; description: string }[];
-    models: ModelDefinition[];
+    llmModels: LLMModelDefinition[];
     isEditMode: boolean;
 }
 
@@ -37,7 +37,7 @@ export default function TaskDefinitionForm({
     serverData,
     serverTools,
     clientTools,
-    models,
+    llmModels,
     isEditMode,
 }: TaskDefinitionFormProps) {
     const [serverError, setServerError] = useState('');
@@ -57,14 +57,14 @@ export default function TaskDefinitionForm({
         watch,
         formState: { errors },
     } = useForm<TaskDefinition>({
-        resolver: zodResolver(taskDefinitionSchema),
+        resolver: zodResolver(clientTaskDefinitionSchema),
         defaultValues: taskDefinition,
     });
 
     const selectedModelId = watch('modelId');
 
     useEffect(() => {
-        const selectedModel = models.find(
+        const selectedModel = llmModels.find(
             (model) => model.id === selectedModelId
         );
         if (selectedModel) {
@@ -88,7 +88,7 @@ export default function TaskDefinitionForm({
                 'Please select a model to see its maximum temperature.'
             );
         }
-    }, [selectedModelId, models]);
+    }, [selectedModelId, llmModels]);
 
     const onSubmit = async (taskDefinition: TaskDefinition) => {
         const result = await saveTaskDefinitionAction(taskDefinition);
@@ -485,7 +485,7 @@ export default function TaskDefinitionForm({
                             </label>
                         </div>
                     )}
-                    {models.map((item) => (
+                    {llmModels.map((item) => (
                         <div
                             key={item.id}
                             className="flex items-center space-x-2">
