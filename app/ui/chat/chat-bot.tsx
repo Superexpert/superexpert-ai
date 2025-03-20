@@ -10,13 +10,13 @@ import React, {
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { MessageAI, ToolCall } from '@/lib/message';
-import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpertai.config';
+import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert-ai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
 import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
 import { ClientContext } from '@/lib/client/client-context';
 import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
 import Modal from '@/app/ui/modal';
-import { Themes } from '@/styles/chat-bot/themes';
+import { getTheme } from '@/lib/plugin-registry';
 
 const getNow = () => {
     return new Date();
@@ -345,7 +345,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
             ? getGlobalTask().theme
             : getCurrentTask().theme;
 
-    const styles = Themes.getTheme(currentTheme);
+    const styles = getTheme(currentTheme);
 
     return (
         <div>

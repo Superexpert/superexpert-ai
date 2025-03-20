@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import '@/superexpertai.plugins.client'; // Ensure client plugins are loaded
+import '@/superexpert-ai.plugins.client'; // Ensure client plugins are loaded
 import { ClientContext } from '@/lib/client/client-context';
 import { getClientTools } from '@/lib/plugin-registry';
 

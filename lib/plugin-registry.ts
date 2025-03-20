@@ -17,6 +17,7 @@ class Registry {
     public serverDataTools: ServerDataToolsConstructor[] = [];
     public serverTools: ServerToolsConstructor[] = [];
     public clientTools: ClientToolsConstructor[] = [];
+    public themes: Record<string, Theme> = {};
 
     private constructor() {}
 
@@ -50,6 +51,40 @@ declare global {
 
 // Export a consistent registry reference
 const registry = getRegistry();
+
+
+/*******
+ * Themes
+ */
+type CSSModule = { readonly [key: string]: string };
+export type Theme = {
+    id: string;
+    name: string;
+    theme: CSSModule;
+};
+
+export function registerTheme(theme: Theme) {
+    if (registry.themes[theme.id]) {
+        return;
+    }
+    registry.themes[theme.id] = theme;
+  }
+  
+  
+  export function getTheme(id: string): CSSModule {
+    return registry.themes[id].theme;
+  }
+
+  export function getThemes() {
+    return Object.values(registry.themes);
+}
+
+
+/************
+ * Tools
+ */
+
+
 
 type ServerDataToolsConstructor = new (
     user: User,
@@ -87,7 +122,7 @@ export function registerServerDataTool(plugin: ServerDataToolsConstructor) {
    const pluginName = plugin.name;
     
    // Check if a tool with the same name is already registered
-   const exists = registry.clientTools.some(tool => tool.name === pluginName);
+   const exists = registry.serverDataTools.some(tool => tool.name === pluginName);
    if (!exists) {
        registry.serverDataTools.push(plugin);
    }
@@ -98,7 +133,7 @@ export function registerServerTool(plugin: ServerToolsConstructor) {
    const pluginName = plugin.name;
     
    // Check if a tool with the same name is already registered
-   const exists = registry.clientTools.some(tool => tool.name === pluginName);
+   const exists = registry.serverTools.some(tool => tool.name === pluginName);
    if (!exists) {
        registry.serverTools.push(plugin);
    }
