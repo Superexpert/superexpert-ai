@@ -14,7 +14,8 @@ import {
 import { LLMModelDefinition } from '@/lib/adapters/llm-adapters/llm-model-definition';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
-import { Themes } from '@/styles/chat-bot/themes';
+import '@/superexpert-ai.plugins.client';
+import {getThemes} from '@/lib/plugin-registry'; 
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -50,6 +51,7 @@ export default function TaskDefinitionForm({
     const router = useRouter();
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+    const themes = getThemes();
 
     const {
         register,
@@ -261,7 +263,7 @@ export default function TaskDefinitionForm({
                                 </label>
                             </div>
                         )}
-                        {Themes.themes.map((theme) => (
+                        {themes.map((theme) => (
                             <div
                                 key={theme.id}
                                 className="flex items-center space-x-2">

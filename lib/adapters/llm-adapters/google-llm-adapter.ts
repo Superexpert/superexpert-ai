@@ -10,7 +10,7 @@ import { MessageAI } from '@/lib/message-ai';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolCall } from '@/lib/tool-call';
 import { ChunkAI } from '@/lib/chunk-ai';
-import { START_MESSAGE } from '@/superexpertai.config';
+import { START_MESSAGE } from '@/superexpert-ai.config';
 
 export class GoogleLLMAdapter extends LLMAdapter {
     // Gemini wants function responses to be collapsed into a single function response

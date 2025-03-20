@@ -53,7 +53,6 @@ export const clientTaskDefinitionSchema = z
 
 export const serverTaskDefinitionSchema = clientTaskDefinitionSchema
     .superRefine((data, ctx) => {
-        console.log("modelid is", data.modelId);
         if (data.modelId === 'global') return;
         
         const selectedModel = getLLMModel(data.modelId);
