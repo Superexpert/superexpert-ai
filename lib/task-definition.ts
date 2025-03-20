@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
+import { getLLMModel} from '@/lib/plugin-registry';
 
 export interface TaskDefinition {
     id?: string;
@@ -21,7 +21,7 @@ export interface TaskDefinition {
     theme: string;
 }
 
-export const taskDefinitionSchema = z
+export const clientTaskDefinitionSchema = z
     .object({
         id: z.string().optional(),
         agentId: z.string().nonempty('Agent ID is required'),
@@ -48,9 +48,15 @@ export const taskDefinitionSchema = z
         maximumOutputTokens: z.coerce.number().min(1).nullable(),
         temperature: z.coerce.number().min(0).nullable(),
         theme: z.string().nonempty('Theme is required'),
-    })
+    });
+
+
+export const serverTaskDefinitionSchema = clientTaskDefinitionSchema
     .superRefine((data, ctx) => {
-        const selectedModel = LLMModelFactory.getModelById(data.modelId);
+        console.log("modelid is", data.modelId);
+        if (data.modelId === 'global') return;
+        
+        const selectedModel = getLLMModel(data.modelId);
         if (!selectedModel) {
             data.maximumOutputTokens = null;
             data.temperature = null;

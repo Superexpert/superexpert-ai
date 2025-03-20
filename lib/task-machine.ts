@@ -4,7 +4,7 @@ import { TaskDefinition } from './task-definition';
 import { ToolAI } from '@/lib/tool-ai';
 import { ToolsBuilder } from './tools-builder';
 import { User } from '@/lib/user';
-import { ModelConfiguration } from './model-configuration';
+import { LLMModelConfiguration } from './adapters/llm-adapters/llm-model-configuration';
 
 export class TaskMachine {
     private db: DBService;
@@ -25,7 +25,7 @@ export class TaskMachine {
         currentMessages: MessageAI[];
         tools: ToolAI[];
         modelId: string;
-        modelConfiguration: ModelConfiguration;
+        modelConfiguration: LLMModelConfiguration;
     }> {
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
@@ -99,7 +99,7 @@ export class TaskMachine {
     private getModelConfiguration(
         taskDefinition: TaskDefinition,
         globalTaskDefinition: TaskDefinition
-    ): ModelConfiguration {
+    ): LLMModelConfiguration {
         return {
             maximumOutputTokens:
                 taskDefinition.maximumOutputTokens ||

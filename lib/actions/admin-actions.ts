@@ -1,17 +1,17 @@
 'use server';
 import { ToolsBuilder } from '@/lib/tools-builder';
-import { TaskDefinition, taskDefinitionSchema } from '@/lib/task-definition';
+import { TaskDefinition, serverTaskDefinitionSchema } from '@/lib/task-definition';
 import { DBAdminService } from '@/lib/db/db-admin-service';
 import { DBService } from '@/lib/db/db-service';
 import { redirect } from 'next/navigation';
 import { getUserId } from '@/lib/user';
 import { Agent, agentSchema } from '@/lib/agent';
 import { collapseErrors } from '@/lib/validation';
-import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-embedding-adapter';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
+import { getLLMModels } from '@/lib/plugin-registry';
 
 //** TaskDefinitionForm **//
 
@@ -31,7 +31,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const serverData = builder.getServerDataList();
     const serverTools = builder.getServerToolList();
     const clientTools = builder.getClientToolList();
-    const models = LLMModelFactory.getAvailableModels();
+    const llmModels = getLLMModels();
 
     return {
         attachments,
@@ -39,7 +39,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
         serverData,
         serverTools,
         clientTools,
-        models,
+        llmModels,
     };
 }
 
@@ -47,7 +47,7 @@ export async function saveTaskDefinitionAction(taskDefinition: TaskDefinition) {
     const userId = await getUserId();
 
     // Validate using Zod
-    const result = taskDefinitionSchema.safeParse(taskDefinition);
+    const result = serverTaskDefinitionSchema.safeParse(taskDefinition);
     if (!result.success) {
         return {
             success: false,

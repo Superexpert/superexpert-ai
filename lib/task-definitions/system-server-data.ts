@@ -1,3 +1,4 @@
+import { registerServerDataTool } from '@/lib/plugin-registry';
 import { ServerDataBase, Tool } from '@/lib/task-definition-types';
 
 export class SystemServerData extends ServerDataBase {
@@ -22,3 +23,5 @@ export class SystemServerData extends ServerDataBase {
         return `User Profile: ${JSON.stringify(profileJson, null, 2)}`;
     }
 }
+
+registerServerDataTool(SystemServerData);

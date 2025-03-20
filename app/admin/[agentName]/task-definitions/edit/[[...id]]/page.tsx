@@ -21,7 +21,7 @@ export default async function EditTaskDefinitionPage({
 
     const isEditMode = Boolean(id);
 
-    const { attachments, corpora, serverData, serverTools, clientTools, models } =
+    const { attachments, corpora, serverData, serverTools, clientTools, llmModels } =
         await getTaskDefinitionFormDataAction(taskId);
 
     let taskDefinition: TaskDefinition = {
@@ -62,7 +62,7 @@ export default async function EditTaskDefinitionPage({
                     serverData={serverData}
                     serverTools={serverTools}
                     clientTools={clientTools}
-                    models={models}
+                    llmModels={llmModels}
                     isEditMode={isEditMode}
                 />
             </Suspense>

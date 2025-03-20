@@ -1,3 +1,4 @@
+import { registerServerTool } from '@/lib/plugin-registry';
 import {
     ServerToolsBase,
     Tool,
@@ -60,3 +61,5 @@ export class CustomServerTools extends ServerToolsBase {
     }
 
 }
+
+registerServerTool(CustomServerTools);

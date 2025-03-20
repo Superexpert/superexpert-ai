@@ -1,7 +1,7 @@
-export interface ModelDefinition{ 
+export interface LLMModelDefinition{ 
+    id: string;
     name: string;
     provider: string; 
-    id: string, 
     description: string,
     maximumOutputTokens: number,
     maximumTemperature: number,

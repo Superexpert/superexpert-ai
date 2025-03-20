@@ -2,7 +2,7 @@ import { MessageAI } from '../message-ai';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 import { OpenAIEmbeddingAdapter } from '@/lib/adapters/embedding-adapters/openai-embedding-adapter';
-import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert.config';
+import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpertai.config';
 import { CorpusQueryResult } from '../corpus-query-result';
 
 export class DBService {
