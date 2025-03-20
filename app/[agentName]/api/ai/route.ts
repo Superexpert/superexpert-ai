@@ -1,3 +1,4 @@
+import '@/superexpertai.plugins.server'; // Ensure plugins are loaded
 import { NextRequest } from 'next/server';
 import { MessageAI } from '@/lib/message';
 import { TaskMachine } from '@/lib/task-machine';
