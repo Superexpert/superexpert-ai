@@ -1,10 +1,7 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI } from '@/lib/message';
+import { MessageAI, ToolAI, User, LLMModelConfiguration } from '@superexpert-ai/superexpert-ai-plugins';
 import { TaskDefinition } from './task-definition';
-import { ToolAI } from '@/lib/tool-ai';
 import { ToolsBuilder } from './tools-builder';
-import { User } from '@/lib/user';
-import { LLMModelConfiguration } from './adapters/llm-adapters/llm-model-configuration';
 
 export class TaskMachine {
     private db: DBService;

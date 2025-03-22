@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { ToolAI, ToolPropertyAI } from '@/lib/tool-ai';
-import { getServerDataTools, getServerTools, getClientTools } from '@/lib/plugin-registry';
+import { ToolAI, ToolPropertyAI, User, getServerDataTools, getServerTools, getClientTools } from '@superexpert-ai/superexpert-ai-plugins';
 import { prisma } from '@/lib/db/prisma';
-import { User } from '@/lib/user';
 
 export class ToolsBuilder {
     private filterMethods(targetClass: any) { 

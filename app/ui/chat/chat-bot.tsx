@@ -9,14 +9,17 @@ import React, {
 } from 'react';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
-import { MessageAI, ToolCall } from '@/lib/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert-ai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
 import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
-import { ClientContext } from '@/lib/client/client-context';
-import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
+import {
+    ClientContext,
+    ClientTaskDefinition,
+    getTheme,
+    MessageAI,
+    ToolCall,
+} from '@superexpert-ai/superexpert-ai-plugins';
 import Modal from '@/app/ui/modal';
-import { getTheme } from '@/lib/plugin-registry';
 
 const getNow = () => {
     return new Date();
@@ -77,7 +80,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                 if (!value) continue;
 
                 const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
-
 
                 // **Parse the chunk to extract JSON**
                 const events = chunk.split('\n'); // Split by newline to handle multiple messages

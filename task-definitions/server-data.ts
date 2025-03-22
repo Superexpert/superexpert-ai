@@ -1,5 +1,4 @@
-import { registerServerDataTool } from '@/lib/plugin-registry';
-import { Tool, ServerDataBase } from '@/lib/task-definition-types';
+import { registerServerDataTool, Tool, ServerDataBase } from '@superexpert-ai/superexpert-ai-plugins';
 
 export class CustomServerData extends ServerDataBase {
     @Tool({ name: 'loadMemories', description: 'Loads memories' })

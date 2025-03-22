@@ -1,4 +1,5 @@
-import { LLMAdapter } from '@/lib/adapters/llm-adapters/llm-adapter';
+import { LLMAdapter, MessageAI, ToolAI, ToolCall, ChunkAI } from '@superexpert-ai/superexpert-ai-plugins';
+
 import {
     GoogleGenerativeAI,
     Part,
@@ -6,10 +7,6 @@ import {
     FunctionDeclaration,
     EnhancedGenerateContentResponse, 
 } from '@google/generative-ai';
-import { MessageAI } from '@/lib/message-ai';
-import { ToolAI } from '@/lib/tool-ai';
-import { ToolCall } from '@/lib/tool-call';
-import { ChunkAI } from '@/lib/chunk-ai';
 import { START_MESSAGE } from '@/superexpert-ai.config';
 
 export class GoogleLLMAdapter extends LLMAdapter {

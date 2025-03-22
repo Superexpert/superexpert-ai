@@ -1,5 +1,4 @@
-import { registerServerDataTool } from '@/lib/plugin-registry';
-import { ServerDataBase, Tool } from '@/lib/task-definition-types';
+import { registerServerDataTool, ServerDataBase, Tool  } from '@superexpert-ai/superexpert-ai-plugins';
 
 export class SystemServerData extends ServerDataBase {
     @Tool({ name: 'loadProfile', description: 'Load the user profile' })

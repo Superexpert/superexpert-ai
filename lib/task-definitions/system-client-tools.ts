@@ -1,10 +1,10 @@
-import { registerClientTool } from '@/lib/plugin-registry';
 
 import {
+    registerClientTool,
     ClientToolsBase,
     Tool,
     ToolParameter,
-} from '@/lib/task-definition-types';
+} from '@superexpert-ai/superexpert-ai-plugins';
 
 export class SystemClientTools extends ClientToolsBase {
     @Tool({

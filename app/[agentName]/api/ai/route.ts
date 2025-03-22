@@ -1,9 +1,8 @@
 import '@/superexpert-ai.plugins.server'; // Ensure plugins are loaded
 import { NextRequest } from 'next/server';
-import { MessageAI } from '@/lib/message';
+import { MessageAI, User } from '@superexpert-ai/superexpert-ai-plugins';
 import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
-import { User } from '@/lib/user';
 import { DBAdminService } from '@/lib/db/db-admin-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 

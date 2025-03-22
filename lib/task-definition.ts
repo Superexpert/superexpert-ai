@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getLLMModel} from '@/lib/plugin-registry';
+import { getLLMModel} from '@superexpert-ai/superexpert-ai-plugins';
 
 export interface TaskDefinition {
     id?: string;

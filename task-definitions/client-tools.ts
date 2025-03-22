@@ -1,5 +1,4 @@
-import { registerClientTool } from '@/lib/plugin-registry';
-import { ClientToolsBase, Tool } from '@/lib/task-definition-types';
+import { registerClientTool, ClientToolsBase, Tool } from '@superexpert-ai/superexpert-ai-plugins';
 import { TextMessageConsentContent } from '@/forms/text-message-consent';
 
 export class CustomClientTools extends ClientToolsBase {

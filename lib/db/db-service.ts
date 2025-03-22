@@ -1,4 +1,4 @@
-import { MessageAI } from '../message-ai';
+import { MessageAI } from '@superexpert-ai/superexpert-ai-plugins';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 import { OpenAIEmbeddingAdapter } from '@/lib/adapters/embedding-adapters/openai-embedding-adapter';

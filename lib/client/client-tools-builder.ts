@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import '@/superexpert-ai.plugins.client'; // Ensure client plugins are loaded
-import { ClientContext } from '@/lib/client/client-context';
-import { getClientTools } from '@/lib/plugin-registry';
+import { ClientContext, getClientTools } from '@superexpert-ai/superexpert-ai-plugins';
 
 export class ClientToolsBuilder {
     private filterMethods(targetClass: any) {

@@ -1,10 +1,8 @@
-import { registerServerTool } from '@/lib/plugin-registry';
-
-import {
+import { registerServerTool,
     ServerToolsBase,
     Tool,
     ToolParameter,
-} from '@/lib/task-definition-types';
+} from '@superexpert-ai/superexpert-ai-plugins';
 
 export class SystemServerTools extends ServerToolsBase {
     @Tool({

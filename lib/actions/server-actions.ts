@@ -2,11 +2,11 @@
 import { ToolsBuilder } from '@/lib/tools-builder';
 import { auth, signIn } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
-import { User, getUserId } from '@/lib/user';
+import { User, ClientTaskDefinition } from '@superexpert-ai/superexpert-ai-plugins';
 import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
-import { ClientTaskDefinition } from '../client/client-task-definition';
+import { getUserId } from '../user';
 
 export async function executeServerTool(
     agentId: string,

@@ -1,9 +1,9 @@
-import { registerServerTool } from '@/lib/plugin-registry';
 import {
+    registerServerTool,
     ServerToolsBase,
     Tool,
     ToolParameter,
-} from '@/lib/task-definition-types';
+} from '@superexpert-ai/superexpert-ai-plugins';
 
 export class CustomServerTools extends ServerToolsBase {
     @Tool({
@@ -50,16 +50,13 @@ export class CustomServerTools extends ServerToolsBase {
         console.log('saveMemory is awesome');
     }
 
-
     @Tool({
         name: 'whichAgent',
         description: 'This tool returns the current agent id',
     })
-    public async whichAgent(
-    ) {
+    public async whichAgent() {
         return `I am ${this.agent.id} with name ${this.agent.name} and I am awesome`;
     }
-
 }
 
 registerServerTool(CustomServerTools);

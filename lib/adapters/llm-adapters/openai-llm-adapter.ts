@@ -1,8 +1,5 @@
-import { LLMAdapter } from './llm-adapter';
+import { LLMAdapter, MessageAI, ToolAI, ToolCall } from '@superexpert-ai/superexpert-ai-plugins';
 import { OpenAI } from 'openai';
-import { MessageAI } from '@/lib/message-ai';
-import { ToolAI } from '@/lib/tool-ai';
-import { ToolCall } from '@/lib/tool-call';
 
 export class OpenAILLMAdapter extends LLMAdapter {
 

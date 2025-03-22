@@ -1,5 +1,5 @@
 'use client';
-import { registerTheme } from '@/lib/plugin-registry';
+import { registerTheme } from '@superexpert-ai/superexpert-ai-plugins';
 import stylesDefault from '@/styles/chat-bot/default.module.css';
 import stylesRed from '@/styles/chat-bot/red.module.css';
 import stylesBlue from '@/styles/chat-bot/blue.module.css';

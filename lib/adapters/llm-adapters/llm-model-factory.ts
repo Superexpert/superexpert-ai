@@ -1,7 +1,5 @@
 
-import { getLLMPlugin } from '@/lib/plugin-registry';
-import { LLMModelConfiguration } from '@/lib/adapters/llm-adapters/llm-model-configuration';
-import { LLMAdapter } from '@/lib/adapters/llm-adapters/llm-adapter';
+import { getLLMPlugin, LLMModelConfiguration, LLMAdapter } from '@superexpert-ai/superexpert-ai-plugins';
 
 export class LLMModelFactory {
   /** Create an AI model instance based on the selected id */
