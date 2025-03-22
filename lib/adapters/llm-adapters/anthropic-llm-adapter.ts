@@ -1,4 +1,4 @@
-import { LLMAdapter, MessageAI, ToolAI } from '@superexpert-ai/superexpert-ai-plugins';
+import { LLMAdapter, MessageAI, ToolAI } from '@superexpert-ai/framework';
 import Anthropic from '@anthropic-ai/sdk';
 
 export class AnthropicLLMAdapter extends LLMAdapter {

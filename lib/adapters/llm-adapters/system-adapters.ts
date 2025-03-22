@@ -1,4 +1,4 @@
-import { registerLLM } from '@superexpert-ai/superexpert-ai-plugins';
+import { registerLLM } from '@superexpert-ai/framework';
 import { OpenAILLMAdapter } from '@/lib/adapters/llm-adapters/openai-llm-adapter';
 import { GoogleLLMAdapter } from '@/lib/adapters/llm-adapters/google-llm-adapter';
 import { AnthropicLLMAdapter } from '@/lib/adapters/llm-adapters/anthropic-llm-adapter';

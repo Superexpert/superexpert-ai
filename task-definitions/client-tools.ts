@@ -1,4 +1,4 @@
-import { registerClientTool, ClientToolsBase, Tool } from '@superexpert-ai/superexpert-ai-plugins';
+import { registerClientTool, ClientToolsBase, Tool } from '@superexpert-ai/framework';
 import { TextMessageConsentContent } from '@/forms/text-message-consent';
 
 export class CustomClientTools extends ClientToolsBase {

@@ -11,7 +11,7 @@ import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-em
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
-import { getLLMModels } from '@superexpert-ai/superexpert-ai-plugins';
+import { getLLMModels } from '@superexpert-ai/framework';
 
 //** TaskDefinitionForm **//
 

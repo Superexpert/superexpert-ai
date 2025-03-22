@@ -11,11 +11,11 @@ import {
     saveAttachmentAction,
     deleteAttachmentAction,
 } from '@/lib/actions/admin-actions';
-import { LLMModelDefinition } from '@superexpert-ai/superexpert-ai-plugins';
+import { LLMModelDefinition } from '@superexpert-ai/framework';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
 import '@/superexpert-ai.plugins.client';
-import {getThemes} from '@superexpert-ai/superexpert-ai-plugins'; 
+import {getThemes} from '@superexpert-ai/framework'; 
 
 interface TaskDefinitionFormProps {
     agentId: string;

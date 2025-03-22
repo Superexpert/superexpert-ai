@@ -2,7 +2,7 @@ import { registerServerTool,
     ServerToolsBase,
     Tool,
     ToolParameter,
-} from '@superexpert-ai/superexpert-ai-plugins';
+} from '@superexpert-ai/framework';
 
 export class SystemServerTools extends ServerToolsBase {
     @Tool({

@@ -18,7 +18,7 @@ import {
     getTheme,
     MessageAI,
     ToolCall,
-} from '@superexpert-ai/superexpert-ai-plugins';
+} from '@superexpert-ai/framework';
 import Modal from '@/app/ui/modal';
 
 const getNow = () => {

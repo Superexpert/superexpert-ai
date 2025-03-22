@@ -1,5 +1,5 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI, ToolAI, User, LLMModelConfiguration } from '@superexpert-ai/superexpert-ai-plugins';
+import { MessageAI, ToolAI, User, LLMModelConfiguration } from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
 import { ToolsBuilder } from './tools-builder';
 

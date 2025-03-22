@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { ToolAI, ToolPropertyAI, User, getServerDataTools, getServerTools, getClientTools } from '@superexpert-ai/superexpert-ai-plugins';
+import { ToolAI, ToolPropertyAI, User, getServerDataTools, getServerTools, getClientTools } from '@superexpert-ai/framework';
 import { prisma } from '@/lib/db/prisma';
 
 export class ToolsBuilder {

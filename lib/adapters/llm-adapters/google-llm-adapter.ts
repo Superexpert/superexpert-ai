@@ -1,4 +1,4 @@
-import { LLMAdapter, MessageAI, ToolAI, ToolCall, ChunkAI } from '@superexpert-ai/superexpert-ai-plugins';
+import { LLMAdapter, MessageAI, ToolAI, ToolCall, ChunkAI } from '@superexpert-ai/framework';
 
 import {
     GoogleGenerativeAI,

@@ -4,7 +4,7 @@ import {
     ClientToolsBase,
     Tool,
     ToolParameter,
-} from '@superexpert-ai/superexpert-ai-plugins';
+} from '@superexpert-ai/framework';
 
 export class SystemClientTools extends ClientToolsBase {
     @Tool({

@@ -2,7 +2,7 @@ import AgentList from '@/app/ui/agent-list';
 import { Suspense } from 'react';
 import { getAgentListAction } from '@/lib/actions/admin-actions';
 import { redirect } from 'next/navigation';
-import { helloWorld} from '@superexpert-ai/superexpert-ai-plugins'
+import { helloWorld} from '@superexpert-ai/framework'
 
 export default async function AgentListPage() {
     const agents = await getAgentListAction();

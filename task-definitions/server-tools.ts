@@ -3,7 +3,7 @@ import {
     ServerToolsBase,
     Tool,
     ToolParameter,
-} from '@superexpert-ai/superexpert-ai-plugins';
+} from '@superexpert-ai/framework';
 
 export class CustomServerTools extends ServerToolsBase {
     @Tool({
