@@ -1,10 +1,10 @@
 
-import { getLLMPlugin, LLMModelConfiguration, LLMAdapter } from '@superexpert-ai/framework';
+import { getLLM, LLMModelConfiguration, LLMAdapter } from '@superexpert-ai/framework';
 
 export class LLMModelFactory {
   /** Create an AI model instance based on the selected id */
   static createModel(modelId: string, modelConfiguration?: LLMModelConfiguration): LLMAdapter {
-    const plugin = getLLMPlugin(modelId);
+    const plugin = getLLM(modelId);
     if (!plugin) {
       throw new Error(`Unsupported AI model ID: ${modelId}`);
     }

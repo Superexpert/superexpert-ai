@@ -1,5 +1,6 @@
 'use client';
 
+import '@/superexpert-ai.plugins.client';
 import React, {
     useState,
     useEffect,
@@ -11,13 +12,15 @@ import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert-ai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
-import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
 import {
-    ClientContext,
+    ClientToolContext,
     ClientTaskDefinition,
     getTheme,
     MessageAI,
     ToolCall,
+    getClientTool,
+    callClientTool,
+    getThemeList
 } from '@superexpert-ai/framework';
 import Modal from '@/app/ui/modal';
 
@@ -271,7 +274,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         queuedMessagesRef.current = [...queuedMessagesRef.current, ...messages];
     };
 
-    const clientContext = new ClientContext(
+    const clientContext = new ClientToolContext(
         tasks,
         getCurrentTask,
         getTask,
@@ -292,12 +295,11 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         const functionArgs = JSON.parse(toolCall.function.arguments);
 
         // Execute client tool
-        const clientToolsBuilder = new ClientToolsBuilder();
-        const clientTool = clientToolsBuilder.getClientTool(functionName);
+        const clientTool = getClientTool(functionName);
         if (clientTool) {
-            const result = await clientToolsBuilder.callClientTool(
+            const result = await callClientTool(
+                clientTool.name,
                 clientContext,
-                clientTool.methodName,
                 functionArgs
             );
             console.log('client tool result', result);
@@ -347,7 +349,8 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
             ? getGlobalTask().theme
             : getCurrentTask().theme;
 
-    const styles = getTheme(currentTheme);
+    const theme = getTheme(currentTheme);
+    const styles = theme?.theme;
 
     return (
         <div>

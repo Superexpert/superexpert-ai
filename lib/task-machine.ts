@@ -1,7 +1,7 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI, ToolAI, User, LLMModelConfiguration } from '@superexpert-ai/framework';
+import { MessageAI, ToolAI, User, LLMModelConfiguration, callServerDataTool, ServerDataToolContext } from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
-import { ToolsBuilder } from './tools-builder';
+import { getTools } from './tools-builder';
 
 export class TaskMachine {
     private db: DBService;
@@ -114,13 +114,20 @@ export class TaskMachine {
         const toolIds: string[] = [
             ...new Set([
                 ...taskDefinition.serverToolIds,
-                ...taskDefinition.clientToolIds,
                 ...globalTaskDefinition.serverToolIds,
+                ...taskDefinition.serverDataIds,
+                ...globalTaskDefinition.serverDataIds,
+                ...taskDefinition.clientToolIds,
                 ...globalTaskDefinition.clientToolIds,
             ]),
         ];
-        const builder = new ToolsBuilder();
-        const tools = await builder.getTools(toolIds);
+
+
+        const tools = getTools(toolIds);
+
+        console.log("TOOLS");
+        console.dir(tools, { depth: null });
+
         return tools;
     }
 
@@ -138,9 +145,20 @@ export class TaskMachine {
             ]),
         ];
         let result = '';
-        const builder = new ToolsBuilder();
+        const context: ServerDataToolContext = {
+            user: {
+                id: user.id!,
+                now: new Date(),
+                timeZone: user.timeZone,
+            },
+            agent: {
+                id: agent.id,
+                name: agent.name,
+            },
+            messages: [],
+        };
         for (const serverDataId of serverDataIds) {
-            const serverData = await builder.callServerData(user, agent, serverDataId);
+            const serverData = await callServerDataTool(serverDataId, context, {});
             result += `${serverData}\n`;
         }
         return result;

@@ -15,7 +15,7 @@ import { LLMModelDefinition } from '@superexpert-ai/framework';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
 import '@/superexpert-ai.plugins.client';
-import {getThemes} from '@superexpert-ai/framework'; 
+import {getThemeList} from '@superexpert-ai/framework'; 
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -51,7 +51,7 @@ export default function TaskDefinitionForm({
     const router = useRouter();
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-    const themes = getThemes();
+    const themes = getThemeList();
 
     const {
         register,
@@ -275,7 +275,7 @@ export default function TaskDefinitionForm({
                                     {...register('theme')}
                                 />
                                 <label htmlFor={`${theme.id}`}>
-                                    {theme.name}
+                                    {theme.id} &mdash; {theme.description}
                                 </label>
                             </div>
                         ))}
@@ -435,7 +435,7 @@ export default function TaskDefinitionForm({
                                 {...register('serverToolIds')}
                             />
                             <label htmlFor={`serverTools-${item.id}`}>
-                                {item.description}
+                                {item.id} &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -499,7 +499,7 @@ export default function TaskDefinitionForm({
                                 {...register('modelId')}
                             />
                             <label htmlFor={`model-${item.id}`}>
-                                {item.name}:{item.description}
+                                {item.name} &mdash; {item.description}
                             </label>
                         </div>
                     ))}

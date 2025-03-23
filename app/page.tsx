@@ -2,13 +2,9 @@ import AgentList from '@/app/ui/agent-list';
 import { Suspense } from 'react';
 import { getAgentListAction } from '@/lib/actions/admin-actions';
 import { redirect } from 'next/navigation';
-import { helloWorld} from '@superexpert-ai/framework'
 
 export default async function AgentListPage() {
     const agents = await getAgentListAction();
-
-    const result = helloWorld();
-    console.log(result);
 
     // If the uer does not have any agents, redirect to the agents page
     if (agents.length === 0) {

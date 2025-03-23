@@ -1,8 +1,7 @@
 'use server';
-import { ToolsBuilder } from '@/lib/tools-builder';
 import { auth, signIn } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
-import { User, ClientTaskDefinition } from '@superexpert-ai/framework';
+import { ClientTaskDefinition, callServerTool, ServerToolContext } from '@superexpert-ai/framework';
 import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
@@ -21,15 +20,25 @@ export async function executeServerTool(
     if (!session || !session.user) {
         throw new Error('User not authenticated');
     }
-    const user = session.user as User;
-    user.now = now;
-    user.timeZone = timeZone;
-
-    const agent = {id: agentId, name: agentName};
+    const user = session.user;
 
     // Execute server tool
-    const builder = new ToolsBuilder();
-    const result = builder.callServerTool(user, agent, functionName, functionArgs);
+    const context: ServerToolContext = {
+        user: {
+            id: user.id!,
+            now: now,
+            timeZone: timeZone,
+        },
+        agent: {
+            id: agentId,
+            name: agentName,
+        },
+        messages: [],
+    };
+
+    console.log('functionArgs');
+    console.dir(functionArgs, { depth: null });
+    const result = callServerTool(functionName, context, functionArgs);
     return result;
 }
 
