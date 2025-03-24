@@ -79,7 +79,8 @@ export class TaskMachine {
             agentId,
             agentName,
             taskDefinition,
-            globalTaskDefinition
+            globalTaskDefinition,
+            previousMessages
         );
 
         // Get tools
@@ -125,10 +126,6 @@ export class TaskMachine {
 
 
         const tools = buildTools(toolIds);
-
-        console.log("TOOLS");
-        console.dir(tools, { depth: null });
-
         return tools;
     }
 
@@ -136,7 +133,8 @@ export class TaskMachine {
         user: User,
         agent: {id:string, name:string},
         taskDefinition: TaskDefinition,
-        globalTaskDefinition: TaskDefinition
+        globalTaskDefinition: TaskDefinition,
+        messages: MessageAI[]
     ): Promise<string> {
         // merge server data ids
         const serverDataIds: string[] = [
@@ -156,7 +154,7 @@ export class TaskMachine {
                 id: agent.id,
                 name: agent.name,
             },
-            messages: [],
+            messages: messages,
             db: prisma,
         };
         for (const serverDataId of serverDataIds) {
@@ -171,14 +169,16 @@ export class TaskMachine {
         agentId: string,
         agentName: string,
         taskDefinition: TaskDefinition,
-        globalTaskDefinition: TaskDefinition
+        globalTaskDefinition: TaskDefinition,
+        messages: MessageAI[]
     ): Promise<string> {
         const agent = {id: agentId, name: agentName};
         const serverData = await this.getServerData(
             user,
             agent,
             taskDefinition,
-            globalTaskDefinition
+            globalTaskDefinition,
+            messages
         );
 
         const attachments = await this.db.getFullAttachments(user.id, [

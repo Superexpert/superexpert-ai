@@ -14,7 +14,7 @@ export async function executeServerTool(
     now: Date,
     timeZone: string,
     functionName: string,
-    functionArgs: any // eslint-disable-line @typescript-eslint/no-explicit-any
+    functionArgs: any, // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
     // Get user id
     const session = await auth();
@@ -34,7 +34,6 @@ export async function executeServerTool(
             id: agentId,
             name: agentName,
         },
-        messages: [],
         db: prisma
     };
 

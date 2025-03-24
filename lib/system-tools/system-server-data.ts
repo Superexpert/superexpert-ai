@@ -1,26 +1,29 @@
-// import { registerServerDataTool, ServerDataBase, Tool  } from '@superexpert-ai/framework';
+import { registerServerDataTool } from "@superexpert-ai/framework";
 
-// export class SystemServerData extends ServerDataBase {
-//     @Tool({ name: 'loadProfile', description: 'Load the user profile' })
-//     public async loadProfile() {
-//         // Load the current user's profile from the database
-//         const profile = await this.db.profiles.findMany({
-//             where: {
-//                 userId: this.user.id,
-//             },
-//         });
 
-//         // Convert the profile to a JSON object
-//         const profileJson = profile.reduce(
-//             (acc: { [key: string]: string }, curr) => {
-//                 acc[curr.name] = curr.value;
-//                 return acc;
-//             },
-//             {}
-//         );
+registerServerDataTool({
+    name: 'loadProfile', 
+    description: 'Load the user profile.',
+    async function() {
+        // Load the current user's profile from the database
+        const profile = await this.db.profiles.findMany({
+            where: {
+                userId: this.user.id,
+            },
+        });
 
-//         return `User Profile: ${JSON.stringify(profileJson, null, 2)}`;
-//     }
-// }
+        // Convert the profile to a JSON object
+        const profileJson = profile.reduce(
+            (acc: { [key: string]: string }, curr) => {
+                acc[curr.name] = curr.value;
+                return acc;
+            },
+            {}
+        );
 
-// registerServerDataTool(SystemServerData);
+        return `User Profile: ${JSON.stringify(profileJson, null, 2)}`;
+    },
+});
+
+
+

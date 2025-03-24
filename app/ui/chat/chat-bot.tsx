@@ -336,7 +336,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     };
 
     const appendMessage = (
-        role: 'user' | 'assistant' | 'success',
+        role: 'user' | 'assistant',
         text: string
     ) => {
         setMessages((prevMessages) => [...prevMessages, { role, text }]);
