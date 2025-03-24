@@ -1,7 +1,8 @@
 import { DBService } from '@/lib/db/db-service';
 import { MessageAI, ToolAI, User, LLMModelConfiguration, callServerDataTool, ServerDataToolContext } from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
-import { getTools } from './tools-builder';
+import { buildTools } from './build-tools';
+import { prisma } from '@/lib/db/prisma';
 
 export class TaskMachine {
     private db: DBService;
@@ -123,7 +124,7 @@ export class TaskMachine {
         ];
 
 
-        const tools = getTools(toolIds);
+        const tools = buildTools(toolIds);
 
         console.log("TOOLS");
         console.dir(tools, { depth: null });
@@ -156,6 +157,7 @@ export class TaskMachine {
                 name: agent.name,
             },
             messages: [],
+            db: prisma,
         };
         for (const serverDataId of serverDataIds) {
             const serverData = await callServerDataTool(serverDataId, context, {});

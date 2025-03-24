@@ -20,7 +20,6 @@ import {
     ToolCall,
     getClientTool,
     callClientTool,
-    getThemeList
 } from '@superexpert-ai/framework';
 import Modal from '@/app/ui/modal';
 

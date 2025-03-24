@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
 import { getUserId } from '../user';
+import { prisma } from '@/lib/db/prisma';
 
 export async function executeServerTool(
     agentId: string,
@@ -34,6 +35,7 @@ export async function executeServerTool(
             name: agentName,
         },
         messages: [],
+        db: prisma
     };
 
     console.log('functionArgs');

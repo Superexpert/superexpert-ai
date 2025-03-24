@@ -1,4 +1,5 @@
 import { registerServerTool } from '@superexpert-ai/framework';
+import { prisma } from '@/lib/db/prisma';
 
 
 registerServerTool({
@@ -7,15 +8,72 @@ registerServerTool({
     parameters: [
         {
             name: 'location',
+            type: 'string',
             description: 'location to get the weather',
             enum: ['Boston', 'Paris'],
         },
+        {
+            name: 'unit',
+            type: 'string',
+            description: 'location to get the weather',
+            enum: ['celsius', 'fahrenheit'],
+            required: false,
+        },
+ 
     ],
-    function(location: string) {
-        //const userId = this.context.user.id;
-        return `User: The weather in ${location} is awful!`;
+    function(location: string, unit: 'celsius' | 'fahrenheit' = 'celsius') {
+        const userId = this.user.id;
+        return `User ${userId}: The weather in ${location} is awful in ${unit}!`;
     },
 });
+
+
+registerServerTool({
+    name: 'remember',
+    description: 'Remember something for a duration of time',
+    parameters: [
+        {
+            name: 'content',
+            type: 'string',
+            description: 'The something to remember',
+        },
+        {
+            name: 'duration',
+            type: 'string',
+            description: 'The duration for which to remember the content. Defaults to "day" if not specified.',
+            enum: ['day', 'week', 'month', 'quarter', 'year', 'forever'],
+            required: false,
+            default: 'day',
+        },
+ 
+    ],
+    async function(content: string, duration: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'forever' = 'day') {
+        const expiresInDays = {
+            day: 1,
+            week: 7,
+            month: 30,
+            quarter: 90,
+            year: 365,
+            forever: 365 * 100, // Arbitrary large number for "forever"
+        }[duration];
+
+        console.log(`User ${this.user.id} wants to remember "${content}" for ${duration} (${expiresInDays} days) for agent ${this.agent.id}`);
+
+        await prisma.memories.create({
+            data: {
+                userId: this.user.id,
+                agentId: this.agent.id,
+                content: content,
+                expiresInDays: expiresInDays,
+            },
+        });
+        return `User ${this.user.id}: I will remember "${content}" for ${duration}.`;
+    },
+});
+
+
+
+
 
 // import {
 //     registerServerTool,
