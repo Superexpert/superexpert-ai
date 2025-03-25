@@ -5,5 +5,5 @@ import './lib/system-tools/system-server-tools';
 import './tools/server-tools';
 import './lib/system-tools/system-client-tools';
 import './tools/client-tools';
-
+import '@superexpert-ai/websearch-tool';
 

@@ -3,6 +3,7 @@ import { registerClientTool } from "@superexpert-ai/framework";
 
 registerClientTool({
     name: 'transition', 
+    category: 'system',
     description: 'Call this tool to end the current task and transition to a new task,',
     parameters: [
         {
@@ -33,7 +34,4 @@ registerClientTool({
         return `Successfully transitioned from ${previousTask.name} to ${newTask.name}`;
     }
 });
-
-
-
 

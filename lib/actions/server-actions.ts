@@ -37,8 +37,6 @@ export async function executeServerTool(
         db: prisma
     };
 
-    console.log('functionArgs');
-    console.dir(functionArgs, { depth: null });
     const result = callServerTool(functionName, context, functionArgs);
     return result;
 }

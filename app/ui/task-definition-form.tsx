@@ -17,15 +17,21 @@ import React, { ChangeEvent } from 'react';
 import '@/superexpert-ai.plugins.client';
 import {getThemeList} from '@superexpert-ai/framework'; 
 
+interface toolItem {
+    id: string;
+    description: string;
+    category?: string;
+}
+
 interface TaskDefinitionFormProps {
     agentId: string;
     agentName: string;
     taskDefinition: TaskDefinition;
     attachments: { id: string; fileName: string }[];
     corpora: { id: string; name: string; description: string }[];
-    serverData: { id: string; description: string }[];
-    serverTools: { id: string; description: string }[];
-    clientTools: { id: string; description: string }[];
+    serverData: toolItem[];
+    serverTools: toolItem[];
+    clientTools: toolItem[];
     llmModels: LLMModelDefinition[];
     isEditMode: boolean;
 }
@@ -410,7 +416,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverDataIds')}
                             />
                             <label htmlFor={`serverData-${item.id}`}>
-                                {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -435,7 +442,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverToolIds')}
                             />
                             <label htmlFor={`serverTools-${item.id}`}>
-                                {item.id} &mdash; {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -459,7 +467,8 @@ export default function TaskDefinitionForm({
                                 {...register('clientToolIds')}
                             />
                             <label htmlFor={`clientTools-${item.id}`}>
-                                {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}

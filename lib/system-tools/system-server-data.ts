@@ -3,6 +3,7 @@ import { registerServerDataTool } from "@superexpert-ai/framework";
 
 registerServerDataTool({
     name: 'loadProfile', 
+    category: 'system',
     description: 'Load the user profile.',
     async function() {
         // Load the current user's profile from the database
@@ -24,6 +25,3 @@ registerServerDataTool({
         return `User Profile: ${JSON.stringify(profileJson, null, 2)}`;
     },
 });
-
-
-
