@@ -27,7 +27,6 @@
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.5.0",
     "@superexpert-ai/framework": "^0.1.0-alpha.16",
-    "@superexpert-ai/websearch-tool": "^0.1.0-alpha.5",
     "@typescript-eslint/parser": "^8.23.0",
     "bcryptjs": "^2.4.3",
     "comment-parser": "^1.4.1",
