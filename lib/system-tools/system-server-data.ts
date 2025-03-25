@@ -1,9 +1,11 @@
-import { registerServerDataTool } from '@/lib/plugin-registry';
-import { ServerDataBase, Tool } from '@/lib/task-definition-types';
+import { registerServerDataTool } from "@superexpert-ai/framework";
 
-export class SystemServerData extends ServerDataBase {
-    @Tool({ name: 'loadProfile', description: 'Load the user profile' })
-    public async loadProfile() {
+
+registerServerDataTool({
+    name: 'loadProfile', 
+    category: 'system',
+    description: 'Load the user profile.',
+    async function() {
         // Load the current user's profile from the database
         const profile = await this.db.profiles.findMany({
             where: {
@@ -21,7 +23,5 @@ export class SystemServerData extends ServerDataBase {
         );
 
         return `User Profile: ${JSON.stringify(profileJson, null, 2)}`;
-    }
-}
-
-registerServerDataTool(SystemServerData);
+    },
+});

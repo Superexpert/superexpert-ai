@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getLLMModel} from '@/lib/plugin-registry';
+import { getLLM} from '@superexpert-ai/framework';
 
 export interface TaskDefinition {
     id?: string;
@@ -55,26 +55,26 @@ export const serverTaskDefinitionSchema = clientTaskDefinitionSchema
     .superRefine((data, ctx) => {
         if (data.modelId === 'global') return;
         
-        const selectedModel = getLLMModel(data.modelId);
+        const selectedModel = getLLM(data.modelId);
         if (!selectedModel) {
             data.maximumOutputTokens = null;
             data.temperature = null;
         } else {
             if (data.maximumOutputTokens) {
-                if (data.maximumOutputTokens > selectedModel.maximumOutputTokens) {
+                if (data.maximumOutputTokens > selectedModel.definition.maximumOutputTokens) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         path: ['maximumOutputTokens'],
-                        message: `Maximum output tokens cannot exceed ${selectedModel.maximumOutputTokens.toLocaleString()} for the selected model.`,
+                        message: `Maximum output tokens cannot exceed ${selectedModel.definition.maximumOutputTokens.toLocaleString()} for the selected model.`,
                     });
                 }
             }
             if (data.temperature) {
-                if (data.temperature > selectedModel.maximumTemperature) {
+                if (data.temperature > selectedModel.definition.maximumTemperature) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
                         path: ['temperature'],
-                        message: `Temperature cannot exceed ${selectedModel.maximumTemperature.toLocaleString()} for the selected model.`,
+                        message: `Temperature cannot exceed ${selectedModel.definition.maximumTemperature.toLocaleString()} for the selected model.`,
                     });
                 }
             }

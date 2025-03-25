@@ -1,5 +1,4 @@
 'use server';
-import { ToolsBuilder } from '@/lib/tools-builder';
 import { TaskDefinition, serverTaskDefinitionSchema } from '@/lib/task-definition';
 import { DBAdminService } from '@/lib/db/db-admin-service';
 import { DBService } from '@/lib/db/db-service';
@@ -11,7 +10,7 @@ import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-em
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
-import { getLLMModels } from '@/lib/plugin-registry';
+import { getLLMDefinitions, getServerToolList, getServerDataToolList, getClientToolList } from '@superexpert-ai/framework';
 
 //** TaskDefinitionForm **//
 
@@ -27,11 +26,10 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
 
     const corpora = await db.getCorporaList(userId);
 
-    const builder = new ToolsBuilder();
-    const serverData = builder.getServerDataList();
-    const serverTools = builder.getServerToolList();
-    const clientTools = builder.getClientToolList();
-    const llmModels = getLLMModels();
+    const serverData = getServerDataToolList();
+    const serverTools = getServerToolList();
+    const clientTools = getClientToolList();
+    const llmModels = getLLMDefinitions();
 
     return {
         attachments,

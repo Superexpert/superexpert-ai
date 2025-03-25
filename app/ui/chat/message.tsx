@@ -2,7 +2,7 @@ import styles from '@/styles/chat-bot/default.module.css';
 import Markdown from 'react-markdown';
 
 export type MessageProps = {
-    role: 'user' | 'assistant' | 'tool' | 'success' | 'system';
+    role: 'user' | 'assistant' | 'tool' | 'system';
     text: string;
 };
 
@@ -18,14 +18,6 @@ const AssistantMessage = ({ text }: { text: string }) => {
     );
 };
 
-const SuccessMessage = ({ src }: { src: string }) => {
-    return (
-        <div className={styles.assistantMessage}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt={'Success image'} />
-        </div>
-    );
-};
 
 export const Message = ({ role, text }: MessageProps) => {
     switch (role) {
@@ -33,8 +25,6 @@ export const Message = ({ role, text }: MessageProps) => {
             return <UserMessage text={text} />;
         case 'assistant':
             return <AssistantMessage text={text} />;
-        case 'success':
-            return <SuccessMessage src={text} />;
         default:
             return null;
     }

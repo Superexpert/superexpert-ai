@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--disable-warning=DEP0040' next dev --turbopack",
+    "refresh": "npm uninstall @superexpert-ai/framework && npm install @superexpert-ai/framework@alpha",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
@@ -25,6 +26,7 @@
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.5.0",
+    "@superexpert-ai/framework": "^0.1.0-alpha.16",
     "@typescript-eslint/parser": "^8.23.0",
     "bcryptjs": "^2.4.3",
     "comment-parser": "^1.4.1",
@@ -47,6 +49,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.22.0",
+    "@prisma/client": "^6.5.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",

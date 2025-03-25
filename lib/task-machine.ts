@@ -1,10 +1,8 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI } from '@/lib/message';
+import { MessageAI, ToolAI, User, LLMModelConfiguration, callServerDataTool, ServerDataToolContext } from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
-import { ToolAI } from '@/lib/tool-ai';
-import { ToolsBuilder } from './tools-builder';
-import { User } from '@/lib/user';
-import { LLMModelConfiguration } from './adapters/llm-adapters/llm-model-configuration';
+import { buildTools } from './build-tools';
+import { prisma } from '@/lib/db/prisma';
 
 export class TaskMachine {
     private db: DBService;
@@ -81,7 +79,8 @@ export class TaskMachine {
             agentId,
             agentName,
             taskDefinition,
-            globalTaskDefinition
+            globalTaskDefinition,
+            previousMessages
         );
 
         // Get tools
@@ -117,13 +116,16 @@ export class TaskMachine {
         const toolIds: string[] = [
             ...new Set([
                 ...taskDefinition.serverToolIds,
-                ...taskDefinition.clientToolIds,
                 ...globalTaskDefinition.serverToolIds,
+                ...taskDefinition.serverDataIds,
+                ...globalTaskDefinition.serverDataIds,
+                ...taskDefinition.clientToolIds,
                 ...globalTaskDefinition.clientToolIds,
             ]),
         ];
-        const builder = new ToolsBuilder();
-        const tools = await builder.getTools(toolIds);
+
+
+        const tools = buildTools(toolIds);
         return tools;
     }
 
@@ -131,7 +133,8 @@ export class TaskMachine {
         user: User,
         agent: {id:string, name:string},
         taskDefinition: TaskDefinition,
-        globalTaskDefinition: TaskDefinition
+        globalTaskDefinition: TaskDefinition,
+        messages: MessageAI[]
     ): Promise<string> {
         // merge server data ids
         const serverDataIds: string[] = [
@@ -141,9 +144,21 @@ export class TaskMachine {
             ]),
         ];
         let result = '';
-        const builder = new ToolsBuilder();
+        const context: ServerDataToolContext = {
+            user: {
+                id: user.id!,
+                now: new Date(),
+                timeZone: user.timeZone,
+            },
+            agent: {
+                id: agent.id,
+                name: agent.name,
+            },
+            messages: messages,
+            db: prisma,
+        };
         for (const serverDataId of serverDataIds) {
-            const serverData = await builder.callServerData(user, agent, serverDataId);
+            const serverData = await callServerDataTool(serverDataId, context, {});
             result += `${serverData}\n`;
         }
         return result;
@@ -154,14 +169,16 @@ export class TaskMachine {
         agentId: string,
         agentName: string,
         taskDefinition: TaskDefinition,
-        globalTaskDefinition: TaskDefinition
+        globalTaskDefinition: TaskDefinition,
+        messages: MessageAI[]
     ): Promise<string> {
         const agent = {id: agentId, name: agentName};
         const serverData = await this.getServerData(
             user,
             agent,
             taskDefinition,
-            globalTaskDefinition
+            globalTaskDefinition,
+            messages
         );
 
         const attachments = await this.db.getFullAttachments(user.id, [

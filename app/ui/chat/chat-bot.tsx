@@ -1,5 +1,6 @@
 'use client';
 
+import '@/superexpert-ai.plugins.client';
 import React, {
     useState,
     useEffect,
@@ -9,14 +10,18 @@ import React, {
 } from 'react';
 import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/ui/chat/message';
-import { MessageAI, ToolCall } from '@/lib/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert-ai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
-import { ClientToolsBuilder } from '@/lib/client/client-tools-builder';
-import { ClientContext } from '@/lib/client/client-context';
-import { ClientTaskDefinition } from '@/lib/client/client-task-definition';
+import {
+    ClientToolContext,
+    ClientTaskDefinition,
+    getTheme,
+    MessageAI,
+    ToolCall,
+    getClientTool,
+    callClientTool,
+} from '@superexpert-ai/framework';
 import Modal from '@/app/ui/modal';
-import { getTheme } from '@/lib/plugin-registry';
 
 const getNow = () => {
     return new Date();
@@ -77,7 +82,6 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                 if (!value) continue;
 
                 const chunk = decoder.decode(value, { stream: true }); // Decode the chunk
-
 
                 // **Parse the chunk to extract JSON**
                 const events = chunk.split('\n'); // Split by newline to handle multiple messages
@@ -269,7 +273,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         queuedMessagesRef.current = [...queuedMessagesRef.current, ...messages];
     };
 
-    const clientContext = new ClientContext(
+    const clientContext = new ClientToolContext(
         tasks,
         getCurrentTask,
         getTask,
@@ -290,12 +294,11 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         const functionArgs = JSON.parse(toolCall.function.arguments);
 
         // Execute client tool
-        const clientToolsBuilder = new ClientToolsBuilder();
-        const clientTool = clientToolsBuilder.getClientTool(functionName);
+        const clientTool = getClientTool(functionName);
         if (clientTool) {
-            const result = await clientToolsBuilder.callClientTool(
+            const result = await callClientTool(
+                clientTool.name,
                 clientContext,
-                clientTool.methodName,
                 functionArgs
             );
             console.log('client tool result', result);
@@ -333,7 +336,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     };
 
     const appendMessage = (
-        role: 'user' | 'assistant' | 'success',
+        role: 'user' | 'assistant',
         text: string
     ) => {
         setMessages((prevMessages) => [...prevMessages, { role, text }]);
@@ -345,7 +348,8 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
             ? getGlobalTask().theme
             : getCurrentTask().theme;
 
-    const styles = getTheme(currentTheme);
+    const theme = getTheme(currentTheme);
+    const styles = theme?.theme;
 
     return (
         <div>

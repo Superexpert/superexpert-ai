@@ -11,11 +11,17 @@ import {
     saveAttachmentAction,
     deleteAttachmentAction,
 } from '@/lib/actions/admin-actions';
-import { LLMModelDefinition } from '@/lib/adapters/llm-adapters/llm-model-definition';
+import { LLMModelDefinition } from '@superexpert-ai/framework';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
 import '@/superexpert-ai.plugins.client';
-import {getThemes} from '@/lib/plugin-registry'; 
+import {getThemeList} from '@superexpert-ai/framework'; 
+
+interface toolItem {
+    id: string;
+    description: string;
+    category?: string;
+}
 
 interface TaskDefinitionFormProps {
     agentId: string;
@@ -23,9 +29,9 @@ interface TaskDefinitionFormProps {
     taskDefinition: TaskDefinition;
     attachments: { id: string; fileName: string }[];
     corpora: { id: string; name: string; description: string }[];
-    serverData: { id: string; description: string }[];
-    serverTools: { id: string; description: string }[];
-    clientTools: { id: string; description: string }[];
+    serverData: toolItem[];
+    serverTools: toolItem[];
+    clientTools: toolItem[];
     llmModels: LLMModelDefinition[];
     isEditMode: boolean;
 }
@@ -51,7 +57,7 @@ export default function TaskDefinitionForm({
     const router = useRouter();
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-    const themes = getThemes();
+    const themes = getThemeList();
 
     const {
         register,
@@ -275,7 +281,7 @@ export default function TaskDefinitionForm({
                                     {...register('theme')}
                                 />
                                 <label htmlFor={`${theme.id}`}>
-                                    {theme.name}
+                                    {theme.id} &mdash; {theme.description}
                                 </label>
                             </div>
                         ))}
@@ -410,7 +416,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverDataIds')}
                             />
                             <label htmlFor={`serverData-${item.id}`}>
-                                {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -435,7 +442,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverToolIds')}
                             />
                             <label htmlFor={`serverTools-${item.id}`}>
-                                {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -459,7 +467,8 @@ export default function TaskDefinitionForm({
                                 {...register('clientToolIds')}
                             />
                             <label htmlFor={`clientTools-${item.id}`}>
-                                {item.description}
+                                {item.id} {item.category && `(${item.category})`} 
+                                &mdash; {item.description}
                             </label>
                         </div>
                     ))}
@@ -499,7 +508,7 @@ export default function TaskDefinitionForm({
                                 {...register('modelId')}
                             />
                             <label htmlFor={`model-${item.id}`}>
-                                {item.name}:{item.description}
+                                {item.name} &mdash; {item.description}
                             </label>
                         </div>
                     ))}

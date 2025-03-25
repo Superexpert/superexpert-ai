@@ -1,12 +1,12 @@
 'use server';
-import { ToolsBuilder } from '@/lib/tools-builder';
 import { auth, signIn } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
-import { User, getUserId } from '@/lib/user';
+import { ClientTaskDefinition, callServerTool, ServerToolContext } from '@superexpert-ai/framework';
 import { redirect } from 'next/navigation';
 import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
-import { ClientTaskDefinition } from '../client/client-task-definition';
+import { getUserId } from '../user';
+import { prisma } from '@/lib/db/prisma';
 
 export async function executeServerTool(
     agentId: string,
@@ -14,22 +14,30 @@ export async function executeServerTool(
     now: Date,
     timeZone: string,
     functionName: string,
-    functionArgs: any // eslint-disable-line @typescript-eslint/no-explicit-any
+    functionArgs: any, // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
     // Get user id
     const session = await auth();
     if (!session || !session.user) {
         throw new Error('User not authenticated');
     }
-    const user = session.user as User;
-    user.now = now;
-    user.timeZone = timeZone;
-
-    const agent = {id: agentId, name: agentName};
+    const user = session.user;
 
     // Execute server tool
-    const builder = new ToolsBuilder();
-    const result = builder.callServerTool(user, agent, functionName, functionArgs);
+    const context: ServerToolContext = {
+        user: {
+            id: user.id!,
+            now: now,
+            timeZone: timeZone,
+        },
+        agent: {
+            id: agentId,
+            name: agentName,
+        },
+        db: prisma
+    };
+
+    const result = callServerTool(functionName, context, functionArgs);
     return result;
 }
 

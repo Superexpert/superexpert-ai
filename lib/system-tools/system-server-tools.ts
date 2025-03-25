@@ -1,35 +1,33 @@
-import { registerServerTool } from '@/lib/plugin-registry';
+import { registerServerTool } from '@superexpert-ai/framework';
 
-import {
-    ServerToolsBase,
-    Tool,
-    ToolParameter,
-} from '@/lib/task-definition-types';
-
-export class SystemServerTools extends ServerToolsBase {
-    @Tool({
-        name: 'getCurrentTime',
-        description: 'Gets the current time including the time zone.',
-    })
-    public async getCurrentTime() {
+registerServerTool({
+    name: 'getCurrentTime',
+    category: 'system',
+    description: 'Gets the current time including the time zone.',
+    async function() {
         return `The current time is ${this.user.now.toLocaleString()} in the time zone ${
             this.user.timeZone
         }`;
-    }
+    },
+});
 
-    @Tool({ name: 'updateProfile', description: `Update the user's profile` })
-    public async updateProfile(
-        @ToolParameter({
+registerServerTool({
+    name: 'updateProfile',
+    category: 'system',
+    description: `Update the user's profile`,
+    parameters: [
+        {
             name: 'name',
+            type: 'string',
             description: 'The name of the profile property to update',
-        })
-        name: string,
-        @ToolParameter({
+        },
+        {
             name: 'value',
+            type: 'string',
             description: 'The new value for the profile property',
-        })
-        value: string
-    ) {
+        },
+    ],
+    async function(name, value) {
         // Update the user's profile in the database
         await this.db.profiles.upsert({
             where: {
@@ -50,9 +48,6 @@ export class SystemServerTools extends ServerToolsBase {
             },
         });
 
-        return `Successfully updated profile property ${name} to ${value} for agent ${this.agent.name} (${this.agent.id})}`;
-    }
-}
-
-registerServerTool(SystemServerTools);
-
+        return `Successfully updated profile property ${name} to ${value}`;
+    },
+});
