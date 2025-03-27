@@ -153,6 +153,32 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         }
     }, [inputDisabled]);
 
+    // Always open all chat links in a new window
+    useEffect(() => {
+        const handleClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (target.tagName === 'A' && (target as HTMLAnchorElement).href) {
+                event.preventDefault();
+                window.open(
+                    (target as HTMLAnchorElement).href,
+                    '_blank',
+                    'noopener,noreferrer'
+                );
+            }
+        };
+
+        document
+            .getElementById('messages')!
+            .addEventListener('click', handleClick);
+
+        // Cleanup the event listener on component unmount
+        return () => {
+            document
+                .getElementById('messages')!
+                .removeEventListener('click', handleClick);
+        };
+    }, []);
+
     const handleSubmit = (e: { preventDefault: () => void }) => {
         e.preventDefault();
         if (!userInput.trim()) return;
@@ -335,10 +361,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
         });
     };
 
-    const appendMessage = (
-        role: 'user' | 'assistant',
-        text: string
-    ) => {
+    const appendMessage = (role: 'user' | 'assistant', text: string) => {
         setMessages((prevMessages) => [...prevMessages, { role, text }]);
     };
 
@@ -354,7 +377,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
     return (
         <div>
             <div className={styles.chatContainer} ref={mainContentRef}>
-                <div className={styles.messages}>
+                <div id="messages" className={styles.messages}>
                     {messages.map((msg, index) => (
                         <Message key={index} role={msg.role} text={msg.text} />
                     ))}
