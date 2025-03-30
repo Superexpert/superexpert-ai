@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { TaskDefinition, clientTaskDefinitionSchema } from '@/lib/task-definition';
+import {
+    TaskDefinition,
+    clientTaskDefinitionSchema,
+} from '@/lib/task-definition';
 import {
     saveTaskDefinitionAction,
     deleteTaskDefinitionAction,
@@ -15,7 +18,8 @@ import { LLMModelDefinition } from '@superexpert-ai/framework';
 import DemoMode from '@/app/ui/demo-mode';
 import React, { ChangeEvent } from 'react';
 import '@/superexpert-ai.plugins.client';
-import {getThemeList} from '@superexpert-ai/framework'; 
+import { getThemeList } from '@superexpert-ai/framework';
+import { CollapsiblePanel } from './collapsible-panel';
 
 interface toolItem {
     id: string;
@@ -53,6 +57,7 @@ export default function TaskDefinitionForm({
         useState('');
     const [maximumTemperatureDescription, setMaximumTemperatureDescription] =
         useState('');
+    const [expandedPanel, setExpandedPanel] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -168,13 +173,19 @@ export default function TaskDefinitionForm({
         );
     };
 
+    const handleToggle = (panelId: string) => {
+        setExpandedPanel((prev) => (prev === panelId ? null : panelId));
+    };
+
     return (
         <>
             <DemoMode />
 
             <div className="formCard">
                 <div>
-                    <Link href={`/admin/${agentName}/task-definitions`}>&lt; Back</Link>
+                    <Link href={`/admin/${agentName}/task-definitions`}>
+                        &lt; Back
+                    </Link>
                 </div>
 
                 <h1>
@@ -192,103 +203,117 @@ export default function TaskDefinitionForm({
                     <div>
                         {serverError && <p className="error">{serverError}</p>}
                     </div>
-                    <div>
-                        <h2>Task Name</h2>
-                        <label>Task Name</label>
-                        <div className="instructions">
-                            An agent uses the task name to transition to a task.
-                            The task name should be lower-case and a single word
-                            with hyphens allowed.
-                        </div>
-                        <input
-                            {...register('name')}
-                            type="text"
-                            readOnly={taskDefinition.isSystem}
-                        />
-                        {errors.name && (
-                            <p className="error">{errors.name.message}</p>
-                        )}
-                    </div>
 
-                    <div>
-                        <h2>Description</h2>
-                        <label>Description</label>
-                        <div className="instructions">
-                            The task description can be anything that you want.
-                            Use the task description to describe the purpose of
-                            the task.
-                        </div>
-                        <textarea
-                            {...register('description')}
-                            readOnly={taskDefinition.isSystem}></textarea>
-                        {errors.description && (
-                            <p className="error">
-                                {errors.description.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <h2>Instructions</h2>
-                        <label>Instructions</label>
-                        <div className="instructions">
-                            The task instructions are for the AI agent. This is
-                            where you perform your prompt engineering. These
-                            instructions are given to the agent every time a
-                            user prompts the agent while this task is active.
-                            Instructions for individual tasks are combined with
-                            the instructions from the global task.
-                        </div>
-                        <textarea {...register('instructions')}></textarea>
-                        {errors.instructions && (
-                            <p className="error">
-                                {errors.instructions.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <h2>Theme</h2>
-                        <label>Theme</label>
-                        <div className="instructions">
-                            The theme determines the appearance of your chat
-                            bot.
-                        </div>
-                        {taskDefinition.name != 'global' && (
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    className="checkbox"
-                                    type="radio"
-                                    id="theme-global"
-                                    value="global"
-                                    {...register('theme')}
-                                />
-                                <label htmlFor="theme-global">
-                                    global: Use the theme from the global task
-                                    definition
-                                </label>
+                    <CollapsiblePanel
+                        id="general"
+                        title="General"
+                        expandedPanel={expandedPanel}
+                        onToggle={handleToggle}>
+                        <div>
+                            <h2>Task Name</h2>
+                            <label>Task Name</label>
+                            <div className="instructions">
+                                An agent uses the task name to transition to a
+                                task. The task name should be lower-case and a
+                                single word with hyphens allowed.
                             </div>
-                        )}
-                        {themes.map((theme) => (
-                            <div
-                                key={theme.id}
-                                className="flex items-center space-x-2">
-                                <input
-                                    className="checkbox"
-                                    type="radio"
-                                    id={theme.id}
-                                    value={theme.id}
-                                    {...register('theme')}
-                                />
-                                <label htmlFor={`${theme.id}`}>
-                                    {theme.id} &mdash; {theme.description}
-                                </label>
+                            <input
+                                {...register('name')}
+                                type="text"
+                                readOnly={taskDefinition.isSystem}
+                            />
+                            {errors.name && (
+                                <p className="error">{errors.name.message}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <h2>Description</h2>
+                            <label>Description</label>
+                            <div className="instructions">
+                                The task description can be anything that you
+                                want. Use the task description to describe the
+                                purpose of the task.
                             </div>
-                        ))}
-                        {errors.theme && (
-                            <p className="error">{errors.theme.message}</p>
-                        )}
-                    </div>
+                            <textarea
+                                {...register('description')}
+                                readOnly={taskDefinition.isSystem}></textarea>
+                            {errors.description && (
+                                <p className="error">
+                                    {errors.description.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <h2>Instructions</h2>
+                            <label>Instructions</label>
+                            <div className="instructions">
+                                The task instructions are for the AI agent. This
+                                is where you perform your prompt engineering.
+                                These instructions are given to the agent every
+                                time a user prompts the agent while this task is
+                                active. Instructions for individual tasks are
+                                combined with the instructions from the global
+                                task.
+                            </div>
+                            <textarea {...register('instructions')}></textarea>
+                            {errors.instructions && (
+                                <p className="error">
+                                    {errors.instructions.message}
+                                </p>
+                            )}
+                        </div>
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel
+                        id="theme"
+                        title="Theme"
+                        expandedPanel={expandedPanel}
+                        onToggle={handleToggle}>
+                        <div>
+                            <h2>Theme</h2>
+                            <label>Theme</label>
+                            <div className="instructions">
+                                The theme determines the appearance of your chat
+                                bot.
+                            </div>
+                            {taskDefinition.name != 'global' && (
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        className="checkbox"
+                                        type="radio"
+                                        id="theme-global"
+                                        value="global"
+                                        {...register('theme')}
+                                    />
+                                    <label htmlFor="theme-global">
+                                        global: Use the theme from the global
+                                        task definition
+                                    </label>
+                                </div>
+                            )}
+                            {themes.map((theme) => (
+                                <div
+                                    key={theme.id}
+                                    className="flex items-center space-x-2">
+                                    <input
+                                        className="checkbox"
+                                        type="radio"
+                                        id={theme.id}
+                                        value={theme.id}
+                                        {...register('theme')}
+                                    />
+                                    <label htmlFor={`${theme.id}`}>
+                                        {theme.id} &mdash; {theme.description}
+                                    </label>
+                                </div>
+                            ))}
+                            {errors.theme && (
+                                <p className="error">{errors.theme.message}</p>
+                            )}
+                        </div>
+                    </CollapsiblePanel>
 
                     <div>
                         <h2>Start New Thread</h2>
@@ -416,7 +441,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverDataIds')}
                             />
                             <label htmlFor={`serverData-${item.id}`}>
-                                {item.id} {item.category && `(${item.category})`} 
+                                {item.id}{' '}
+                                {item.category && `(${item.category})`}
                                 &mdash; {item.description}
                             </label>
                         </div>
@@ -442,7 +468,8 @@ export default function TaskDefinitionForm({
                                 {...register('serverToolIds')}
                             />
                             <label htmlFor={`serverTools-${item.id}`}>
-                                {item.id} {item.category && `(${item.category})`} 
+                                {item.id}{' '}
+                                {item.category && `(${item.category})`}
                                 &mdash; {item.description}
                             </label>
                         </div>
@@ -467,7 +494,8 @@ export default function TaskDefinitionForm({
                                 {...register('clientToolIds')}
                             />
                             <label htmlFor={`clientTools-${item.id}`}>
-                                {item.id} {item.category && `(${item.category})`} 
+                                {item.id}{' '}
+                                {item.category && `(${item.category})`}
                                 &mdash; {item.description}
                             </label>
                         </div>
