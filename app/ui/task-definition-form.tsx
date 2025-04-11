@@ -57,7 +57,6 @@ export default function TaskDefinitionForm({
         useState('');
     const [maximumTemperatureDescription, setMaximumTemperatureDescription] =
         useState('');
-    const [expandedPanel, setExpandedPanel] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -173,10 +172,6 @@ export default function TaskDefinitionForm({
         );
     };
 
-    const handleToggle = (panelId: string) => {
-        setExpandedPanel((prev) => (prev === panelId ? null : panelId));
-    };
-
     return (
         <>
             <DemoMode />
@@ -204,11 +199,7 @@ export default function TaskDefinitionForm({
                         {serverError && <p className="error">{serverError}</p>}
                     </div>
 
-                    <CollapsiblePanel
-                        id="general"
-                        title="General"
-                        expandedPanel={expandedPanel}
-                        onToggle={handleToggle}>
+                    <CollapsiblePanel title="General" openByDefault={true}>
                         <div>
                             <h2>Task Name</h2>
                             <label>Task Name</label>
@@ -266,11 +257,306 @@ export default function TaskDefinitionForm({
                         </div>
                     </CollapsiblePanel>
 
-                    <CollapsiblePanel
-                        id="theme"
-                        title="Theme"
-                        expandedPanel={expandedPanel}
-                        onToggle={handleToggle}>
+                    <CollapsiblePanel title="Messages">
+                        <div>
+                            <h2>Start New Thread</h2>
+                            <label>Start New Thread</label>
+                            <div className="instructions">
+                                Start a new message thread when the user starts
+                                this task. Enabling this option will erase the
+                                agent&apos;s memory of the previous messages in
+                                the conversation when the user starts the new
+                                task.
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    className="checkbox"
+                                    id="startNewThread"
+                                    {...register('startNewThread')}
+                                />
+                                <label htmlFor="startNewThread">Enable</label>
+                            </div>
+                            {errors.startNewThread && (
+                                <p className="error">
+                                    {errors.startNewThread.message}
+                                </p>
+                            )}
+                        </div>
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel title="AI Model">
+                        <h2>AI Model</h2>
+                        <div className="instructions">
+                            Select the AI model that the agent will use for this
+                            task. The global task model is used when the task
+                            model is set to &apos;global&apos;.
+                        </div>
+                        <DemoMode text="In Demo Mode, you can only use GPT-4o mini." />
+
+                        {taskDefinition.name != 'global' && (
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="radio"
+                                    id="model-global"
+                                    value="global"
+                                    {...register('modelId')}
+                                />
+                                <label htmlFor="model-global">
+                                    global: Use the model from the global task
+                                    definition
+                                </label>
+                            </div>
+                        )}
+                        {llmModels.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="radio"
+                                    id={`model-${item.id}`}
+                                    value={item.id}
+                                    {...register('modelId')}
+                                />
+                                <label htmlFor={`model-${item.id}`}>
+                                    {item.name} &mdash; {item.description}
+                                </label>
+                            </div>
+                        ))}
+
+                        {selectedModelId !== 'global' && (
+                            <>
+                                <h2>Advanced AI Model Settings</h2>
+                                <div className="instructions">
+                                    The advanced AI model settings allow you to
+                                    customize the AI model&apos;s behavior.
+                                </div>
+
+                                <label>Maximum Output Tokens</label>
+                                <div className="instructions">
+                                    The maximum output tokens setting cuts off
+                                    the number of tokens that the AI model can
+                                    generate. This setting is useful for
+                                    preventing the AI model from generating too
+                                    much text.
+                                </div>
+
+                                <div className="instructions">
+                                    {maximumOutputTokensDescription}
+                                </div>
+                                <input
+                                    {...register('maximumOutputTokens', {
+                                        setValueAs: (value) =>
+                                            !value ? null : Number(value),
+                                    })}
+                                    type="number"
+                                />
+                                {errors.maximumOutputTokens && (
+                                    <p className="error">
+                                        {errors.maximumOutputTokens.message}
+                                    </p>
+                                )}
+
+                                <div>
+                                    <label>Temperature</label>
+                                    <div className="instructions">
+                                        The temperature setting controls the
+                                        randomness of the AI model&apos;s
+                                        output. A higher temperature will
+                                        produce more random output.
+                                    </div>
+                                    <div className="instructions">
+                                        {maximumTemperatureDescription}
+                                    </div>
+                                    <input
+                                        {...register('temperature', {
+                                            setValueAs: (value) =>
+                                                !value ? null : Number(value),
+                                        })}
+                                        type="number"
+                                        step="0.01"
+                                    />
+                                    {errors.temperature && (
+                                        <p className="error">
+                                            {errors.temperature.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel title="Context Data">
+                        <h2>Attachments</h2>
+                        <div className="instructions">
+                            Attach one or more files to this task.
+                        </div>
+                        {currentAttachments.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                {item.fileName}
+                                <button
+                                    type="button"
+                                    className="ml-4 btn btnSmall btnDanger"
+                                    onClick={() =>
+                                        handleDeleteAttachment(item.id)
+                                    }>
+                                    Delete
+                                </button>
+                            </div>
+                        ))}
+                        <div>
+                            <input
+                                type="file"
+                                accept=".txt,application/json,text/csv"
+                                form="none"
+                                onChange={handleUploadAttachment}
+                                disabled={isDemoMode}
+                            />
+
+                            <DemoMode text="In Demo Mode, attachments are disabled." />
+                        </div>
+
+                        <h2>Retrieval Augmented Generation</h2>
+                        <div className="instructions">
+                            Retrieval Augmented Generation augments each user
+                            chat message with text chunks retrieved from a
+                            corpus.
+                        </div>
+                        <div>
+                            <label>Corpus Limit</label>
+                            <div className="instructions">
+                                The maximum number of text chunks to retrieve
+                                from the corpus.
+                            </div>
+                            <input
+                                type="number"
+                                placeholder="Limit"
+                                {...register(`corpusLimit`, {
+                                    valueAsNumber: true,
+                                })}
+                            />
+                        </div>
+                        <div>
+                            <label>Corpus Similarity Threshold</label>
+                            <div className="instructions">
+                                Results are only returned if the similarity
+                                score between the user message and the corpus
+                                text is above this threshold.
+                            </div>
+                            <input
+                                type="number"
+                                placeholder="Threshold"
+                                {...register(`corpusSimilarityThreshold`, {
+                                    valueAsNumber: true,
+                                })}
+                            />
+                        </div>
+                        {corpora.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="checkbox"
+                                    id={`corpus-${item.id}`}
+                                    value={item.id}
+                                    {...register('corpusIds')}
+                                />
+                                <label htmlFor={`corpus-${item.id}`}>
+                                    {item.name} {item.description}
+                                </label>
+                            </div>
+                        ))}
+
+                        <h2>Server Data Tools</h2>
+                        <div className="instructions">
+                            Load custom data from the server that is shared with
+                            the agent. The server data can be anything that you
+                            want. For example, load the current user&apos;s
+                            profile, your company&apos;s vacation policies, or
+                            the latest product catalog. Enabling a tool in the
+                            global task will enable the tool for all tasks.
+                        </div>
+                        {serverData.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="checkbox"
+                                    id={`serverData-${item.id}`}
+                                    value={item.id}
+                                    {...register('serverDataIds')}
+                                />
+                                <label htmlFor={`serverData-${item.id}`}>
+                                    {item.id}{' '}
+                                    {item.category && `(${item.category})`}
+                                    &mdash; {item.description}
+                                </label>
+                            </div>
+                        ))}
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel title="Tools">
+                        <h2>Server Tools</h2>
+                        <div className="instructions">
+                            Server tools are custom functions that an agent can
+                            execute on the server. For example, update the
+                            user&apos;s profile, send an email, or query a
+                            database. Enabling a tool in the global task will
+                            enable the tool for all tasks.
+                        </div>
+                        {serverTools.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="checkbox"
+                                    id={`serverTools-${item.id}`}
+                                    value={item.id}
+                                    {...register('serverToolIds')}
+                                />
+                                <label htmlFor={`serverTools-${item.id}`}>
+                                    {item.id}{' '}
+                                    {item.category && `(${item.category})`}
+                                    &mdash; {item.description}
+                                </label>
+                            </div>
+                        ))}
+
+                        <h2>Client Tools</h2>
+                        <div className="instructions">
+                            Client tools are custom functions that an agent can
+                            execute on the client. For example, transition to a
+                            new task or show a modal dialog. Enabling a tool in
+                            the global task will enable the tool for all tasks.
+                        </div>
+                        {clientTools.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center space-x-2">
+                                <input
+                                    className="checkbox"
+                                    type="checkbox"
+                                    id={`clientTools-${item.id}`}
+                                    value={item.id}
+                                    {...register('clientToolIds')}
+                                />
+                                <label htmlFor={`clientTools-${item.id}`}>
+                                    {item.id}{' '}
+                                    {item.category && `(${item.category})`}
+                                    &mdash; {item.description}
+                                </label>
+                            </div>
+                        ))}
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel title="Theme">
                         <div>
                             <h2>Theme</h2>
                             <label>Theme</label>
@@ -314,292 +600,6 @@ export default function TaskDefinitionForm({
                             )}
                         </div>
                     </CollapsiblePanel>
-
-                    <div>
-                        <h2>Start New Thread</h2>
-                        <label>Start New Thread</label>
-                        <div className="instructions">
-                            Start a new message thread when the user starts this
-                            task. Enabling this option will erase the
-                            agent&apos;s memory of the previous messages in the
-                            conversation when the user starts the new task.
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                className="checkbox"
-                                id="startNewThread"
-                                {...register('startNewThread')}
-                            />
-                            <label htmlFor="startNewThread">Enable</label>
-                        </div>
-                        {errors.startNewThread && (
-                            <p className="error">
-                                {errors.startNewThread.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <h2>Attachments</h2>
-                    <div className="instructions">
-                        Attach one or more files to this task.
-                    </div>
-                    {currentAttachments.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            {item.fileName}
-                            <button
-                                type="button"
-                                className="ml-4 btn btnSmall btnDanger"
-                                onClick={() => handleDeleteAttachment(item.id)}>
-                                Delete
-                            </button>
-                        </div>
-                    ))}
-                    <div>
-                        <input
-                            type="file"
-                            accept=".txt,application/json,text/csv"
-                            form="none"
-                            onChange={handleUploadAttachment}
-                            disabled={isDemoMode}
-                        />
-
-                        <DemoMode text="In Demo Mode, attachments are disabled." />
-                    </div>
-
-                    <h2>Retrieval Augmented Generation</h2>
-                    <div className="instructions">
-                        Retrieval Augmented Generation augments each user chat
-                        message with text chunks retrieved from a corpus.
-                    </div>
-                    <div>
-                        <label>Corpus Limit</label>
-                        <div className="instructions">
-                            The maximum number of text chunks to retrieve from
-                            the corpus.
-                        </div>
-                        <input
-                            type="number"
-                            placeholder="Limit"
-                            {...register(`corpusLimit`, {
-                                valueAsNumber: true,
-                            })}
-                        />
-                    </div>
-                    <div>
-                        <label>Corpus Similarity Threshold</label>
-                        <div className="instructions">
-                            Results are only returned if the similarity score
-                            between the user message and the corpus text is
-                            above this threshold.
-                        </div>
-                        <input
-                            type="number"
-                            placeholder="Threshold"
-                            {...register(`corpusSimilarityThreshold`, {
-                                valueAsNumber: true,
-                            })}
-                        />
-                    </div>
-                    {corpora.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="checkbox"
-                                id={`corpus-${item.id}`}
-                                value={item.id}
-                                {...register('corpusIds')}
-                            />
-                            <label htmlFor={`corpus-${item.id}`}>
-                                {item.name} {item.description}
-                            </label>
-                        </div>
-                    ))}
-
-                    <h2>Server Data Tools</h2>
-                    <div className="instructions">
-                        Load custom data from the server that is shared with the
-                        agent. The server data can be anything that you want.
-                        For example, load the current user&apos;s profile, your
-                        company&apos;s vacation policies, or the latest product
-                        catalog. Enabling a tool in the global task will enable
-                        the tool for all tasks.
-                    </div>
-                    {serverData.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="checkbox"
-                                id={`serverData-${item.id}`}
-                                value={item.id}
-                                {...register('serverDataIds')}
-                            />
-                            <label htmlFor={`serverData-${item.id}`}>
-                                {item.id}{' '}
-                                {item.category && `(${item.category})`}
-                                &mdash; {item.description}
-                            </label>
-                        </div>
-                    ))}
-
-                    <h2>Server Tools</h2>
-                    <div className="instructions">
-                        Server tools are custom functions that an agent can
-                        execute on the server. For example, update the
-                        user&apos;s profile, send an email, or query a database.
-                        Enabling a tool in the global task will enable the tool
-                        for all tasks.
-                    </div>
-                    {serverTools.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="checkbox"
-                                id={`serverTools-${item.id}`}
-                                value={item.id}
-                                {...register('serverToolIds')}
-                            />
-                            <label htmlFor={`serverTools-${item.id}`}>
-                                {item.id}{' '}
-                                {item.category && `(${item.category})`}
-                                &mdash; {item.description}
-                            </label>
-                        </div>
-                    ))}
-
-                    <h2>Client Tools</h2>
-                    <div className="instructions">
-                        Client tools are custom functions that an agent can
-                        execute on the client. For example, transition to a new
-                        task or show a modal dialog. Enabling a tool in the
-                        global task will enable the tool for all tasks.
-                    </div>
-                    {clientTools.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="checkbox"
-                                id={`clientTools-${item.id}`}
-                                value={item.id}
-                                {...register('clientToolIds')}
-                            />
-                            <label htmlFor={`clientTools-${item.id}`}>
-                                {item.id}{' '}
-                                {item.category && `(${item.category})`}
-                                &mdash; {item.description}
-                            </label>
-                        </div>
-                    ))}
-
-                    <h2>AI Model</h2>
-                    <div className="instructions">
-                        Select the AI model that the agent will use for this
-                        task. The global task model is used when the task model
-                        is set to &apos;global&apos;.
-                    </div>
-                    <DemoMode text="In Demo Mode, you can only use GPT-4o mini." />
-
-                    {taskDefinition.name != 'global' && (
-                        <div className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="radio"
-                                id="model-global"
-                                value="global"
-                                {...register('modelId')}
-                            />
-                            <label htmlFor="model-global">
-                                global: Use the model from the global task
-                                definition
-                            </label>
-                        </div>
-                    )}
-                    {llmModels.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex items-center space-x-2">
-                            <input
-                                className="checkbox"
-                                type="radio"
-                                id={`model-${item.id}`}
-                                value={item.id}
-                                {...register('modelId')}
-                            />
-                            <label htmlFor={`model-${item.id}`}>
-                                {item.name} &mdash; {item.description}
-                            </label>
-                        </div>
-                    ))}
-
-                    {selectedModelId !== 'global' && (
-                        <>
-                            <h2>Advanced AI Model Settings</h2>
-                            <div className="instructions">
-                                The advanced AI model settings allow you to
-                                customize the AI model&apos;s behavior.
-                            </div>
-
-                            <label>Maximum Output Tokens</label>
-                            <div className="instructions">
-                                The maximum output tokens setting cuts off the
-                                number of tokens that the AI model can generate.
-                                This setting is useful for preventing the AI
-                                model from generating too much text.
-                            </div>
-
-                            <div className="instructions">
-                                {maximumOutputTokensDescription}
-                            </div>
-                            <input
-                                {...register('maximumOutputTokens', {
-                                    setValueAs: (value) =>
-                                        !value ? null : Number(value),
-                                })}
-                                type="number"
-                            />
-                            {errors.maximumOutputTokens && (
-                                <p className="error">
-                                    {errors.maximumOutputTokens.message}
-                                </p>
-                            )}
-
-                            <div>
-                                <label>Temperature</label>
-                                <div className="instructions">
-                                    The temperature setting controls the
-                                    randomness of the AI model&apos;s output. A
-                                    higher temperature will produce more random
-                                    output.
-                                </div>
-                                <div className="instructions">
-                                    {maximumTemperatureDescription}
-                                </div>
-                                <input
-                                    {...register('temperature', {
-                                        setValueAs: (value) =>
-                                            !value ? null : Number(value),
-                                    })}
-                                    type="number"
-                                    step="0.01"
-                                />
-                                {errors.temperature && (
-                                    <p className="error">
-                                        {errors.temperature.message}
-                                    </p>
-                                )}
-                            </div>
-                        </>
-                    )}
 
                     <button className="btn btnPrimary" type="submit">
                         Save
