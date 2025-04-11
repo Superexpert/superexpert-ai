@@ -1,18 +1,15 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import Nav from './ui/nav';
 import '@/superexpert-ai.plugins.server';
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
+const plusJakartaSans = Plus_Jakarta_Sans({
     subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-});
+    weight: ['400', '500', '700'], // Adjust weights as needed
+    variable: '--font-plus-jakarta-sans',
+    display: 'swap',
+  });
 
 export const metadata: Metadata = {
     title: 'Superexpert AI - Open source AI for everyone',
@@ -27,7 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+                className={plusJakartaSans.className}>
                 <Nav />
                 {children}
             </body>
