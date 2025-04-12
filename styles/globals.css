@@ -17,6 +17,25 @@ a {
 }
 
 @layer components {
+
+    .btnPrimary {
+        @apply inline-flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+    }
+
+    .btnSecondary {
+        @apply bg-white inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 hover:no-underline transition;
+    }
+
+    .pageHeader {
+        @apply text-3xl font-bold text-gray-900;
+    }
+
+
+
+
+
+
+
     .instructions {
         @apply text-gray-600 mb-6;
     }
@@ -45,13 +64,13 @@ a {
         @apply transform scale-105 transition-transform duration-200;
     }
 
-    .btnPrimary {
+    /* .btnPrimary {
         @apply bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50;
-    }
+    } 
 
     .btnSecondary {
         @apply bg-teal-600 text-white hover:bg-teal-700;
-    }
+    } */
 
     .btnCancel {
         @apply bg-gray-300 text-gray-700 hover:bg-gray-400;

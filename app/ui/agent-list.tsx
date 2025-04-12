@@ -13,14 +13,12 @@ export default function AgentList({
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Agents</h1>
+            <h1 className="pageHeader">Agents</h1>
             <p className="text-gray-600">Manage your team of Superexpert.AI agents.</p>
           </div>
-          <Link
-            href="/admin/agents"
-            className="inline-flex items-center rounded-full bg-orange-500 hover:bg-orange-600 px-5 py-2 font-normal text-white shadow transition duration-200"
-          >
-            New agent
+          <Link href="/admin/agents" className="btnPrimary">
+            <span className="inline sm:hidden">New</span>
+            <span className="hidden sm:inline">New agent</span>
           </Link>
         </div>
 
@@ -37,20 +35,20 @@ export default function AgentList({
               <div className="mt-4 sm:mt-0 flex space-x-2">
                 <Link
                   href={`/admin/agents/${agent.id}`}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 transition"
+                  className="btnSecondary"
                 >
                   Edit
                 </Link>
                 <Link
                   href={`/admin/${agent.name}/task-definitions`}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 transition"
+                  className="btnSecondary"
                 >
                   Tasks
                 </Link>
                 <Link
                   href={`${agent.name}`}
                   target="_blank"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 transition"
+                  className="btnSecondary"
                 >
                   Chat
                 </Link>

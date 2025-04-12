@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import BackButton from '@/app/ui/back-button';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -176,6 +177,32 @@ export default function TaskDefinitionForm({
         <>
             <DemoMode />
 
+            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                {/* Back Link */}
+                <div className="mb-4">
+                  <BackButton backUrl='/' />
+                </div>
+
+                {/* Header Section */}
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="pageHeader">
+                        {isEditMode
+                            ? 'Edit Task Definition' 
+                            : 'New Task Definition'} 
+                        </h1>
+                        <p className="text-gray-600 max-w-3xl mt-2">
+                        A task provides the instructions, AI model, and custom tools used by an agent. The global task provides default values for these settings. The home task is always the first task that an AI agent performs.
+                        </p>
+                    </div>
+                </div>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        {serverError && <p className="error">{serverError}</p>}
+                    </div> 
+
+
+{/* 
             <div className="formCard">
                 <div>
                     <Link href={`/admin/${agentName}/task-definitions`}>
@@ -197,7 +224,7 @@ export default function TaskDefinitionForm({
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div>
                         {serverError && <p className="error">{serverError}</p>}
-                    </div>
+                    </div> */}
 
                     <CollapsiblePanel title="General" openByDefault={true}>
                         <div>
@@ -255,6 +282,8 @@ export default function TaskDefinitionForm({
                                 </p>
                             )}
                         </div>
+
+
                     </CollapsiblePanel>
 
                     <CollapsiblePanel title="Messages">
@@ -601,22 +630,27 @@ export default function TaskDefinitionForm({
                         </div>
                     </CollapsiblePanel>
 
-                    <button className="btn btnPrimary" type="submit">
-                        Save
-                    </button>
-                    {isEditMode && !taskDefinition.isSystem && (
-                        <button
-                            className="btn btnDanger ml-4"
-                            type="button"
-                            onClick={handleDelete}>
-                            Delete
+
+                    <div>
+                        <button className="btnPrimary" type="submit">
+                            Save
                         </button>
-                    )}
-                    <Link href={`/admin/${agentName}/task-definitions`}>
-                        <button className="btn btnCancel ml-4" type="button">
-                            Cancel
-                        </button>
-                    </Link>
+                        {isEditMode && !taskDefinition.isSystem && (
+                            <button
+                                className="btnDanger ml-4"
+                                type="button"
+                                onClick={handleDelete}>
+                                Delete
+                            </button>
+                        )}
+                        <Link href={`/admin/${agentName}/task-definitions`}>
+                            <button className="btnSecondary ml-4" type="button">
+                                Cancel
+                            </button>
+                        </Link>
+                    </div>
+
+
                 </form>
             </div>
         </>
