@@ -10,7 +10,7 @@ export default function AgentList({
     <>
       <DemoMode />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="pageContainer">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="pageHeader">Agents</h1>
@@ -22,7 +22,7 @@ export default function AgentList({
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+        <div className="pageCard">
           {agents.map((agent) => (
             <div
               key={agent.id}

@@ -53,59 +53,69 @@ export default function AgentForm({
         <>
         <DemoMode />
 
-        <div className="formCard">
-            <div>
-                <Link href="/">&lt; Back</Link>
+
+        <div className="pageContainer">
+
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="pageHeader">
+                        {isEditMode ? 'Edit Agent' : 'New Agent'}
+                    </h1>
+                    <p className="text-gray-600">
+                        An agent performs a set of tasks. For example, you can create a 
+                        &apos;customer-service&apos; agent to handle customer inquiries or a 
+                        &apos;marketing-assistant&apos; agent to help develop marketing content.
+                    </p>
+                </div>
             </div>
-            <h1>{isEditMode ? 'Edit Agent' : 'New Agent'}</h1>
-            <div className="instructions">
-                An agent performs a set of tasks. For example, you can create a 
-                &apos;customer-service&apos; agent to handle customer inquiries or a 
-                &apos;marketing-assistant&apos; agent to help develop marketing content.
-            </div>
-            <form onSubmit={handleSubmit(onSubmit)}>
+
+
+
+            <form className="pageCard" onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     {serverError && <p className="error">{serverError}</p>}
                 </div>
 
-                <div>
+                <div className="formField">
                     <label>Agent Name</label>
-                    <div className="instructions">
-                        The agent name should be lower-case and a single word with hyphens allowed.
-                    </div>
                     <input type="text" {...register('name')} />
                     {errors.name && (
                         <p className="error">{errors.name.message}</p>
                     )}
+                    <div className="fieldInstructions">
+                        The agent name should be lower-case and a single word with hyphens allowed.
+                    </div>
                 </div>
 
-                <div>
+                <div className="formField">
                     <label>Agent Description</label>
-                    <div className="instructions">
-                        Describe the purpose of the agent.
-                    </div>
                     <textarea {...register('description')}></textarea>
                     {errors.description && (
                         <p className="error">{errors.description.message}</p>
                     )}
+                    <div className="fieldInstructions">
+                        Describe the purpose of the agent.
+                    </div>
                 </div>
 
-                <button className="btn btnPrimary" type="submit">
-                    Save
-                </button>
-                {isEditMode && (
-                    <button
-                        className="btn btnDanger ml-4"
-                        type="button"
-                        onClick={handleDelete}>
-                        Delete
+                <div className="flex gap-4 mt-10 pt-4 border-t border-neutral-100">
+                    <button className="btnPrimary" type="submit">
+                        Save
                     </button>
-                )}
-                <Link href="/">
-                    <button className="btn btnCancel ml-4" type="button">
-                        Cancel
-                    </button>
-                </Link>
+                    {isEditMode && (
+                        <button
+                            className="btnDanger"
+                            type="button"
+                            onClick={handleDelete}>
+                            Delete
+                        </button>
+                    )}
+                    <Link href="/">
+                        <button className="btnSecondary" type="button">
+                            Cancel
+                        </button>
+                    </Link>
+                </div>
             </form>
         </div>
         </>
