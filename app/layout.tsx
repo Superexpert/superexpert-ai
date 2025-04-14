@@ -12,7 +12,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   });
 
 export const metadata: Metadata = {
-    title: 'Superexpert AI - Open source AI for everyone',
+    title: 'Superexpert AI - Open Source AI Made Simple',
     description: 'Build powerful AI agents in minutes',
 };
 

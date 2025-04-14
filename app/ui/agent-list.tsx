@@ -26,11 +26,11 @@ export default function AgentList({
           {agents.map((agent) => (
             <div
               key={agent.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 last:border-0 last:pb-0"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-2 sm:gap-y-0 p-4 rounded-xl bg-white shadow-sm"
             >
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">{agent.name}</h2>
-                <p className="mt-1 text-gray-600">{agent.description}</p>
+                <h2 className="text-base font-bold text-neutral-900">{agent.name}</h2>
+                <p className="mt-1 text-gray-500 text-sm leading-snug">{agent.description}</p>
               </div>
               <div className="mt-4 sm:mt-0 flex space-x-2">
                 <Link

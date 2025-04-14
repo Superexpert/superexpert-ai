@@ -37,7 +37,7 @@ a {
 
     .pageContainer {
         @apply 
-            max-w-2xl 
+            max-w-4xl 
             mx-auto 
             px-4 
             py-8 
@@ -91,7 +91,8 @@ a {
             w-full border 
             border-neutral-300 
             rounded-lg 
-            px-4 py-2 
+            px-4 
+            py-3 
             text-base 
             focus:outline-none 
             focus:ring-2 
@@ -106,6 +107,27 @@ a {
             max-h-40 
             overflow-y-auto
     }
+
+    input[readonly], textarea[readonly] {
+        @apply bg-gray-100 text-gray-500 border border-gray-200 pr-10 cursor-not-allowed;
+    }
+
+    input[type="checkbox"] {
+        @apply 
+            h-4 
+            w-4 
+            text-orange-500 
+            border-gray-300 
+            rounded 
+            focus:ring-orange-500 
+            transition
+    }
+
+/* 
+    textarea[readonly] {
+        @apply bg-gray-200 border-gray-300 focus:border-0 resize-none focus:ring-0;
+    } */
+
 
 
     .error {
@@ -177,19 +199,6 @@ a {
     }
 
  
-
-    .checkbox {
-        @apply h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
-    }
-
-    input[readonly] {
-        @apply bg-gray-200 border-gray-300 focus:border-0 focus:ring-0;
-    }
-
-
-    textarea[readonly] {
-        @apply bg-gray-200 border-gray-300 focus:border-0 resize-none focus:ring-0;
-    }
 
     /* Header */
     h1 {
