@@ -486,63 +486,44 @@ export default function TaskDefinitionForm({
                     </CollapsiblePanel>
 
                     <CollapsiblePanel title="Context Data">
-                        <h2>Attachments</h2>
-                        <div className="instructions">
+                        <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
+                            Attachments
+                        </h2>
+                        <p className="instructions mb-4">
                             Attach one or more files to this task.
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            {currentAttachments.map((file) => (
+                                <div
+                                    key={file.id}
+                                    className="flex items-center justify-between gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-800">
+                                    <span className="truncate max-w-[180px]">
+                                        {file.fileName}
+                                    </span>
+                                    <button
+                                        onClick={() =>
+                                            handleDeleteAttachment(file.id)
+                                        }
+                                        type="button"
+                                        className="ml-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium px-3 py-1 rounded-full transition">
+                                        Delete
+                                    </button>
+                                </div>
+                            ))}
                         </div>
 
-
-
-{/* 
-                        {currentAttachments.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center space-x-2">
-                                {item.fileName}
-                                <button
-                                    type="button"
-                                    className="ml-4 btn btnSmall btnDanger"
-                                    onClick={() =>
-                                        handleDeleteAttachment(item.id)
-                                    }>
-                                    Delete
-                                </button>
-                            </div>
-                        ))} */}
-
-
-<div className="flex flex-wrap gap-2 mt-4">
-  {currentAttachments.map((file) => (
-    <div
-      key={file.id}
-      className="flex items-center justify-between gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-800"
-    >
-      <span className="truncate max-w-[180px]">{file.fileName}</span>
-      <button
-        onClick={() => handleDeleteAttachment(file.id)}
-        type="button"
-        className="ml-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium px-3 py-1 rounded-full transition"
-      >
-        Delete
-      </button>
-    </div>
-  ))}
-</div>
-
-
-
-
-                        <div>
+                        <label className="inline-flex items-center mt-4 cursor-pointer">
+                            <span className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition">
+                                Choose File
+                            </span>
                             <input
                                 type="file"
                                 accept=".txt,application/json,text/csv"
-                                form="none"
                                 onChange={handleUploadAttachment}
-                                disabled={isDemoMode}
+                                className="hidden"
                             />
-
-                            <DemoMode text="In Demo Mode, attachments are disabled." />
-                        </div>
+                        </label>
 
                         <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
                             Retrieval Augmented Generation
@@ -569,7 +550,6 @@ export default function TaskDefinitionForm({
                             />
                         </FormField>
 
-
                         <FormField
                             label="Corpus Similarity Threshold"
                             htmlFor="corpusSimilarityThreshold"
@@ -587,22 +567,6 @@ export default function TaskDefinitionForm({
                             />
                         </FormField>
 
-{/* 
-                        <div>
-                            <label>Corpus Similarity Threshold</label>
-                            <div className="instructions">
-                                Results are only returned if the similarity
-                                score between the user message and the corpus
-                                text is above this threshold.
-                            </div>
-                            <input
-                                type="number"
-                                placeholder="Threshold"
-                                {...register(`corpusSimilarityThreshold`, {
-                                    valueAsNumber: true,
-                                })}
-                            />
-                        </div> */}
                         {corpora.map((item) => (
                             <div
                                 key={item.id}
@@ -666,40 +630,104 @@ export default function TaskDefinitionForm({
                                 );
                             })}
                         </div>
-                        {/* 
-
-
-                        <h2>Server Data Tools</h2>
-                        <div className="instructions">
-                            Load custom data from the server that is shared with
-                            the agent. The server data can be anything that you
-                            want. For example, load the current user&apos;s
-                            profile, your company&apos;s vacation policies, or
-                            the latest product catalog. Enabling a tool in the
-                            global task will enable the tool for all tasks.
-                        </div>
-                        {serverData.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center space-x-2">
-                                <input
-                                    className="checkbox"
-                                    type="checkbox"
-                                    id={`serverData-${item.id}`}
-                                    value={item.id}
-                                    {...register('serverDataIds')}
-                                />
-                                <label htmlFor={`serverData-${item.id}`}>
-                                    {item.id}{' '}
-                                    {item.category && `(${item.category})`}
-                                    &mdash; {item.description}
-                                </label>
-                            </div>
-                        ))} */}
                     </CollapsiblePanel>
 
                     <CollapsiblePanel title="Theme">
-                        <div>
+                        <h2 className="text-lg font-semibold text-neutral-900 mb-1">
+                            Theme
+                        </h2>
+                        <p className="instructions mb-4">
+                            The theme determines the appearance of your chat
+                            bot.
+                        </p>
+
+                        {taskDefinition.name !== 'global' && (
+                            <div className="mb-6">
+                                <label
+                                htmlFor="theme-global"
+                                className={cn(
+                                    'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
+                                    watch('theme') === 'global' && 'border-orange-500 bg-orange-50'
+                                )}
+                                >
+                                <input
+                                    type="radio"
+                                    id="theme-global"
+                                    value="global"
+                                    {...register('theme')}
+                                    className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                                />
+                                <div>
+                                    <div className="text-sm font-semibold text-gray-900">global</div>
+                                    <div className="text-sm text-gray-500">
+                                    Use the theme from the global task definition
+                                    </div>
+                                </div>
+                                </label>
+                            </div>
+                            )}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                            {themes.map((theme) => {
+                                const selected = watch('theme') === theme.id;
+
+                                return (
+                                    <label
+                                        key={theme.id}
+                                        htmlFor={theme.id}
+                                        className={cn(
+                                            'relative cursor-pointer rounded-2xl border p-4 transition',
+                                            selected
+                                                ? 'border-orange-500 bg-orange-50'
+                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        )}>
+                                        {/* ✅ Selection Checkmark */}
+                                        {selected && (
+                                            <div className="absolute top-2 right-2 text-orange-500">
+                                                <svg
+                                                    className="w-5 h-5"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414L8.414 15 4.293 10.879a1 1 0 011.414-1.414L8.414 12.172l7.879-7.879a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </div>
+                                        )}
+
+                                        {/* 📷 Theme Image */}
+                                        <img
+                                            //src={theme.imageUrl}
+                                            src="/"
+                                            alt={`${theme.id} preview`}
+                                            className="w-full h-24 object-contain mb-4"
+                                        />
+
+                                        {/* 🔘 Hidden Radio Input */}
+                                        <input
+                                            type="radio"
+                                            id={theme.id}
+                                            value={theme.id}
+                                            {...register('theme')}
+                                            className="hidden"
+                                        />
+
+                                        {/* 📋 Label + Description */}
+                                        <div className="text-sm font-semibold text-gray-900">
+                                            {
+                                                theme.id.replace(/-/g, ' ')}
+                                        </div>
+                                        <div className="text-sm text-gray-500 mt-0.5">
+                                            {theme.description}
+                                        </div>
+                                    </label>
+                                );
+                            })}
+                        </div>
+
+                        {/* <div>
                             <h2>Theme</h2>
                             <label>Theme</label>
                             <div className="instructions">
@@ -740,7 +768,7 @@ export default function TaskDefinitionForm({
                             {errors.theme && (
                                 <p className="error">{errors.theme.message}</p>
                             )}
-                        </div>
+                        </div> */}
                     </CollapsiblePanel>
 
                     <div>
