@@ -25,6 +25,7 @@ import { FormField } from './form-field';
 import LockIcon from '@/app/ui/lock-icon';
 import { cn } from '@/lib/utils/cn';
 import { SelectableCard } from './selectable-card';
+import Image  from 'next/image';
 
 interface toolItem {
     id: string;
@@ -699,8 +700,7 @@ export default function TaskDefinitionForm({
 
                                         {/* 📷 Theme Image */}
                                         <img
-                                            //src={theme.imageUrl}
-                                            src="/"
+                                            src={theme.imagePreview}
                                             alt={`${theme.id} preview`}
                                             className="w-full h-24 object-contain mb-4"
                                         />
@@ -716,8 +716,7 @@ export default function TaskDefinitionForm({
 
                                         {/* 📋 Label + Description */}
                                         <div className="text-sm font-semibold text-gray-900">
-                                            {
-                                                theme.id.replace(/-/g, ' ')}
+                                            {theme.name}
                                         </div>
                                         <div className="text-sm text-gray-500 mt-0.5">
                                             {theme.description}
