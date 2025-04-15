@@ -6,6 +6,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
+    @apply bg-gray-50;
 }
 
 p {
@@ -17,6 +18,132 @@ a {
 }
 
 @layer components {
+
+    .btnPrimary {
+        @apply inline-flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+    }
+
+    .btnSecondary {
+        @apply bg-white inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 hover:no-underline transition;
+    }
+
+    .btnDanger {
+        @apply inline-flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+    }
+
+    .pageHeader {
+        @apply text-3xl font-bold text-gray-900;
+    }
+
+    .pageContainer {
+        @apply 
+            max-w-4xl 
+            mx-auto 
+            px-4 
+            py-8 
+            sm:px-6 
+            lg:px-8
+    }
+
+    .pageCard {
+        @apply 
+            bg-white 
+            rounded-2xl 
+            shadow-md 
+            p-8 
+            space-y-6;
+    }
+
+    .formField {
+        @apply 
+            mb-6 
+            flex 
+            flex-col;
+    }
+
+    .fieldInstructions {
+        @apply 
+            text-zinc-500 
+            text-sm 
+            font-normal 
+            leading-snug
+            mt-0.5;
+    }
+
+    fieldset {
+        @apply
+            space-y-2
+    }
+
+    label {
+        @apply
+            text-neutral-800
+            text-base
+            font-bold
+            leading-snug
+    }
+
+    /* Input fields */
+    input, textarea {
+        @apply 
+            mt-1
+            mb-1        
+            w-full border 
+            border-neutral-300 
+            rounded-lg 
+            px-4 
+            py-3 
+            text-base 
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-orange-500
+    }
+
+    /* Textarea */
+    textarea {
+        @apply 
+            resize-none
+            leading-relaxed 
+            max-h-40 
+            overflow-y-auto
+    }
+
+    input[readonly], textarea[readonly] {
+        @apply bg-gray-100 text-gray-500 border border-gray-200 pr-10 cursor-not-allowed;
+    }
+
+    input[type="checkbox"] {
+        @apply 
+            h-4 
+            w-4 
+            text-orange-500 
+            border-gray-300 
+            rounded 
+            focus:ring-orange-500 
+            transition
+    }
+
+/* 
+    textarea[readonly] {
+        @apply bg-gray-200 border-gray-300 focus:border-0 resize-none focus:ring-0;
+    } */
+
+
+
+    .error {
+        @apply 
+            text-red-500 
+            text-sm 
+            mt-1 
+            leading-tight;
+    }
+
+
+
+
+
+
+/* 
     .instructions {
         @apply text-gray-600 mb-6;
     }
@@ -27,71 +154,51 @@ a {
 
     .demoMode {
         @apply w-full max-w-[800px] mx-auto p-6 bg-yellow-50 rounded-lg mb-7;
-    }
+    } */
 
 
 
-    /* Label styles */
+    /* Label styles
     label {
         @apply block text-sm font-medium text-gray-700 mb-1;
-    }
+    } */
 
     /* Button base styles */
-    .btn {
+    /* .btn {
         @apply px-4 py-2 font-medium rounded-lg shadow-sm focus:ring-2 focus:outline-none transition duration-200;
     }
 
     .btn:hover {
         @apply transform scale-105 transition-transform duration-200;
-    }
+    } */
 
-    .btnPrimary {
+    /* .btnPrimary {
         @apply bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50;
-    }
+    } 
 
     .btnSecondary {
         @apply bg-teal-600 text-white hover:bg-teal-700;
-    }
+    } */
 
-    .btnCancel {
+    /* .btnCancel {
         @apply bg-gray-300 text-gray-700 hover:bg-gray-400;
-    }
+    } */
 
-    .btnDanger {
+    /* .btnDanger {
         @apply bg-red-600 text-white hover:bg-red-700;
-    }
+    } */
 
     /* Background Color for the whole page */
-    body {
+    /* body {
         @apply bg-gray-50;
-    }
+    } */
 
     /* Adding a subtle card-like background */
     .card {
         @apply bg-white p-6 rounded-lg shadow-lg;
     }
 
-    /* Input fields */
-    input {
-        @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200;
-    }
-
-    .checkbox {
-        @apply h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
-    }
-
-    input[readonly] {
-        @apply bg-gray-200 border-gray-300 focus:border-0 focus:ring-0;
-    }
-
-    /* Textarea */
-    textarea {
-        @apply w-full h-32 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200;
-    }
-
-    textarea[readonly] {
-        @apply bg-gray-200 border-gray-300 focus:border-0 resize-none focus:ring-0;
-    }
+ 
 
     /* Header */
     h1 {
@@ -103,9 +210,9 @@ a {
     }
 
     /* Error message */
-    .error {
+    /* .error {
         @apply text-red-600 bg-red-50 border border-red-200 p-3 rounded-md flex items-center;
-    }
+    } */
 
     
     /* Form field wrapper */

@@ -6,10 +6,11 @@ import {
     uploadChunkAction,
 } from '@/lib/actions/admin-actions';
 import { encodingForModel } from 'js-tiktoken';
-import Link from 'next/link';
 import DemoMode from './demo-mode';
 import { Corpus } from '@/lib/corpus';
 import { deleteCorpusFileAction } from '@/lib/actions/admin-actions';
+import BackButton from '@/app/ui/back-button';
+import { FormField } from '@/app/ui/form-field';
 
 export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
     const [currentCorpusFiles, setCurrentCorpusFiles] = useState(
@@ -229,106 +230,129 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
         <>
             <DemoMode />
 
-            <div className="formCard">
-                <div>
-                    <Link href="/admin/corpora">&lt; Back</Link>
+            <div className="pageContainer">
+                <div className="mb-4">
+                    <BackButton backUrl="/admin/corpora" />
+                </div>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="pageHeader">{corpus.name} Files</h1>
+                        <p className="text-gray-600">
+                            A corpus contains a set of files that can be
+                            semantically searched.
+                        </p>
+                    </div>
                 </div>
 
-                <h1>{corpus.name} Files</h1>
-
-                {currentCorpusFiles.map((corpusFile) => (
-                    <div
-                        key={corpusFile.id}
-                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm">
-                        <div>
-                            <h2>{corpusFile.fileName}</h2>
-                            <p>
-                                Chunk Size:{' '}
-                                {corpusFile.chunkSize.toLocaleString()} tokens,
-                                Chunk Overlap {corpusFile.chunkOverlap}%
-                            </p>
-                        </div>
-                        <div>
+                <div className="pageCard">
+                    {currentCorpusFiles.map((corpusFile) => (
+                        <div
+                            key={corpusFile.id}
+                            className="flex justify-between items-center p-4 border border-gray-200 rounded-2xl bg-white shadow-sm mb-3">
+                            <div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                    {corpusFile.fileName}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                    Chunk Size:{' '}
+                                    {corpusFile.chunkSize.toLocaleString()}{' '}
+                                    tokens, Overlap: {corpusFile.chunkOverlap}%
+                                </div>
+                            </div>
                             <button
                                 type="button"
                                 onClick={() =>
                                     handleDeleteCorpusFile(corpusFile.id!)
                                 }
-                                className="btn btnDanger">
+                                className="btnDanger">
                                 Delete
                             </button>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
-                <h1>New Corpus File</h1>
+                    {error && (
+                        <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                            {error}
+                        </div>
+                    )}
 
-                <div>{error && <p className="error">{error}</p>}</div>
+                    <h2 className="text-lg font-semibold text-neutral-900 mb-2">
+                        Add File
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Upload a new file to this corpus. You can control how
+                        the file will be chunked for semantic search.
+                    </p>
 
-                <div>
-                    <label>Chunk Size</label>
-                    <div className="instructions">
-                        Enter the size of the chunks in tokens. The maximum is
-                        8,192.
-                    </div>
-                    <input
-                        type="number"
-                        ref={chunkSizeRef}
-                        min={50}
-                        max={8192}
-                        defaultValue={100}
-                        disabled={uploading}
-                    />
-                </div>
-                <div>
-                    <label>Chunk Overlap (%)</label>
-                    <div className="instructions">
-                        The percentage of token overlap between chunks.
-                    </div>
-                    <input
-                        type="number"
-                        ref={chunkOverlapRef}
-                        min={0}
-                        max={50}
-                        defaultValue={15}
-                        disabled={uploading}
-                    />
-                </div>
-
-                <div className="p-4 border rounded-md">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        disabled={uploading}
-                    />
-
-                    {uploadProgress > 0 && (
-                        <div className="mt-2">
-                            <progress
-                                value={uploadProgress}
-                                max="100"
-                                className="w-full"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                            label="Chunk Size"
+                            htmlFor="chunkSize"
+                            instructions="Enter the size of the chunks in tokens. The maximum is 8,192.">
+                            <input
+                                id="chunkSize"
+                                type="number"
+                                ref={chunkSizeRef}
+                                min={50}
+                                max={8192}
+                                defaultValue={100}
+                                disabled={uploading}
                             />
-                            <p>{uploadProgress}% uploaded</p>
+                        </FormField>
+
+                        <FormField
+                            label="Chunk Overlap (%)"
+                            htmlFor="chunkOverlap"
+                            instructions="The percentage of token overlap between chunks.">
+                            <input
+                                id="chunkOverlap"
+                                type="number"
+                                ref={chunkOverlapRef}
+                                min={0}
+                                max={50}
+                                defaultValue={15}
+                                disabled={uploading}
+                            />
+                        </FormField>
+                    </div>
+
+                    {isDemoMode ? (
+                        <div className="p-4 bg-gray-100 border border-gray-200 rounded-md">
+                            <p className="text-sm text-gray-700">
+                                Demo mode enabled: File uploads are disabled.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <label
+                                htmlFor="file-upload"
+                                className="btnPrimary inline-flex cursor-pointer">
+                                Choose File
+                            </label>
+                            <input
+                                id="file-upload"
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".txt,application/json,text/csv"
+                                onChange={handleClick}
+                                className="hidden"
+                            />
+                        </>
+                    )}
+                    {uploadProgress > 0 && (
+                        <div className="mt-4">
+                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-orange-500 transition-all duration-300"
+                                    style={{ width: `${uploadProgress}%` }}
+                                />
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                                {uploadProgress}% uploaded
+                            </p>
                         </div>
                     )}
                 </div>
-
-                <button
-                    className="btn btnPrimary"
-                    onClick={handleClick}
-                    disabled={uploading || isDemoMode}>
-                    Upload
-                </button>
-                <Link href={`/admin/corpora`}>
-                    <button
-                        className="btn btnCancel ml-4"
-                        type="button"
-                        disabled={uploading}>
-                        Cancel
-                    </button>
-                </Link>
-                <DemoMode text="In Demo Mode, file upload is disabled." />
             </div>
         </>
     );

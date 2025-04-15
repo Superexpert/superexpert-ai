@@ -7,6 +7,7 @@ import { RegisterUser, registerUserSchema } from '@/lib/register-user';
 import { collapseErrors } from '@/lib/validation';
 import { getUserId } from '../user';
 import { prisma } from '@/lib/db/prisma';
+import { signOut } from '@/auth';
 
 export async function executeServerTool(
     agentId: string,
@@ -136,6 +137,10 @@ export async function getTasksAction(
         modelId: task.modelId,
         theme: task.theme,
     }));
+}
+
+export async function handleSignOut() {
+    await signOut({ redirectTo: '/login' });
 }
 
 

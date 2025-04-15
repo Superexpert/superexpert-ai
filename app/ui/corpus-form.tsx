@@ -10,6 +10,8 @@ import {
 } from '@/lib/actions/admin-actions';
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import DemoMode from '@/app/ui/demo-mode';
+import BackButton from '@/app/ui/back-button';
+import { FormField } from '@/app/ui/form-field';
 
 export default function CorpusForm({
     corpus,
@@ -56,60 +58,66 @@ export default function CorpusForm({
         <>
             <DemoMode />
 
-            <div className="formCard">
-                <div>
-                    <Link href="/admin/corpora">&lt; Back</Link>
+            <div className="pageContainer">
+                <div className="mb-4">
+                    <BackButton backUrl="/admin/corpora" />
                 </div>
-                <h1>{isEditMode ? 'Edit Corpus' : 'New Corpus'}</h1>
-                <div className="instructions">
-                    A corpus contains a set of files that can be semantically
-                    searched.
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="pageHeader">
+                            {isEditMode ? 'Edit Corpus' : 'New Corpus'}
+                        </h1>
+                        <p className="text-gray-600">
+                            A corpus contains a set of files that can be
+                            semantically searched.
+                        </p>
+                    </div>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)}>
+
+                <form className="pageCard" onSubmit={handleSubmit(onSubmit)}>
                     <div>
                         {serverError && <p className="error">{serverError}</p>}
                     </div>
 
-                    <div>
-                        <label>Corpus Name</label>
-                        <div className="instructions">
-                            The corpus name can be anything that you want.
-                        </div>
-                        <input type="text" {...register('name')} />
-                        {errors.name && (
-                            <p className="error">{errors.name.message}</p>
-                        )}
-                    </div>
+                    <FormField
+                        label="Corpus Name"
+                        htmlFor="name"
+                        error={errors.name?.message}
+                        instructions="The corpus name can be anything that you want.">
+                        <input id="name" type="text" {...register('name')} />
+                    </FormField>
 
-                    <div>
-                        <label>Corpus Description</label>
-                        <div className="instructions">
-                            Describe the contents of the corpus.
-                        </div>
-                        <textarea {...register('description')}></textarea>
-                        {errors.description && (
-                            <p className="error">
-                                {errors.description.message}
-                            </p>
-                        )}
-                    </div>
+                    <FormField
+                        label="Corpus Description"
+                        htmlFor="description"
+                        error={errors.description?.message}
+                        instructions="Describe the contents of the corpus.">
+                        <textarea
+                            id="description"
+                            {...register('description')}
+                        />
+                    </FormField>
 
-                    <button className="btn btnPrimary" type="submit">
-                        Save
-                    </button>
-                    {isEditMode && (
-                        <button
-                            className="btn btnDanger ml-4"
-                            type="button"
-                            onClick={handleDeleteCorpus}>
-                            Delete
+                    
+
+                    <div className="flex gap-4 mt-10 pt-4 border-t border-neutral-100">
+                        <button className="btnPrimary" type="submit">
+                            Save
                         </button>
-                    )}
-                    <Link href="/admin/corpora">
-                        <button className="btn btnCancel ml-4" type="button">
-                            Cancel
-                        </button>
-                    </Link>
+                        {isEditMode && (
+                            <button
+                                className="btnDanger"
+                                type="button"
+                                onClick={handleDeleteCorpus}>
+                                Delete
+                            </button>
+                        )}
+                        <Link href="/admin/corpora">
+                            <button className="btnSecondary" type="button">
+                                Cancel
+                            </button>
+                        </Link>
+                    </div>
                 </form>
             </div>
         </>
