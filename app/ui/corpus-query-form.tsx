@@ -6,7 +6,6 @@ import { Corpus } from '@/lib/corpus';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CorpusQuery, corpusQuerySchema } from '@/lib/corpus-query';
-import { ThreeDot } from 'react-loading-indicators';
 import { CorpusQueryResult } from '@/lib/corpus-query-result';
 import Link from 'next/link';
 import BackButton from '@/app/ui/back-button';

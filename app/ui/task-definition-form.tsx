@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import { useState, useEffect } from 'react';
 import BackButton from '@/app/ui/back-button';
@@ -25,7 +26,6 @@ import { FormField } from './form-field';
 import LockIcon from '@/app/ui/lock-icon';
 import { cn } from '@/lib/utils/cn';
 import { SelectableCard } from './selectable-card';
-import Image  from 'next/image';
 
 interface toolItem {
     id: string;
@@ -399,7 +399,7 @@ export default function TaskDefinitionForm({
                         <p className="instructions mb-4">
                             Server tools are custom functions that an agent can
                             execute on the server. For example, update the
-                            user's profile, send an email, or query a database.
+                            user&apos;s profile, send an email, or query a database.
                             Enabling a tool in the global task will enable the
                             tool for all tasks.
                         </p>
@@ -514,18 +514,26 @@ export default function TaskDefinitionForm({
                             ))}
                         </div>
 
-                        <label className="inline-flex items-center mt-4 cursor-pointer">
-                            <span className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition">
-                                Choose File
-                            </span>
-                            <input
-                                type="file"
-                                accept=".txt,application/json,text/csv"
-                                onChange={handleUploadAttachment}
-                                className="hidden"
-                            />
-                        </label>
-
+                        {isDemoMode ? (
+                            <div className="p-4 bg-gray-100 border border-gray-200 rounded-md">
+                                <p className="text-sm text-gray-700">
+                                    Demo mode enabled: File uploads are
+                                    disabled.
+                                </p>
+                            </div>
+                        ) : (
+                            <label className="inline-flex items-center mt-4 cursor-pointer">
+                                <span className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition">
+                                    Choose File
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".txt,application/json,text/csv"
+                                    onChange={handleUploadAttachment}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
                         <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
                             Retrieval Augmented Generation
                         </h2>
@@ -535,7 +543,92 @@ export default function TaskDefinitionForm({
                             corpus.
                         </p>
 
-                        <FormField
+                        {corpora.length > 0 ? (
+                            <>
+                                {/* Chunk Settings */}
+                                <FormField
+                                    label="Corpus Limit"
+                                    htmlFor="corpusLimit"
+                                    error={errors.corpusLimit?.message}
+                                    instructions="The maximum number of text chunks to retrieve from the corpus.">
+                                    <input
+                                        id="corpusLimit"
+                                        type="number"
+                                        placeholder="Limit"
+                                        {...register(`corpusLimit`, {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
+                                </FormField>
+
+                                <FormField
+                                    label="Corpus Similarity Threshold"
+                                    htmlFor="corpusSimilarityThreshold"
+                                    error={
+                                        errors.corpusSimilarityThreshold
+                                            ?.message
+                                    }
+                                    instructions="Results are only returned if the similarity score between the user message and the corpus text is above this threshold.">
+                                    <input
+                                        id="corpusSimilarityThreshold"
+                                        type="number"
+                                        placeholder="Threshold"
+                                        {...register(
+                                            `corpusSimilarityThreshold`,
+                                            { valueAsNumber: true }
+                                        )}
+                                    />
+                                </FormField>
+
+                                {/* Corpus Selection */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                    {corpora.map((corpus) => {
+                                        const isSelected = (
+                                            watch('corpusIds') || []
+                                        ).includes(corpus.id);
+                                        return (
+                                            <SelectableCard
+                                                key={corpus.id}
+                                                id={`corpus-${corpus.id}`}
+                                                name={corpus.name}
+                                                description={corpus.description}
+                                                type="checkbox"
+                                                value={corpus.id}
+                                                selected={isSelected}
+                                                onChange={(e) => {
+                                                    const checked =
+                                                        e.target.checked;
+                                                    const current =
+                                                        watch('corpusIds') ||
+                                                        [];
+                                                    const updated = checked
+                                                        ? [
+                                                              ...current,
+                                                              corpus.id,
+                                                          ]
+                                                        : current.filter(
+                                                              (id) =>
+                                                                  id !==
+                                                                  corpus.id
+                                                          );
+                                                    setValue(
+                                                        'corpusIds',
+                                                        updated
+                                                    );
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-sm">
+                                No corpora defined. Please upload a corpus file
+                                before enabling RAG.
+                            </div>
+                        )}
+
+                        {/* <FormField
                             label="Corpus Limit"
                             htmlFor="corpusLimit"
                             error={errors.corpusLimit?.message}
@@ -583,7 +676,7 @@ export default function TaskDefinitionForm({
                                     {item.name} {item.description}
                                 </label>
                             </div>
-                        ))}
+                        ))} */}
 
                         <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
                             Context Tools
@@ -645,30 +738,32 @@ export default function TaskDefinitionForm({
                         {taskDefinition.name !== 'global' && (
                             <div className="mb-6">
                                 <label
-                                htmlFor="theme-global"
-                                className={cn(
-                                    'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
-                                    watch('theme') === 'global' && 'border-orange-500 bg-orange-50'
-                                )}
-                                >
-                                <input
-                                    type="radio"
-                                    id="theme-global"
-                                    value="global"
-                                    {...register('theme')}
-                                    className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
-                                />
-                                <div>
-                                    <div className="text-sm font-semibold text-gray-900">global</div>
-                                    <div className="text-sm text-gray-500">
-                                    Use the theme from the global task definition
+                                    htmlFor="theme-global"
+                                    className={cn(
+                                        'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
+                                        watch('theme') === 'global' &&
+                                            'border-orange-500 bg-orange-50'
+                                    )}>
+                                    <input
+                                        type="radio"
+                                        id="theme-global"
+                                        value="global"
+                                        {...register('theme')}
+                                        className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                                    />
+                                    <div>
+                                        <div className="text-sm font-semibold text-gray-900">
+                                            global
+                                        </div>
+                                        <div className="text-sm text-gray-500">
+                                            Use the theme from the global task
+                                            definition
+                                        </div>
                                     </div>
-                                </div>
                                 </label>
                             </div>
-                            )}
+                        )}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
                             {themes.map((theme) => {
                                 const selected = watch('theme') === theme.id;
 

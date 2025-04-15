@@ -316,19 +316,29 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                         </FormField>
                     </div>
 
-                    <label
-                        htmlFor="file-upload"
-                        className="btnPrimary inline-flex cursor-pointer">
-                        Choose File
-                    </label>
-                    <input
-                        id="file-upload"
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".txt,application/json,text/csv"
-                        onChange={handleClick}
-                        className="hidden"
-                    />
+                    {isDemoMode ? (
+                        <div className="p-4 bg-gray-100 border border-gray-200 rounded-md">
+                            <p className="text-sm text-gray-700">
+                                Demo mode enabled: File uploads are disabled.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <label
+                                htmlFor="file-upload"
+                                className="btnPrimary inline-flex cursor-pointer">
+                                Choose File
+                            </label>
+                            <input
+                                id="file-upload"
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".txt,application/json,text/csv"
+                                onChange={handleClick}
+                                className="hidden"
+                            />
+                        </>
+                    )}
                     {uploadProgress > 0 && (
                         <div className="mt-4">
                             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
