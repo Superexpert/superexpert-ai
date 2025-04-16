@@ -10,6 +10,7 @@ import { CorpusQueryResult } from '@/lib/corpus-query-result';
 import Link from 'next/link';
 import BackButton from '@/app/ui/back-button';
 import { FormField } from '@/app/ui/form-field';
+import DemoMode from '@/app/ui/demo-mode';
 
 export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
     const [matches, setMatches] = useState<CorpusQueryResult[] | null>(null);
@@ -38,6 +39,7 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
 
     return (
         <div className="pageContainer">
+            <DemoMode />
             <div className="mb-4">
                 <BackButton backUrl="/admin/corpora" />
             </div>

@@ -55,9 +55,9 @@ export default function AgentForm({
 
     return (
         <>
-            <DemoMode />
 
             <div className="pageContainer">
+                <DemoMode />
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="pageHeader">
