@@ -228,9 +228,9 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
 
     return (
         <>
-            <DemoMode />
-
             <div className="pageContainer">
+                <DemoMode />
+
                 <div className="mb-4">
                     <BackButton backUrl="/admin/corpora" />
                 </div>

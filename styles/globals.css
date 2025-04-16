@@ -1,11 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-    font-family: 'Inter', sans-serif;
     @apply bg-gray-50;
 }
 
@@ -18,9 +16,16 @@ a {
 }
 
 @layer components {
-
     .btnPrimary {
-        @apply inline-flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+        @apply inline-flex 
+            items-center 
+            justify-center 
+            rounded-full 
+            bg-orange-500 
+            hover:bg-orange-600 
+            px-4 py-2 
+            sm:px-5 
+            sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
     }
 
     .btnSecondary {
@@ -36,18 +41,16 @@ a {
     }
 
     .pageContainer {
-        @apply 
-            max-w-4xl 
+        @apply max-w-4xl 
             mx-auto 
             px-4 
             py-8 
             sm:px-6 
-            lg:px-8
+            lg:px-8;
     }
 
     .pageCard {
-        @apply 
-            bg-white 
+        @apply bg-white 
             rounded-2xl 
             shadow-md 
             p-8 
@@ -55,15 +58,13 @@ a {
     }
 
     .formField {
-        @apply 
-            mb-6 
+        @apply mb-6 
             flex 
             flex-col;
     }
 
     .fieldInstructions {
-        @apply 
-            text-zinc-500 
+        @apply text-zinc-500 
             text-sm 
             font-normal 
             leading-snug
@@ -71,22 +72,20 @@ a {
     }
 
     fieldset {
-        @apply
-            space-y-2
+        @apply space-y-2;
     }
 
     label {
-        @apply
-            text-neutral-800
+        @apply text-neutral-800
             text-base
             font-bold
-            leading-snug
+            leading-snug;
     }
 
     /* Input fields */
-    input, textarea {
-        @apply 
-            mt-1
+    input,
+    textarea {
+        @apply mt-1
             mb-1        
             w-full border 
             border-neutral-300 
@@ -96,129 +95,52 @@ a {
             text-base 
             focus:outline-none 
             focus:ring-2 
-            focus:ring-orange-500
+            focus:ring-orange-500;
     }
 
     /* Textarea */
     textarea {
-        @apply 
-            resize-none
+        @apply resize-none
             leading-relaxed 
             max-h-40 
-            overflow-y-auto
+            overflow-y-auto;
     }
 
-    input[readonly], textarea[readonly] {
+    input[readonly],
+    textarea[readonly] {
         @apply bg-gray-100 text-gray-500 border border-gray-200 pr-10 cursor-not-allowed;
     }
 
-    input[type="checkbox"] {
-        @apply 
-            h-4 
+    input[type='checkbox'] {
+        @apply h-4 
             w-4 
             text-orange-500 
             border-gray-300 
             rounded 
             focus:ring-orange-500 
-            transition
+            transition;
     }
 
-/* 
-    textarea[readonly] {
-        @apply bg-gray-200 border-gray-300 focus:border-0 resize-none focus:ring-0;
-    } */
-
-
-
+ 
     .error {
-        @apply 
-            text-red-500 
+        @apply text-red-500 
             text-sm 
             mt-1 
             leading-tight;
     }
 
-
-
-
-
-
-/* 
-    .instructions {
-        @apply text-gray-600 mb-6;
-    }
-
-    .formCard {
-        @apply w-full max-w-[800px] mx-auto p-6 bg-white shadow-lg rounded-lg;
-    }
-
+ 
     .demoMode {
-        @apply w-full max-w-[800px] mx-auto p-6 bg-yellow-50 rounded-lg mb-7;
-    } */
-
-
-
-    /* Label styles
-    label {
-        @apply block text-sm font-medium text-gray-700 mb-1;
-    } */
-
-    /* Button base styles */
-    /* .btn {
-        @apply px-4 py-2 font-medium rounded-lg shadow-sm focus:ring-2 focus:outline-none transition duration-200;
-    }
-
-    .btn:hover {
-        @apply transform scale-105 transition-transform duration-200;
-    } */
-
-    /* .btnPrimary {
-        @apply bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply max-w-5xl w-full bg-yellow-50 border border-yellow-200 text-yellow-900 text-base rounded-xl px-6 py-4 mt-6 mb-4 shadow-sm text-center
     } 
 
-    .btnSecondary {
-        @apply bg-teal-600 text-white hover:bg-teal-700;
-    } */
 
-    /* .btnCancel {
-        @apply bg-gray-300 text-gray-700 hover:bg-gray-400;
-    } */
 
-    /* .btnDanger {
-        @apply bg-red-600 text-white hover:bg-red-700;
-    } */
 
-    /* Background Color for the whole page */
-    /* body {
-        @apply bg-gray-50;
-    } */
 
-    /* Adding a subtle card-like background */
-    .card {
-        @apply bg-white p-6 rounded-lg shadow-lg;
-    }
 
- 
 
-    /* Header */
-    h1 {
-        @apply text-4xl font-semibold text-gray-900 mb-4;
-    }
 
-    h2 {
-        @apply text-2xl font-semibold text-gray-900 mb-1;
-    }
-
-    /* Error message */
-    /* .error {
-        @apply text-red-600 bg-red-50 border border-red-200 p-3 rounded-md flex items-center;
-    } */
-
-    
-    /* Form field wrapper */
-    .form-field {
-        @apply space-y-2;
-    }
 
 
     /* Modal overlay: semi-transparent background */
@@ -230,5 +152,4 @@ a {
     .modal-content {
         @apply bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative;
     }
-
 }

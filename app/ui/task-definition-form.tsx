@@ -181,9 +181,9 @@ export default function TaskDefinitionForm({
 
     return (
         <>
-            <DemoMode />
-
             <div className="pageContainer">
+                <DemoMode />
+
                 {/* Back Link */}
                 <div className="mb-4">
                     <BackButton
@@ -399,9 +399,9 @@ export default function TaskDefinitionForm({
                         <p className="instructions mb-4">
                             Server tools are custom functions that an agent can
                             execute on the server. For example, update the
-                            user&apos;s profile, send an email, or query a database.
-                            Enabling a tool in the global task will enable the
-                            tool for all tasks.
+                            user&apos;s profile, send an email, or query a
+                            database. Enabling a tool in the global task will
+                            enable the tool for all tasks.
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -628,56 +628,6 @@ export default function TaskDefinitionForm({
                             </div>
                         )}
 
-                        {/* <FormField
-                            label="Corpus Limit"
-                            htmlFor="corpusLimit"
-                            error={errors.corpusLimit?.message}
-                            instructions="The maximum number of text chunks to retrieve
-                                from the corpus.">
-                            <input
-                                id="corpusLimit"
-                                type="number"
-                                placeholder="Limit"
-                                {...register(`corpusLimit`, {
-                                    valueAsNumber: true,
-                                })}
-                            />
-                        </FormField>
-
-                        <FormField
-                            label="Corpus Similarity Threshold"
-                            htmlFor="corpusSimilarityThreshold"
-                            error={errors.corpusSimilarityThreshold?.message}
-                            instructions="Results are only returned if the similarity
-                                score between the user message and the corpus
-                                text is above this threshold.">
-                            <input
-                                id="corpusSimilarityThreshold"
-                                type="number"
-                                placeholder="Threshold"
-                                {...register(`corpusSimilarityThreshold`, {
-                                    valueAsNumber: true,
-                                })}
-                            />
-                        </FormField>
-
-                        {corpora.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center space-x-2">
-                                <input
-                                    className="checkbox"
-                                    type="checkbox"
-                                    id={`corpus-${item.id}`}
-                                    value={item.id}
-                                    {...register('corpusIds')}
-                                />
-                                <label htmlFor={`corpus-${item.id}`}>
-                                    {item.name} {item.description}
-                                </label>
-                            </div>
-                        ))} */}
-
                         <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
                             Context Tools
                         </h2>
@@ -820,49 +770,6 @@ export default function TaskDefinitionForm({
                                 );
                             })}
                         </div>
-
-                        {/* <div>
-                            <h2>Theme</h2>
-                            <label>Theme</label>
-                            <div className="instructions">
-                                The theme determines the appearance of your chat
-                                bot.
-                            </div>
-                            {taskDefinition.name != 'global' && (
-                                <div className="flex items-center space-x-2">
-                                    <input
-                                        className="checkbox"
-                                        type="radio"
-                                        id="theme-global"
-                                        value="global"
-                                        {...register('theme')}
-                                    />
-                                    <label htmlFor="theme-global">
-                                        global: Use the theme from the global
-                                        task definition
-                                    </label>
-                                </div>
-                            )}
-                            {themes.map((theme) => (
-                                <div
-                                    key={theme.id}
-                                    className="flex items-center space-x-2">
-                                    <input
-                                        className="checkbox"
-                                        type="radio"
-                                        id={theme.id}
-                                        value={theme.id}
-                                        {...register('theme')}
-                                    />
-                                    <label htmlFor={`${theme.id}`}>
-                                        {theme.id} &mdash; {theme.description}
-                                    </label>
-                                </div>
-                            ))}
-                            {errors.theme && (
-                                <p className="error">{errors.theme.message}</p>
-                            )}
-                        </div> */}
                     </CollapsiblePanel>
 
                     <div>

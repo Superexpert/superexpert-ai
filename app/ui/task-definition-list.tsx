@@ -11,9 +11,9 @@ export default function TaskDefinitionList({
 }) {
     return (
         <>
-            <DemoMode />
-
             <div className="pageContainer">
+                <DemoMode />
+
                 <div className="mb-4">
                     <BackButton backUrl="/" />
                 </div>

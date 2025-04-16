@@ -56,9 +56,9 @@ export default function CorpusForm({
 
     return (
         <>
-            <DemoMode />
-
             <div className="pageContainer">
+                <DemoMode />
+
                 <div className="mb-4">
                     <BackButton backUrl="/admin/corpora" />
                 </div>
@@ -97,8 +97,6 @@ export default function CorpusForm({
                             {...register('description')}
                         />
                     </FormField>
-
-                    
 
                     <div className="flex gap-4 mt-10 pt-4 border-t border-neutral-100">
                         <button className="btnPrimary" type="submit">
