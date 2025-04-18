@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global message styles anchored to #messages ID */
+#messages a { @apply text-blue-600 hover:text-blue-800 underline; }
+#messages p { @apply mb-2 leading-relaxed; }
+#messages h1 { @apply text-3xl font-bold mb-4 text-gray-900; }
+#messages h2 { @apply text-2xl font-semibold mb-3 text-gray-900; }
+#messages h3 { @apply text-xl font-semibold mb-2 text-gray-900; }
+#messages h4 { @apply text-lg font-semibold mb-2 text-gray-800; }
+#messages h5 { @apply text-base font-semibold mb-1 text-gray-800; }
+#messages h6 { @apply text-sm font-semibold mb-1 text-gray-700; }
+#messages ul { @apply list-disc pl-5 mb-2; }
+#messages ol { @apply list-decimal pl-5 mb-2; }
+#messages li { @apply mb-1 leading-relaxed; }
+#messages pre { @apply bg-gray-800 text-white text-sm p-3 rounded overflow-auto mb-4; }
+#messages code { @apply bg-gray-200 text-gray-800 text-sm px-1 py-0.5 rounded; }
+#messages blockquote { @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-4; }
+#messages hr { @apply my-4 border-gray-300; }
+#messages img { @apply max-w-full h-auto rounded-md shadow; }
+#messages table { @apply w-full border-collapse mb-4; }
+#messages th { @apply bg-gray-200 border border-gray-300 px-3 py-2 text-left font-semibold; }
+#messages td { @apply border border-gray-300 px-3 py-2; }

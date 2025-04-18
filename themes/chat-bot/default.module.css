@@ -1,0 +1,99 @@
+.chatPage {
+    @apply flex flex-col min-h-screen bg-gray-50 text-lg;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    @apply w-full bg-transparent py-4;
+}
+
+.headerInner {
+    @apply w-full max-w-3xl mx-auto flex items-center justify-between px-4;
+}
+
+.headerLeft {
+    @apply flex items-center justify-between w-full;
+}
+
+.logo {
+    @apply text-3xl font-bold text-gray-900 ml-1;
+}
+
+.logoIcon {
+    @apply bg-black text-white rounded-full w-8 h-8 inline-flex items-center justify-center;
+}
+
+.signOutForm {
+    @apply ml-auto;
+}
+
+.signOutButton {
+    @apply text-gray-700 border border-gray-300 rounded-full px-5 py-2 text-base hover:bg-gray-100;
+}
+
+.main {
+    @apply flex-1 flex flex-col w-full max-w-3xl mx-auto px-4 py-4;
+}
+
+.chatContainer {
+    @apply flex flex-col flex-1;
+}
+
+.contentWrapper {
+    @apply flex flex-col items-stretch justify-start;
+}
+
+.messages {
+    @apply flex flex-col gap-4 overflow-y-auto mb-6;
+}
+
+.userMessage,
+.assistantMessage {
+    @apply px-6 py-3 rounded-2xl max-w-[80%] shadow-sm text-base;
+    overflow-wrap: break-word;
+}
+
+.userMessage {
+    @apply self-end bg-emerald-700 text-white;
+}
+
+.assistantMessage {
+    @apply self-start bg-white text-gray-900 px-6 py-3 rounded-2xl max-w-[80%] shadow-md text-base;
+}
+
+.busyWaitContainer {
+    @apply flex justify-center items-center my-4;
+}
+
+.busyWait {
+    @apply h-8 w-8 animate-spin rounded-full border-4 border-emerald-700 border-t-transparent;
+}
+
+.inputForm {
+    @apply flex items-center gap-2 w-full;
+}
+
+.input {
+    @apply flex-1 rounded-full bg-gray-200 border-none px-6 py-4 text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-700 shadow-sm;
+}
+
+.button {
+    @apply bg-teal-900 text-white rounded-full px-6 py-3 text-base font-medium hover:bg-gray-900 transition-colors duration-200 ease-in-out;
+}
+
+.footer {
+    @apply text-center py-2 bg-transparent text-base text-gray-500;
+}
+
+/* Modal overlay */
+.modalOverlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50;
+}
+
+/* Modal content */
+.modalContent {
+    @apply bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative;
+}
+
+
+

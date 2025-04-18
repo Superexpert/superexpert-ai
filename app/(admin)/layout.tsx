@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import '@/styles/globals.css';
+import '@/app/(admin)/admin.css';
 import Nav from './ui/nav';
 import '@/superexpert-ai.plugins.server';
 

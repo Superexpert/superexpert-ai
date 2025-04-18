@@ -8,7 +8,6 @@ import React, {
     ReactNode,
     ReactElement,
 } from 'react';
-import { ThreeDot } from 'react-loading-indicators';
 import { Message, MessageProps } from '@/app/(chat)/ui/message';
 import { CHAT_ERROR_MESSAGE, START_MESSAGE } from '@/superexpert-ai.config';
 import { executeServerTool } from '@/lib/actions/server-actions';
@@ -386,7 +385,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                             perexpert.AI
                         </span>
 
-                        {/* Sign Out, now next to the logo */}
+                        {/* Sign Out */}
                         <form
                             onSubmit={handleSignOut}
                             className={styles.signOutForm}>
@@ -401,43 +400,49 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
             </header>
             <main className={styles.main}>
                 <div className={styles.chatContainer} ref={mainContentRef}>
-                    <div id="messages" className={styles.messages}>
-                        {messages.map((msg, index) => (
-                            <Message
-                                key={index}
-                                role={msg.role}
-                                text={msg.text}
-                                styles={styles}
-                            />
-                        ))}
-                        <div ref={messagesEndRef} />
-                    </div>
-                    {busyWaiting && (
-                        <div className={styles.busyWaitContainer}>
-                            <div className={styles.busyWait}></div>
+                    <div className={styles.contentWrapper}>
+                        <div id="messages" className={styles.messages}>
+                            {messages.map((msg, index) => (
+                                <Message
+                                    key={index}
+                                    role={msg.role}
+                                    text={msg.text}
+                                    styles={styles}
+                                />
+                            ))}
+                            <div ref={messagesEndRef} />
                         </div>
-                    )}
-                    <form
-                        onSubmit={handleSubmit}
-                        className={`${styles.inputForm} ${styles.clearfix}`}>
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            disabled={inputDisabled}
-                            className={styles.input}
-                            value={userInput}
-                            onChange={(e) => setUserInput(e.target.value)}
-                            placeholder="Enter your response"
-                        />
-                        <button
-                            type="submit"
-                            className={styles.button}
-                            disabled={inputDisabled}>
-                            Send
-                        </button>
-                    </form>
-                </div>
-                <Modal isVisible={isModalVisible} styles={styles}>{modalContent}</Modal>
+
+                        {busyWaiting && (
+                            <div className={styles.busyWaitContainer}>
+                                <div className={styles.busyWait}></div>
+                            </div>
+                        )}
+
+                        <form
+                            onSubmit={handleSubmit}
+                            className={`${styles.inputForm} ${styles.clearfix}`}>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                disabled={inputDisabled}
+                                className={styles.input}
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                placeholder="Enter your response"
+                            />
+                            <button
+                                type="submit"
+                                className={styles.button}
+                                disabled={inputDisabled}>
+                                Send
+                            </button>
+                        </form>
+                    </div>
+                </div>{' '}
+                <Modal isVisible={isModalVisible} styles={styles}>
+                    {modalContent}
+                </Modal>
             </main>
             <footer className={styles.footer}>
                 &copy; 2025 Superexpert.AI
