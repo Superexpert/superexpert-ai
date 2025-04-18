@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-gray-50;
+}
+
+p {
+    @apply text-base text-gray-700;
+}
+
+a {
+    @apply text-blue-600 hover:underline;
+}
+
+@layer components {
+    .btnPrimary {
+        @apply inline-flex 
+            items-center 
+            justify-center 
+            rounded-full 
+            bg-orange-500 
+            hover:bg-orange-600 
+            px-4 py-2 
+            sm:px-5 
+            sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+    }
+
+    .btnSecondary {
+        @apply bg-white inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-full shadow-sm hover:bg-gray-100 hover:no-underline transition;
+    }
+
+    .btnDanger {
+        @apply inline-flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+    }
+
+    .pageHeader {
+        @apply text-3xl font-bold text-gray-900;
+    }
+
+    .pageContainer {
+        @apply max-w-4xl 
+            mx-auto 
+            px-4 
+            py-8 
+            sm:px-6;
+    }
+
+    .pageCard {
+        @apply bg-white 
+            rounded-2xl 
+            shadow-md 
+            p-8 
+            space-y-6;
+    }
+
+    .formField {
+        @apply mb-6 
+            flex 
+            flex-col;
+    }
+
+    .fieldInstructions {
+        @apply text-zinc-500 
+            text-sm 
+            font-normal 
+            leading-snug
+            mt-0.5;
+    }
+
+    fieldset {
+        @apply space-y-2;
+    }
+
+    label {
+        @apply text-neutral-800
+            text-base
+            font-bold
+            leading-snug;
+    }
+
+    /* Input fields */
+    input,
+    textarea {
+        @apply mt-1
+            mb-1        
+            w-full border 
+            border-neutral-300 
+            rounded-lg 
+            px-4 
+            py-3 
+            text-base 
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-orange-500;
+    }
+
+    /* Textarea */
+    textarea {
+        @apply resize-none
+            leading-relaxed 
+            max-h-40 
+            overflow-y-auto;
+    }
+
+    input[readonly],
+    textarea[readonly] {
+        @apply bg-gray-100 text-gray-500 border border-gray-200 pr-10 cursor-not-allowed;
+    }
+
+    input[type='checkbox'] {
+        @apply h-4 
+            w-4 
+            text-orange-500 
+            border-gray-300 
+            rounded 
+            focus:ring-orange-500 
+            transition;
+    }
+
+    .error {
+        @apply text-red-500 
+            text-sm 
+            mt-1 
+            leading-tight;
+    }
+
+    .demoMode {
+        @apply max-w-5xl w-full bg-yellow-50 border border-yellow-200 text-yellow-900 text-base rounded-xl px-6 py-4 mt-6 mb-4 shadow-sm text-center;
+    }
+
+    .collapsiblePanel {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+
+    .collapsibleHeader {
+        width: 100%;
+        text-align: left;
+        padding: 10px;
+        background-color: #f1f1f1;
+        border: none;
+        cursor: pointer;
+    }
+
+    .collapsibleContent {
+        overflow: hidden;
+        transition: height 0.6s ease;
+    }
+
+    .collapsibleContentInner {
+        padding: 10px;
+    }
+}

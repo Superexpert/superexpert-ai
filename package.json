@@ -40,7 +40,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
-    "react-loading-indicators": "^1.0.0",
     "react-markdown": "^9.0.3",
     "reflect-metadata": "^0.2.2",
     "tiktoken": "^1.0.20",
