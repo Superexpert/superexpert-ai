@@ -11,15 +11,5 @@ export default async function ChatPage({
     const agent = await getAgentAction(resolvedParams);
     const tasks = await getTasksAction(agent.id);
 
-    return (
-        <div className="mx-auto max-w-[800px]">
-        <div>
-            <ChatBot
-                agentId={agent.id}
-                agentName={agent.name}
-                tasks={tasks}
-            />
-        </div>
-    </div>
-    );
+    return <ChatBot agentId={agent.id} agentName={agent.name} tasks={tasks} />;
 }

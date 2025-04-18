@@ -1,15 +1,6 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
-import '@/styles/globals.css';
+import '@/app/(chat)/chat.css';
 import '@/superexpert-ai.plugins.server';
-import ChatNav from './ui/chat-nav';
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-    subsets: ['latin'],
-    weight: ['400', '500', '700'], // Adjust weights as needed
-    variable: '--font-plus-jakarta-sans',
-    display: 'swap',
-  });
 
 export const metadata: Metadata = {
     title: 'Superexpert AI - Open Source AI Made Simple',
@@ -23,9 +14,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={plusJakartaSans.className}>
-                    <ChatNav />
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+            </head>
+            <body className="flex flex-col min-h-screen">
                 {children}
             </body>
         </html>

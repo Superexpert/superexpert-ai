@@ -1,31 +1,17 @@
-import styles from '@/styles/chat-bot/default.module.css';
 import Markdown from 'react-markdown';
 
 export type MessageProps = {
-    role: 'user' | 'assistant' | 'tool' | 'system';
+    role: 'user' | 'assistant';
     text: string;
+    styles?: Record<string, string>
 };
 
-const UserMessage = ({ text }: { text: string }) => {
-    return <div className={styles.userMessage}>{text}</div>;
-};
 
-const AssistantMessage = ({ text }: { text: string }) => {
+export const Message = ({ role, text, styles = {} }: MessageProps) => {
     return (
-        <div className={styles.assistantMessage}>
-            <Markdown>{text}</Markdown>
+        <div className={role === 'user' ? styles.userMessage : styles.assistantMessage}>
+            {role === 'assistant' ? <Markdown>{text}</Markdown> : text}
         </div>
     );
 };
 
-
-export const Message = ({ role, text }: MessageProps) => {
-    switch (role) {
-        case 'user':
-            return <UserMessage text={text} />;
-        case 'assistant':
-            return <AssistantMessage text={text} />;
-        default:
-            return null;
-    }
-};
