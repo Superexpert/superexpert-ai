@@ -21,7 +21,7 @@ export default async function EditTaskDefinitionPage({
 
     const isEditMode = Boolean(id);
 
-    const { attachments, corpora, serverData, serverTools, clientTools, llmModels } =
+    const { attachments, corpora, contextTools, serverTools, clientTools, llmModels } =
         await getTaskDefinitionFormDataAction(taskId);
 
     let taskDefinition: TaskDefinition = {
@@ -34,7 +34,7 @@ export default async function EditTaskDefinitionPage({
         corpusLimit: 3,
         corpusSimilarityThreshold: 50,
         corpusIds: [],
-        serverDataIds: [],
+        contextToolIds: [],
         serverToolIds: [],
         clientToolIds: [],
         modelId: 'global',
@@ -59,7 +59,7 @@ export default async function EditTaskDefinitionPage({
                     taskDefinition={taskDefinition}
                     attachments={attachments}
                     corpora={corpora}
-                    serverData={serverData}
+                    contextTools={contextTools}
                     serverTools={serverTools}
                     clientTools={clientTools}
                     llmModels={llmModels}

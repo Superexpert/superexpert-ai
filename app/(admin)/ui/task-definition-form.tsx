@@ -39,7 +39,7 @@ interface TaskDefinitionFormProps {
     taskDefinition: TaskDefinition;
     attachments: { id: string; fileName: string }[];
     corpora: { id: string; name: string; description: string }[];
-    serverData: toolItem[];
+    contextTools: toolItem[];
     serverTools: toolItem[];
     clientTools: toolItem[];
     llmModels: LLMModelDefinition[];
@@ -51,7 +51,7 @@ export default function TaskDefinitionForm({
     taskDefinition,
     attachments,
     corpora,
-    serverData,
+    contextTools,
     serverTools,
     clientTools,
     llmModels,
@@ -641,15 +641,15 @@ export default function TaskDefinitionForm({
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {serverData.map((tool) => {
+                            {contextTools.map((tool) => {
                                 const isSelected = (
-                                    watch('serverDataIds') || []
+                                    watch('contextToolIds') || []
                                 ).includes(tool.id);
 
                                 return (
                                     <SelectableCard
                                         key={tool.id}
-                                        id={`serverData-${tool.id}`}
+                                        id={`contextTool-${tool.id}`}
                                         name={`${tool.id} ${
                                             tool.category
                                                 ? `(${tool.category})`
@@ -662,13 +662,13 @@ export default function TaskDefinitionForm({
                                         onChange={(e) => {
                                             const checked = e.target.checked;
                                             const current =
-                                                watch('serverDataIds') || [];
+                                                watch('contextToolIds') || [];
                                             const updated = checked
                                                 ? [...current, tool.id]
                                                 : current.filter(
                                                       (id) => id !== tool.id
                                                   );
-                                            setValue('serverDataIds', updated);
+                                            setValue('contextToolIds', updated);
                                         }}
                                     />
                                 );
