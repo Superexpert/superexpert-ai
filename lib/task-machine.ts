@@ -1,5 +1,5 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI, ToolAI, User, LLMModelConfiguration, callServerDataTool, ServerDataToolContext } from '@superexpert-ai/framework';
+import { MessageAI, ToolAI, User, LLMModelConfiguration, callContextTool, ContextToolContext } from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
 import { buildTools } from './build-tools';
 import { prisma } from '@/lib/db/prisma';
@@ -144,7 +144,7 @@ export class TaskMachine {
             ]),
         ];
         let result = '';
-        const context: ServerDataToolContext = {
+        const context: ContextToolContext = {
             user: {
                 id: user.id!,
                 now: new Date(),
@@ -158,7 +158,7 @@ export class TaskMachine {
             db: prisma,
         };
         for (const serverDataId of serverDataIds) {
-            const serverData = await callServerDataTool(serverDataId, context, {});
+            const serverData = await callContextTool(serverDataId, context, {});
             result += `${serverData}\n`;
         }
         return result;
