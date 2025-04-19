@@ -26,7 +26,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
 
     const corpora = await db.getCorporaList(userId);
 
-    const serverData = getContextToolList();
+    const contextTools = getContextToolList();
     const serverTools = getServerToolList();
     const clientTools = getClientToolList();
     const llmModels = getLLMDefinitions();
@@ -34,7 +34,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     return {
         attachments,
         corpora,
-        serverData,
+        contextTools,
         serverTools,
         clientTools,
         llmModels,

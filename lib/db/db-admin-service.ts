@@ -126,7 +126,7 @@ export class DBAdminService {
                 description:
                     'Instructions, data, and tools applied to all tasks.',
                 instructions: '',
-                serverDataIds: [],
+                contextToolIds: [],
                 serverToolIds: [],
                 clientToolIds: ['transition'],
                 modelId: 'gpt-4o',
@@ -137,7 +137,7 @@ export class DBAdminService {
                 description:
                     'The first task when a user starts a new conversation.',
                 instructions: '',
-                serverDataIds: [],
+                contextToolIds: [],
                 serverToolIds: [],
                 clientToolIds: [],
                 modelId: 'global',

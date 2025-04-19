@@ -117,8 +117,8 @@ export class TaskMachine {
             ...new Set([
                 ...taskDefinition.serverToolIds,
                 ...globalTaskDefinition.serverToolIds,
-                ...taskDefinition.serverDataIds,
-                ...globalTaskDefinition.serverDataIds,
+                ...taskDefinition.contextToolIds,
+                ...globalTaskDefinition.contextToolIds,
                 ...taskDefinition.clientToolIds,
                 ...globalTaskDefinition.clientToolIds,
             ]),
@@ -129,7 +129,7 @@ export class TaskMachine {
         return tools;
     }
 
-    private async getServerData(
+    private async getContextToolData(
         user: User,
         agent: {id:string, name:string},
         taskDefinition: TaskDefinition,
@@ -137,10 +137,10 @@ export class TaskMachine {
         messages: MessageAI[]
     ): Promise<string> {
         // merge server data ids
-        const serverDataIds: string[] = [
+        const contextToolIds: string[] = [
             ...new Set([
-                ...taskDefinition.serverDataIds,
-                ...globalTaskDefinition.serverDataIds,
+                ...taskDefinition.contextToolIds,
+                ...globalTaskDefinition.contextToolIds,
             ]),
         ];
         let result = '';
@@ -157,9 +157,9 @@ export class TaskMachine {
             messages: messages,
             db: prisma,
         };
-        for (const serverDataId of serverDataIds) {
-            const serverData = await callContextTool(serverDataId, context, {});
-            result += `${serverData}\n`;
+        for (const contextToolId of contextToolIds) {
+            const data = await callContextTool(contextToolId, context, {});
+            result += `${data}\n`;
         }
         return result;
     }
@@ -173,7 +173,7 @@ export class TaskMachine {
         messages: MessageAI[]
     ): Promise<string> {
         const agent = {id: agentId, name: agentName};
-        const serverData = await this.getServerData(
+        const contextToolData = await this.getContextToolData(
             user,
             agent,
             taskDefinition,
@@ -200,7 +200,7 @@ File Name: ${attachment.fileName}
         return (
             globalTaskDefinition.instructions +
             taskDefinition.instructions +
-            serverData +
+            contextToolData +
             attachmentsBlob
         );
     }

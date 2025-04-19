@@ -21,7 +21,7 @@ model taskDefinitions {
   corpusLimit                 Int       @default(3)
   corpusSimilarityThreshold   Int       @default(50)
   corpusIds                   String[]
-  serverDataIds               String[]
+  contextToolIds              String[]
   serverToolIds               String[]
   clientToolIds               String[]
   modelId                     String

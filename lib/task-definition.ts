@@ -12,7 +12,7 @@ export interface TaskDefinition {
     corpusLimit: number;
     corpusSimilarityThreshold: number;
     corpusIds: string[];
-    serverDataIds: string[];
+    contextToolIds: string[];
     serverToolIds: string[];
     clientToolIds: string[];
     modelId: string;
@@ -40,7 +40,7 @@ export const clientTaskDefinitionSchema = z
         corpusLimit: z.number().min(0).max(50).default(1),
         corpusSimilarityThreshold: z.number().int().min(0).max(100).default(50),
         corpusIds: z.array(z.string()),
-        serverDataIds: z.array(z.string()),
+        contextToolIds: z.array(z.string()),
         serverToolIds: z.array(z.string()),
         clientToolIds: z.array(z.string()),
         modelId: z.string().nonempty('Model ID is required'),
