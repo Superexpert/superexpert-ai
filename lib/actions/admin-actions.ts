@@ -10,7 +10,7 @@ import { OpenAIEmbeddingAdapter } from '../adapters/embedding-adapters/openai-em
 import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
-import { getLLMDefinitions, getServerToolList, getServerDataToolList, getClientToolList } from '@superexpert-ai/framework';
+import { getLLMDefinitions, getServerToolList, getContextToolList, getClientToolList } from '@superexpert-ai/framework';
 
 //** TaskDefinitionForm **//
 
@@ -26,7 +26,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
 
     const corpora = await db.getCorporaList(userId);
 
-    const serverData = getServerDataToolList();
+    const serverData = getContextToolList();
     const serverTools = getServerToolList();
     const clientTools = getClientToolList();
     const llmModels = getLLMDefinitions();

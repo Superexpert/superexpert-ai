@@ -36,7 +36,7 @@ registerServerTool({
 
 registerServerTool({
     name: 'remember',
-    category: 'sample',
+    category: 'experimental',
     description: 'Remember something for a duration of time',
     parameters: [
         {

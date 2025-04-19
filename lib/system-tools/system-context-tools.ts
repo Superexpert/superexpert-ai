@@ -1,7 +1,7 @@
-import { registerServerDataTool } from "@superexpert-ai/framework";
+import { registerContextTool } from "@superexpert-ai/framework";
 
 
-registerServerDataTool({
+registerContextTool({
     name: 'loadProfile', 
     category: 'system',
     description: 'Load the user profile.',

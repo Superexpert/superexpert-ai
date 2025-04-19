@@ -1,19 +1,12 @@
 import { registerClientTool } from '@superexpert-ai/framework';
-import { TextMessageConsentContent } from '@/forms/text-message-consent';
-
-
+import { PaymentConsentContent } from '@/forms/payment-consent';
 
 registerClientTool({
-    name: 'showConsent',
+    name: 'showRobotPaymentConsent',
     category: 'sample',
-    description: 'This is a tool to show a consent form',
+    description: 'This is a tool to show a payment consent form for purchasing a robot',
     async function() {
-        const result = await this.showModal(
-            TextMessageConsentContent
-        );
+        const result = await this.showModal(PaymentConsentContent);
         return result;
     },
- 
 });
-
-
