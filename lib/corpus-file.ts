@@ -6,6 +6,7 @@ export interface CorpusFile {
     fileName: string;
     chunkSize: number;
     chunkOverlap: number;
+    done: boolean;
 }
 
 export const corpusFileSchema = z.object({

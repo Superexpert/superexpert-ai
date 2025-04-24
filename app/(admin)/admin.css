@@ -32,7 +32,19 @@ a {
     }
 
     .btnDanger {
-        @apply inline-flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-semibold text-white shadow transition duration-200 hover:no-underline;
+        @apply inline-flex items-center justify-center rounded-full
+        bg-red-500  hover:bg-red-600
+        px-4 py-2 sm:px-5 sm:py-2.5
+        text-sm sm:text-base font-semibold text-white
+        shadow transition duration-200
+        hover:no-underline
+
+        /* ── disabled state —————————————————————— */
+        disabled:bg-red-300          /* lighter shade */
+        disabled:text-white/60       /* fade text a bit */
+        disabled:cursor-not-allowed
+        disabled:hover:bg-red-300    /* keep same colour on hover */
+        disabled:opacity-60;
     }
 
     .pageHeader {

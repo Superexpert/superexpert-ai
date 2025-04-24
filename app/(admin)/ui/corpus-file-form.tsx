@@ -4,6 +4,8 @@ import { useState, useRef } from 'react';
 import {
     saveCorpusFileAction,
     uploadChunkAction,
+    getLastChunkAction,
+    markCorpusFileDoneAction,
 } from '@/lib/actions/admin-actions';
 import { encodingForModel } from 'js-tiktoken';
 import DemoMode from './demo-mode';
@@ -17,6 +19,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
         corpus.corpusFiles
     );
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadDone, setUploadDone] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
 
@@ -26,150 +29,154 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
 
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
+    /* ───────────────────────── handleClick ───────────────────────── */
     const handleClick = async () => {
-        // Get file
-        const inputElement = fileInputRef.current;
+        /* ─── 1. validate UI input ───────────────────────────────────── */
+        const input = fileInputRef.current;
+        if (!input?.files?.length) {
+            setError('Please select a file');
+            return;
+        }
+        const file = input.files[0];
+
+        const chunkSize = Number(chunkSizeRef.current!.value);
+        const overlapPct = Number(chunkOverlapRef.current!.value);
+
         if (
-            !inputElement ||
-            !inputElement.files ||
-            inputElement.files.length == 0
+            isNaN(chunkSize) ||
+            chunkSize < 50 ||
+            chunkSize > 8192 ||
+            isNaN(overlapPct) ||
+            overlapPct < 0 ||
+            overlapPct > 50
         ) {
-            setError('Please select a file to upload');
-            return;
-        }
-        const file = inputElement.files[0];
-
-        // Get chunk size
-        const chunkSizeElement = chunkSizeRef.current;
-        if (!chunkSizeElement) return;
-        const chunkSize = parseInt(chunkSizeElement.value);
-        if (isNaN(chunkSize) || chunkSize < 50 || chunkSize > 8192) {
-            setError('Chunk size must be between 50 and 8,192 tokens');
+            setError('Invalid chunk size / overlap');
             return;
         }
 
-        // Get chunk overlap percentage
-        const chunkOverlapElement = chunkOverlapRef.current;
-        if (!chunkOverlapElement) return;
-        const chunkOverlapPercentage = parseInt(chunkOverlapElement.value);
-        if (isNaN(chunkOverlapPercentage)) {
-            setError('Chunk overlap must be between 0% and 50%');
-            return;
-        }
+        /* ─── 2. make / reuse corpusFile row ─────────────────────────── */
+        setUploading(true); // mounts the bar
+        setUploadProgress(0.5); // tiny stub width
+        setUploadDone(false);
 
-        // Show progress bar immediately with initial status
-        setUploading(true);
-        setUploadProgress(0.5); // Start with a small value to show the bar immediately
-
-        // Calculate the number of tokens to overlap between chunks
-        const overlapTokens = Math.floor(
-            (chunkOverlapPercentage / 100) * chunkSize
-        );
-
-        // Create new corpus file id
-        const result = await saveCorpusFileAction({
+        const { corpusFileId } = await saveCorpusFileAction({
             corpusId: corpus.id!,
-            chunkSize: chunkSize,
-            chunkOverlap: chunkOverlapPercentage,
+            chunkSize,
+            chunkOverlap: overlapPct,
             fileName: file.name,
+            done: false,
         });
-        const corpusFileId = result.corpusFileId!;
 
-        // Initialize the tokenizer for the specific model
-        const encoding = encodingForModel('text-embedding-3-small');
+        /* ─── 3. checkpoint ──────────────────────────────────────────── */
+        const lastChunkSaved = await getLastChunkAction(corpusFileId!);
+        const nextChunk = lastChunkSaved + 1;
+
+        if (lastChunkSaved >= 0) {
+            console.log(`Resuming ${file.name} from chunk ${nextChunk}`);
+        }
+
+        const overlapTokens = Math.floor((overlapPct / 100) * chunkSize);
+        const enc = encodingForModel('text-embedding-3-small');
+
+        /* 1 token ≈ 4 bytes for English; give the bar a decent estimate up front */
+        const estBytes = nextChunk * (chunkSize - overlapTokens) * 4;
+        setUploadProgress(Math.min(99, (estBytes / file.size) * 100));
+
+        /* ─── 4. stream + upload ─────────────────────────────────────── */
+        let idx = nextChunk;
+        let uploaded = estBytes;
 
         try {
-            setError('');
-
             const reader = file.stream().getReader();
             const decoder = new TextDecoder('utf-8');
-
-            let accumulatedText = '';
-            let accumulatedTokens = [];
-            let chunkIndex = 0;
-            let totalSizeUploaded = 0;
+            let accText = '';
+            let accTokens: number[] = [];
 
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) {
-                    // Process any remaining text
-                    if (accumulatedTokens.length > 0) {
-                        const tokens = encoding.encode(accumulatedText);
+                if (done) break;
+
+                accText += decoder.decode(value, { stream: true });
+                accTokens = enc.encode(accText);
+
+                while (accTokens.length >= chunkSize) {
+                    const chunkTokens = accTokens.slice(0, chunkSize);
+                    const chunkText = enc.decode(chunkTokens);
+
+                    /* skip or send depending on checkpoint */
+                    if (idx <= lastChunkSaved) {
+                        uploaded += chunkText.length; // byte-accurate bar
+                    } else {
                         await sendChunk(
-                            corpusFileId,
-                            accumulatedText,
-                            chunkIndex,
+                            corpusFileId!,
+                            chunkText,
+                            idx,
                             file.name,
-                            tokens.length
+                            chunkTokens.length
                         );
-                        totalSizeUploaded += accumulatedText.length;
-                        chunkIndex++;
+                        uploaded += chunkText.length;
                     }
-                    break;
-                }
 
-                // Decode the current chunk of bytes into text
-                const textChunk = decoder.decode(value, { stream: true });
-                accumulatedText += textChunk;
+                    idx++;
 
-                // Tokenize the accumulated text
-                const tokens = encoding.encode(accumulatedText);
-                accumulatedTokens = tokens;
-
-                // While the token count exceeds or equals the chunk size, process chunks
-                while (accumulatedTokens.length >= chunkSize) {
-                    // Extract the chunk corresponding to chunkSize
-                    const chunkTokens = accumulatedTokens.slice(0, chunkSize);
-                    const chunkText = encoding.decode(chunkTokens);
-
-                    // Send the chunk
-                    await sendChunk(
-                        corpusFileId,
-                        chunkText,
-                        chunkIndex,
-                        file.name,
-                        chunkTokens.length
+                    /* keep the overlap for sliding window */
+                    accText = enc.decode(
+                        accTokens.slice(chunkSize - overlapTokens)
                     );
-                    totalSizeUploaded += chunkText.length;
-                    chunkIndex++;
+                    accTokens = enc.encode(accText);
 
-                    // Update the accumulated text and tokens to remove the processed chunk
-                    // Retain the overlap portion for the next chunk
-                    accumulatedText = encoding.decode(
-                        accumulatedTokens.slice(chunkSize - overlapTokens)
+                    setUploadProgress(
+                        Math.min(99, Math.floor((uploaded / file.size) * 100))
                     );
-                    accumulatedTokens = encoding.encode(accumulatedText);
-
-                    // Update upload progress
-                    const progress = Math.round(
-                        (totalSizeUploaded / file.size) * 100
-                    );
-                    setUploadProgress(Math.min(progress, 100));
                 }
             }
 
-            // All done
+            /* tail */
+            if (accTokens.length && idx > lastChunkSaved) {
+                await sendChunk(
+                    corpusFileId!,
+                    accText,
+                    idx,
+                    file.name,
+                    accTokens.length
+                );
+                uploaded += accText.length;
+            }
+
+            /* Mark as done */
+            await markCorpusFileDoneAction(corpusFileId!);
+            setCurrentCorpusFiles(prev =>
+                prev.map(cf =>
+                  cf.id === corpusFileId ? { ...cf, done: true } : cf
+                )
+              );
+
             setUploadProgress(100);
-            setCurrentCorpusFiles((prevCorpusFiles) => [
-                ...prevCorpusFiles,
-                {
-                    id: corpusFileId,
-                    corpusId: corpus.id!,
-                    chunkSize,
-                    chunkOverlap: chunkOverlapPercentage,
-                    fileName: file.name,
-                },
-            ]);
+            setUploadDone(true);
+
+            /* first-time insert → refresh list */
+            if (lastChunkSaved === -1) {
+                setCurrentCorpusFiles((prev) => [
+                    ...prev,
+                    {
+                        id: corpusFileId,
+                        corpusId: corpus.id!,
+                        chunkSize,
+                        chunkOverlap: overlapPct,
+                        fileName: file.name,
+                        done: true,
+                    },
+                ]);
+            }
         } catch (err) {
-            console.error('Upload error:', err);
-            setError(
-                err instanceof Error ? err.message : 'An unknown error occurred'
-            );
+            console.error(err);
+            setError(err instanceof Error ? err.message : 'Upload failed');
         } finally {
             setUploading(false);
         }
     };
 
+    /* ─────────────────── sendChunk & helpers (unchanged) ─────────── */
     const sendChunk = async (
         corpusFileId: string,
         chunk: string,
@@ -177,34 +184,27 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
         fileName: string,
         tokenCount: number
     ) => {
-        const formData = new FormData();
-        formData.append('chunk', chunk);
-        formData.append('chunkIndex', index.toString());
-        formData.append('fileName', fileName);
+        const fd = new FormData();
+        fd.append('chunk', chunk);
+        fd.append('chunkIndex', index.toString());
+        fd.append('fileName', fileName);
 
-        const sendFunction = () => uploadChunkAction(corpusFileId, formData);
-        await sendWithRetry(sendFunction);
-
-        console.log(
-            `Chunk ${index} sent, size: ${chunk.length} characters, tokenCount: ${tokenCount}`
-        );
+        await sendWithRetry(() => uploadChunkAction(corpusFileId, fd));
+        console.log(`↑ chunk ${index} (${tokenCount} tokens)`);
     };
 
     const sendWithRetry = async (
-        sendFunction: () => Promise<void>,
-        retries = 3,
+        fn: () => Promise<void>,
+        tries = 3,
         delay = 500
     ) => {
-        for (let attempt = 1; attempt <= retries; attempt++) {
+        for (let t = 1; t <= tries; t++) {
             try {
-                return await sendFunction();
-            } catch (error) {
-                if (attempt === retries) throw error;
-                console.warn(
-                    `Attempt ${attempt} failed. Retrying in ${delay}ms...`
-                );
-                await new Promise((res) => setTimeout(res, delay));
-                delay *= 2; // Exponential backoff
+                return await fn();
+            } catch (e) {
+                if (t === tries) throw e;
+                await new Promise((r) => setTimeout(r, delay));
+                delay *= 2;
             }
         }
     };
@@ -238,8 +238,9 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                     <div>
                         <h1 className="pageHeader">{corpus.name} Files</h1>
                         <p className="text-gray-600">
-                            A corpus contains a set of files that can be
-                            semantically searched.
+                            Use this page to upload and manage your corpus files.
+                            If you need to upload a large file, or a PDF file, then
+                            we recommend using the @superexpert-ai/rag tool.
                         </p>
                     </div>
                 </div>
@@ -257,6 +258,9 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                                     Chunk Size:{' '}
                                     {corpusFile.chunkSize.toLocaleString()}{' '}
                                     tokens, Overlap: {corpusFile.chunkOverlap}%
+                                    {!corpusFile.done && (
+                                        <span className="text-orange-500"> partial upload</span>
+                                    )}
                                 </div>
                             </div>
                             <button
@@ -264,6 +268,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                                 onClick={() =>
                                     handleDeleteCorpusFile(corpusFile.id!)
                                 }
+                                disabled={uploading}
                                 className="btnDanger">
                                 Delete
                             </button>
@@ -326,7 +331,9 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                         <>
                             <label
                                 htmlFor="file-upload"
-                                className="btnPrimary inline-flex cursor-pointer">
+                                className={
+                                  `btnPrimary inline-flex cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`
+                            }>
                                 Choose File
                             </label>
                             <input
@@ -339,16 +346,25 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                             />
                         </>
                     )}
-                    {uploadProgress > 0 && (
+                    {uploading && (
                         <div className="mt-4">
-                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-orange-500 transition-all duration-300"
-                                    style={{ width: `${uploadProgress}%` }}
+                                    className="h-full bg-orange-500 transition-[width] duration-300"
+                                    style={{
+                                        width: `${Math.max(
+                                            uploadProgress,
+                                            0.1
+                                        )}%`,
+                                    }}
                                 />
+                                {uploadDone && (
+                                    <div className="absolute inset-0 animate-pulse bg-orange-300/30 pointer-events-none" />
+                                )}
                             </div>
                             <p className="text-sm text-gray-600 mt-1">
-                                {uploadProgress}% uploaded
+                                {Math.floor(uploadProgress)}% uploaded
+                                {uploadDone && ', finalizing…'}
                             </p>
                         </div>
                     )}

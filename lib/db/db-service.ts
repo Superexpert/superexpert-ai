@@ -157,14 +157,14 @@ export class DBService {
 
         const relevantCorpusChunks = (await prisma.$queryRaw`
             SELECT cfc.id, cfc.chunk, cf."fileName",
-            (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) AS similarity
+            (1 - (cfc.embedding <=> ${embedding}::vector)) AS similarity
             FROM "superexpert_ai_corpusFileChunks" AS cfc
             INNER JOIN "superexpert_ai_corpusFiles" AS cf
             ON cfc."corpusFileId" = cf.id
             WHERE cf."corpusId" IN (${uniqueCorpusIds.join(',')})
             AND cfc."userId" = ${userId}
-            AND (1 - (cfc.embedding <=> ${embedding.data[0].embedding}::vector)) >= ${decimalSimilarityThreshold}
-            ORDER BY cfc.embedding <=> ${embedding.data[0].embedding}::vector
+            AND (1 - (cfc.embedding <=> ${embedding}::vector)) >= ${decimalSimilarityThreshold}
+            ORDER BY cfc.embedding <=> ${embedding}::vector
             LIMIT ${limit};
             `) as { id: number; chunk: string; fileName: string, similarity: number }[];
 

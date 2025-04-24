@@ -3,6 +3,7 @@ import { Agent } from '../agent';
 import { prisma } from './prisma';
 import { Corpus } from '../corpus';
 import { CorpusFile } from '../corpus-file';
+import pgvector from 'pgvector';
 
 export class DBAdminService {
     constructor(protected userId: string) {}
@@ -70,13 +71,12 @@ export class DBAdminService {
                 file,
             },
             select: {
-                id: true
-            }
+                id: true,
+            },
         });
 
         return newAttachment.id;
     }
-
 
     public async deleteAttachment(attachmentId: string) {
         await prisma.attachments.delete({
@@ -252,7 +252,6 @@ export class DBAdminService {
 
     //** Corpus */
 
-
     public async getCorporaList() {
         const corpora = await prisma.corpus.findMany({
             where: {
@@ -284,7 +283,6 @@ export class DBAdminService {
         }
         return corpus;
     }
-
 
     public async saveCorpus(corpus: Corpus) {
         // Update existing
@@ -342,58 +340,113 @@ export class DBAdminService {
         return true;
     }
 
-
-
     public async getCorpusByName(name: string) {
         const corpus = await prisma.corpus.findUnique({
             where: {
-                userId_name:{
+                userId_name: {
                     userId: this.userId,
                     name,
-                }
+                },
             },
         });
         return corpus;
     }
-    
 
     public async createCorpusFile(data: CorpusFile) {
-        const corpusFile = await prisma.corpusFiles.create({
-            data: {
+        const corpusFile = await prisma.corpusFiles.upsert({
+            where: {
+                corpusId_fileName: {
+                    corpusId: data.corpusId,
+                    fileName: data.fileName,
+                },
+            }, // @@unique
+            create: {
                 userId: this.userId,
                 corpusId: data.corpusId,
                 fileName: data.fileName,
                 chunkSize: data.chunkSize,
                 chunkOverlap: data.chunkOverlap,
             },
+            update: {
+                chunkSize: data.chunkSize,
+                chunkOverlap: data.chunkOverlap,
+                done: data.done,
+            },
+            select: { id: true },
         });
         return corpusFile.id;
     }
 
-    public async createCorpusFileChunk(
-        userId: string,
-        corpusFileId: string,
-        chunk: string
-    ) {
-        const corpusFileChunk = await prisma.corpusFileChunks.create({
+    public async markCorpusFileDone(corpusFileId: string) {
+        await prisma.corpusFiles.update({
+            where: {
+               id:corpusFileId,
+               userId: this.userId,
+            },
             data: {
-                userId,
-                corpusFileId,
-                chunk,
+                done: true,
             },
         });
-        return corpusFileChunk.id;
+        return true;
     }
 
-    public async updateCorpusChunkEmbedding(
-        userId: string,
-        corpusChunkId: number,
-        embedding: number[]
-    ) {
-        await prisma.$executeRaw`
-        UPDATE "superexpert_ai_corpusFileChunks"
-        SET embedding = ${embedding}::vector
-        WHERE id = ${corpusChunkId} AND "userId" = ${userId};
-    `;
+    public async createCorpusFileChunk(
+        userId       : string,
+        corpusFileId : string,
+        chunkIndex   : number,
+        chunkText    : string,
+        embedding    : number[]
+      ) {
+        const vec = pgvector.toSql(embedding);   
+      
+        await prisma.$transaction(async (tx) => {
+          /* 1️⃣  insert chunk, skip if already present */
+          await tx.$executeRawUnsafe(
+            `INSERT INTO "superexpert_ai_corpusFileChunks"
+               ("userId","corpusFileId","chunkIndex","chunk","embedding")
+             VALUES ($1,$2,$3,$4,$5::vector)
+             ON CONFLICT ("corpusFileId","chunkIndex") DO NOTHING`,
+            userId,
+            corpusFileId,
+            chunkIndex,
+            chunkText,
+            vec
+          );
+      
+          /* 2️⃣  bump checkpoint monotonically */
+          await tx.$executeRawUnsafe(
+            `INSERT INTO "superexpert_ai_corpusFileProgress"
+                     ("corpusFileId","lastChunk")
+             VALUES ($1,$2)
+             ON CONFLICT ("corpusFileId")
+             DO UPDATE SET "lastChunk" = GREATEST(
+                 EXCLUDED."lastChunk",
+                 "superexpert_ai_corpusFileProgress"."lastChunk"
+             )`,
+            corpusFileId,
+            chunkIndex
+          );
+        });
+      }
+
+    // public async updateCorpusChunkEmbedding(
+    //     userId: string,
+    //     corpusChunkId: number,
+    //     embedding: number[]
+    // ) {
+    //     await prisma.$executeRaw`
+    //     UPDATE "superexpert_ai_corpusFileChunks"
+    //     SET embedding = ${embedding}::vector
+    //     WHERE id = ${corpusChunkId} AND "userId" = ${userId};
+    // `;
+    // }
+
+    public async getCorpusFileProgress(corpusFileId: string) {
+        const row = await prisma.corpusFileProgress.findUnique({
+            where: { corpusFileId },
+            select: { lastChunk: true },
+          });
+          return row?.lastChunk ?? -1;    
     }
+      
 }

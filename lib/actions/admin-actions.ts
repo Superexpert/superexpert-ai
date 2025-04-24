@@ -214,40 +214,51 @@ export async function saveCorpusFileAction(
     }
 }
 
+export async function markCorpusFileDoneAction(corpusFileId: string) {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    await db.markCorpusFileDone(corpusFileId);
+}
+
 export async function uploadChunkAction(
     corpusFileId: string,
     formData: FormData
 ) {
     const userId = await getUserId();
 
-    const chunk = formData.get('chunk') as string;
-    const chunkIndex = parseInt(formData.get('chunkIndex') as string, 10);
-    const tokenCount = parseInt(formData.get('tokenCount') as string, 10);
-    const fileName = formData.get('fileName') as string;
+    const chunkText  = formData.get("chunk")      as string;
+    const chunkIndex = Number(formData.get("chunkIndex"));
+    const tokenCount = Number(formData.get("tokenCount"));   // send from client
+  
+    // 1️⃣ generate embedding
+    const embeddingAdapter = new OpenAIEmbeddingAdapter();
+    const vec = await embeddingAdapter.getEmbedding(chunkText, tokenCount);
 
     try {
         const db = new DBAdminService(userId);
-        const corpusChunkId = await db.createCorpusFileChunk(
+        await db.createCorpusFileChunk(
             userId,
             corpusFileId,
-            chunk
+            chunkIndex,
+            chunkText,
+            vec
         );
 
-        const adapter = new OpenAIEmbeddingAdapter();
-        const embedding = await adapter.getEmbedding(chunk);
-        await db.updateCorpusChunkEmbedding(
-            userId,
-            corpusChunkId,
-            embedding.data[0].embedding
-        );
-        console.log(
-            `Successfully saved chunk ${chunkIndex} for file ${fileName} using ${tokenCount} tokens`
-        );
     } catch (error) {
         console.error(`Failed to save chunk ${chunkIndex}`, error);
         throw new Error(`Failed to save chunk ${chunkIndex}`);
     }
 }
+
+/** helper for the form to fetch resume point */
+export async function getLastChunkAction(corpusFileId: string) {
+    const userId = await getUserId();
+    const db = new DBAdminService(userId);
+
+    const checkpoint = await db.getCorpusFileProgress(corpusFileId);
+    return checkpoint;
+  }
 
 /* Edit Corpus Form */
 
