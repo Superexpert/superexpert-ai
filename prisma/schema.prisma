@@ -1,34 +1,34 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
   extensions = [vector]
 }
 
 model taskDefinitions {
-  id                          String    @id @default(uuid())
-  userId                      String
-  agentId                     String
-  isSystem                    Boolean   @default(false)
-  name                        String
-  description                 String
-  instructions                String
-  startNewThread              Boolean   @default(false)
-  corpusLimit                 Int       @default(3)
-  corpusSimilarityThreshold   Int       @default(50)
-  corpusIds                   String[]
-  contextToolIds              String[]
-  serverToolIds               String[]
-  clientToolIds               String[]
-  modelId                     String
-  maximumOutputTokens         Int?
-  temperature                 Float?
-  theme                       String    @default("global")
-  createdAt                   DateTime  @default(now())
+  id                        String   @id @default(uuid())
+  userId                    String
+  agentId                   String
+  isSystem                  Boolean  @default(false)
+  name                      String
+  description               String
+  instructions              String
+  startNewThread            Boolean  @default(false)
+  corpusLimit               Int      @default(3)
+  corpusSimilarityThreshold Int      @default(50)
+  corpusIds                 String[]
+  contextToolIds            String[]
+  serverToolIds             String[]
+  clientToolIds             String[]
+  modelId                   String
+  maximumOutputTokens       Int?
+  temperature               Float?
+  theme                     String   @default("global")
+  createdAt                 DateTime @default(now())
 
   @@unique([agentId, name], name: "taskDefinition_agentId_name") // Composite unique constraint
   @@map("superexpert_ai_taskDefinitions")
@@ -80,9 +80,9 @@ model profiles {
 }
 
 model agents {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   userId      String
-  name        String @unique
+  name        String   @unique
   description String
   createdAt   DateTime @default(now())
 
@@ -91,69 +91,90 @@ model agents {
 }
 
 model consents {
-  id        String @id @default(uuid())
+  id        String   @id @default(uuid())
   userId    String
   type      String
   createdAt DateTime @default(now())
-  
+
   @@map("superexpert_ai_consents")
 }
 
-
 model corpus {
-  id            String @id @default(uuid())
-  userId        String
-  name          String
-  description   String
-  createdAt     DateTime @default(now())
-// One-to-Many: corpora to corporaFiles
-  corpusFiles  corpusFiles[] @relation("CorpusToFiles")
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  description String
+  createdAt   DateTime @default(now())
 
- // Unique constraint on (userId, name)
+  /// One-to-many: a corpus owns many files
+  corpusFiles corpusFiles[] @relation("CorpusToFiles")
+
   @@unique([userId, name])
-
   @@map("superexpert_ai_corpus")
 }
 
-
+/// ──────────────────────────────────────────────────────────
+/// 2)  corpusFiles  – one row per uploaded file
 model corpusFiles {
-  id                String @id @default(uuid())
-  userId            String
-  fileName          String
-  chunkSize         Int
-  chunkOverlap      Int
-  createdAt         DateTime @default(now())
-   // Foreign Key: corpusId (Many-to-One relationship with corpus)
-  corpusId          String
-  corpus            corpus   @relation("CorpusToFiles", fields: [corpusId], references: [id])
+  id           String   @id @default(uuid())
+  userId       String
+  fileName     String
+  chunkSize    Int
+  chunkOverlap Int
+  createdAt    DateTime @default(now())
 
-  // One-to-Many: corporaFiles to corporaFileChunks
+  /// FK → corpus
+  corpusId String
+  corpus   corpus @relation("CorpusToFiles", fields: [corpusId], references: [id])
+
+  /// One-to-many: file → chunks
   corporaFileChunks corpusFileChunks[] @relation("FilesToChunks")
 
+  /// One-to-one: file → progress  (parent side has NO fields/references)
+  corpusFileProgress corpusFileProgress? @relation("FileToProgress")
 
+  @@unique([corpusId, fileName])
   @@map("superexpert_ai_corpusFiles")
 }
 
+/// ──────────────────────────────────────────────────────────
+/// 3)  corpusFileChunks  – individual text/embedding chunks
 model corpusFileChunks {
-  id              Int      @id @default(autoincrement())
-  userId          String
-  chunk           String
-  embedding       Unsupported("vector(1536)")?
-  // Foreign Key: corporaFileId (Many-to-One relationship with corporaFiles)
-  corpusFileId    String
-  corpusFile     corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id], onDelete: Cascade)
+  id         Int                          @id @default(autoincrement())
+  userId     String
+  chunkIndex Int
+  chunk      String
+  embedding  Unsupported("vector(1536)")?
 
+  /// FK → corpusFiles   (child side has fields/references + cascade)
+  corpusFileId String
+  corpusFile   corpusFiles @relation("FilesToChunks", fields: [corpusFileId], references: [id], onDelete: Cascade)
+
+  /// prevents duplicate inserts when resuming
+  @@unique([corpusFileId, chunkIndex])
   @@map("superexpert_ai_corpusFileChunks")
 }
 
+/// ──────────────────────────────────────────────────────────
+/// 4)  corpusFileProgress  – checkpoint for resumable ingest
+model corpusFileProgress {
+  corpusFileId String   @id // PK = FK
+  lastChunk    Int      @default(-1)
+  updatedAt    DateTime @updatedAt @default(now())
+
+  /// FK → corpusFiles  (child side owns fields/references + cascade)
+  corpusFile corpusFiles @relation("FileToProgress", fields: [corpusFileId], references: [id], onDelete: Cascade)
+
+  @@map("superexpert_ai_corpusFileProgress")
+}
 
 model attachments {
-  id                String    @id @default(uuid())
-  userId            String
-  taskDefinitionId  String
-  fileName          String
-  createdAt         DateTime  @default(now())
-  file              String    @db.Text
+  id               String   @id @default(uuid())
+  userId           String
+  taskDefinitionId String
+  fileName         String
+  createdAt        DateTime @default(now())
+  file             String   @db.Text
 
   @@map("superexpert_ai_attachments")
 }
