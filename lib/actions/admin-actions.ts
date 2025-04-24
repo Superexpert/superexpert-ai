@@ -214,6 +214,13 @@ export async function saveCorpusFileAction(
     }
 }
 
+export async function markCorpusFileDoneAction(corpusFileId: string) {
+    const userId = await getUserId();
+
+    const db = new DBAdminService(userId);
+    await db.markCorpusFileDone(corpusFileId);
+}
+
 export async function uploadChunkAction(
     corpusFileId: string,
     formData: FormData

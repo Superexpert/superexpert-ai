@@ -121,6 +121,7 @@ model corpusFiles {
   fileName     String
   chunkSize    Int
   chunkOverlap Int
+  done          Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   /// FK → corpus

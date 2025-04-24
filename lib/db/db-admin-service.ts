@@ -370,10 +370,24 @@ export class DBAdminService {
             update: {
                 chunkSize: data.chunkSize,
                 chunkOverlap: data.chunkOverlap,
+                done: data.done,
             },
             select: { id: true },
         });
         return corpusFile.id;
+    }
+
+    public async markCorpusFileDone(corpusFileId: string) {
+        await prisma.corpusFiles.update({
+            where: {
+               id:corpusFileId,
+               userId: this.userId,
+            },
+            data: {
+                done: true,
+            },
+        });
+        return true;
     }
 
     public async createCorpusFileChunk(
