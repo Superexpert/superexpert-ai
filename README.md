@@ -12,10 +12,6 @@ Ready to dive in? Follow our [Install in Minutes](https://superexpert.ai/docs/in
 
 For comprehensive details on all features and capabilities, refer to our [Full Documentation](https://superexpert.ai/docs/).
 
-## Alpha Release Notice
-
-🚧 **Important**: Superexpert.AI is currently in its Alpha stage. While we are excited to have you explore and experiment with the platform, please be aware that some features may be incomplete or subject to change. Your feedback is invaluable during this phase.
-
 ## Community and Support
 
 Join our community to share your experiences, request features, and report issues:
