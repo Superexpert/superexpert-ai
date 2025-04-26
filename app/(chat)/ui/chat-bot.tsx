@@ -22,6 +22,7 @@ import {
 } from '@superexpert-ai/framework';
 import Modal from '@/app/(chat)/ui/modal';
 import { handleSignOut } from '@/lib/actions/server-actions';
+import Image from 'next/image';
 
 const getNow = () => {
     return new Date();
@@ -380,11 +381,15 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                 <div className={styles.headerInner}>
                     <div className={styles.headerLeft}>
                         {/* Logo */}
-                        <span className={styles.logo}>
-                            <span className={styles.logoIcon}>Su</span>
-                            perexpert.AI
-                        </span>
-
+                        <div className={styles.logoContainer}>
+                            <Image
+                                src="/superexpert-ai-black-transparent.png"
+                                alt="Logo"
+                                className={styles.logo}
+                                width={200}
+                                height={39}
+                            />
+                        </div>
                         {/* Sign Out */}
                         <form
                             onSubmit={handleSignOut}
