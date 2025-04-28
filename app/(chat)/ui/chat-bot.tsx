@@ -386,6 +386,7 @@ const ChatBot = ({ agentId, agentName, tasks }: ChatBotProps) => {
                                 src="/superexpert-ai-black-transparent.png"
                                 alt="Logo"
                                 className={styles.logo}
+                                priority={true}
                                 width={200}
                                 height={39}
                             />
