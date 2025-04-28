@@ -1,7 +1,10 @@
 import 'openai/shims/node';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
-import { ToolAI } from '@/lib/tool-ai';
-import { MessageAI } from '@/lib/message-ai';
+import { MessageAI} from '@superexpert-ai/framework';
+import { ToolAI } from '@superexpert-ai/framework';
+import { getLLMDefinitions } from '@superexpert-ai/framework';
+import '@/lib/adapters/llm-adapters/system-adapters';
+
 
 /***********
  * 
@@ -12,7 +15,7 @@ import { MessageAI } from '@/lib/message-ai';
  * Note: Sometimes Claude Opus will just think and not act and fail the test.
  */
 
-const models = LLMModelFactory.getAvailableModels()
+const models = getLLMDefinitions()
     .filter(model => model.id !== 'claude-3-7-sonnet-20250219') // Claude 3.7 Sonnet will work with thinking enabled
     .filter(model => model.provider !== 'google'); // Google models do not support parallel function calls
 

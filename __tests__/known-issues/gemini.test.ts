@@ -1,6 +1,8 @@
-import { MessageAI } from '@/lib/message-ai';
-import { ToolAI } from '@/lib/tool-ai';
+import { MessageAI} from '@superexpert-ai/framework';
+import { ToolAI } from '@superexpert-ai/framework';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
+import '@/lib/adapters/llm-adapters/system-adapters';
+
 
 /***********
  * Known Issue: Gemini 2.0 Flash will return MALFORMED_FUNCTION_CALL 
