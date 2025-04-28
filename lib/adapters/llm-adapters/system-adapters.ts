@@ -3,6 +3,65 @@ import { OpenAILLMAdapter } from '@/lib/adapters/llm-adapters/openai-llm-adapter
 import { GoogleLLMAdapter } from '@/lib/adapters/llm-adapters/google-llm-adapter';
 import { AnthropicLLMAdapter } from '@/lib/adapters/llm-adapters/anthropic-llm-adapter';
 
+
+// Register OpenAI: GPT-4.1 
+registerLLM({
+    definition: {
+        id: 'gpt-4.1',
+        name: 'OpenAI: GPT-4.1',
+        provider: 'openai',
+        description:
+            'Flagship GPT model for complex tasks',
+        maximumOutputTokens: 32_768,
+        maximumTemperature: 2,
+    },
+    adapter: OpenAILLMAdapter,
+});
+
+// Register OpenAI: GPT-4.1-mini 
+registerLLM({
+    definition: {
+        id: 'gpt-4.1-mini',
+        name: 'OpenAI: GPT-4.1-mini',
+        provider: 'openai',
+        description:
+            'Balanced for intelligence, speed, and cost',
+        maximumOutputTokens: 32_768 ,
+        maximumTemperature: 2,
+    },
+    adapter: OpenAILLMAdapter,
+});
+
+// Register OpenAI: GPT-o3 
+registerLLM({
+    definition: {
+        id: 'o3',
+        name: 'OpenAI: o3',
+        provider: 'openai',
+        description:
+            'OpenAI\'s most powerful reasoning model. Your organization must be verified to use this model.',
+        maximumOutputTokens: 100_000,
+        maximumTemperature: 2,
+    },
+    adapter: OpenAILLMAdapter,
+});
+
+// Register OpenAI: GPT-o4-mini 
+registerLLM({
+    definition: {
+        id: 'o4-mini',
+        name: 'OpenAI: o4-mini',
+        provider: 'openai',
+        description:
+            'OpenAI\'s faster, more affordable reasoning model.',
+        maximumOutputTokens: 100_000,
+        maximumTemperature: 2,
+    },
+    adapter: OpenAILLMAdapter,
+});
+
+
+
 // Register OpenAI: GPT-4.5 Preview
 registerLLM({
     definition: {

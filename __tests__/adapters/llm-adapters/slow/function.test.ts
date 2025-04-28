@@ -1,6 +1,8 @@
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
-import { MessageAI } from '@/lib/message-ai';
-import { ToolAI } from '@/lib/tool-ai';
+import { MessageAI} from '@superexpert-ai/framework';
+import { ToolAI } from '@superexpert-ai/framework';
+import { getLLMDefinitions } from '@superexpert-ai/framework';
+import '@/lib/adapters/llm-adapters/system-adapters';
 
 
 /***********
@@ -10,7 +12,7 @@ import { ToolAI } from '@/lib/tool-ai';
  * when prompted with a specific instruction.
  */
 
-const models = LLMModelFactory.getAvailableModels();
+const models = getLLMDefinitions();
 
 const testCases = models.map(model => [model.id, model.name]);
 

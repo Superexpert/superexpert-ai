@@ -1,5 +1,6 @@
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
-import { MessageAI } from '@/lib/message-ai';
+import { MessageAI } from '@superexpert-ai/framework';
+import '@/lib/adapters/llm-adapters/system-adapters';
 
 describe('Adapter Map Messages', () => {
     it('should map Google messages to Content', async () => {
