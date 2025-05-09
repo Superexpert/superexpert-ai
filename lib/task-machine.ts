@@ -232,6 +232,12 @@ File Name: ${attachment.fileName}
         globalTaskDefinition: TaskDefinition,
         messages: MessageAI[]
     ) {
+        // Only proceed if there are corpus ids
+        const uniqueCorpusIds = [...new Set( [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds])];
+        if (uniqueCorpusIds.length === 0) {
+            return;
+        }
+
         // Only proceed if there is a user last message
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role !== 'user') return;
@@ -243,7 +249,6 @@ File Name: ${attachment.fileName}
             throw new Error(`RAG strategy ${strategyId} not found`);
         }
 
-        const uniqueCorpusIds = [...new Set( [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds])];
     
         const ctx: RAGStrategyContext = {
             userId,
