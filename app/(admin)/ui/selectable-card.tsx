@@ -45,7 +45,7 @@ export function SelectableCard({
           checked={selected}
           disabled={disabled}
           onChange={onChange}
-          className="mt-1 h-5 w-5 text-orange-500 border-gray-300 focus:ring-orange-500"
+          className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
         />
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-gray-900">{name}</span>

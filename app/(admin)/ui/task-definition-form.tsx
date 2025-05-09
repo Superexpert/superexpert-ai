@@ -357,32 +357,15 @@ export default function TaskDefinitionForm({
 
                     <CollapsiblePanel title="AI Model">
                         {taskDefinition.name !== 'global' && (
-                            <div className="mt-6">
-                                <label
-                                    htmlFor="model-global"
-                                    className={cn(
-                                        'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
-                                        watch('modelId') === 'global' &&
-                                            'border-orange-500 bg-orange-50'
-                                    )}>
-                                    <input
-                                        type="radio"
-                                        id="model-global"
-                                        value="global"
-                                        {...register('modelId')}
-                                        className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
-                                    />
-                                    <div>
-                                        <div className="text-sm font-semibold text-gray-900">
-                                            global
-                                        </div>
-                                        <div className="text-sm text-gray-500">
-                                            Use the model from the global task
-                                            definition
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
+                            <SelectableCard
+                                id="model-global"
+                                name="global"
+                                description="Use the model from the global task definition"
+                                value="global"
+                                type="radio"
+                                selected={watch('modelId') === 'global'}
+                                onChange={() => setValue('modelId', 'global')}
+                            />
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -684,35 +667,19 @@ export default function TaskDefinitionForm({
                                 <h3 className="text-base font-bold text-neutral-800">RAG Strategy</h3>
 
                                 {/* RAG Strategy Selection */}
+                                {taskDefinition.name !== 'global' && (
+                                    <SelectableCard
+                                        id="strat-global"
+                                        name="global"
+                                        description="Use the RAG strategy from the global task definition"
+                                        value="global"
+                                        type="radio"
+                                        selected={watch('ragStrategyId') === 'global'}
+                                        onChange={() => setValue('ragStrategyId', 'global')}
+                                    />
+                                )}
+
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                    {taskDefinition.name !== 'global' && (
-                                        <div className="mt-6">
-                                            <label
-                                                htmlFor="strat-global"
-                                                className={cn(
-                                                    'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
-                                                    watch('ragStrategyId') === 'global' &&
-                                                        'border-orange-500 bg-orange-50'
-                                                )}>
-                                                <input
-                                                    type="radio"
-                                                    id="strat-global"
-                                                    value="global"
-                                                    {...register('ragStrategyId')}
-                                                    className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
-                                                />
-                                                <div>
-                                                    <div className="text-sm font-semibold text-gray-900">
-                                                        global
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        Use the RAG strategy from the global task
-                                                        definition
-                                                    </div>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    )}
 
                                     {ragStrategies.map((strat) => (
                                         <SelectableCard
