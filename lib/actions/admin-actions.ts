@@ -11,6 +11,8 @@ import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
 import { getLLMDefinitions, getServerToolList, getContextToolList, getClientToolList } from '@superexpert-ai/framework';
+import { getRAGStrategy, RAGStrategyContext, getRAGStrategiesList } from '@superexpert-ai/framework';
+import { prisma } from '@/lib/db/prisma';
 
 //** TaskDefinitionForm **//
 
@@ -27,6 +29,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const corpora = await db.getCorporaList(userId);
 
     const contextTools = getContextToolList();
+    const ragStrategies = getRAGStrategiesList();
     const serverTools = getServerToolList();
     const clientTools = getClientToolList();
     const llmModels = getLLMDefinitions();
@@ -35,6 +38,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
         attachments,
         corpora,
         contextTools,
+        ragStrategies,
         serverTools,
         clientTools,
         llmModels,
@@ -214,11 +218,11 @@ export async function saveCorpusFileAction(
     }
 }
 
-export async function markCorpusFileDoneAction(corpusFileId: string) {
+export async function markCorpusFileDoneAction(corpusId:string, corpusFileId: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    await db.markCorpusFileDone(corpusFileId);
+    await db.markCorpusFileDone(corpusId, corpusFileId);
 }
 
 export async function uploadChunkAction(
@@ -309,25 +313,31 @@ export async function deleteCorpusAction(id: string) {
     redirect('/admin/corpora');
 }
 
-export async function deleteCorpusFileAction(corpusFileId: string) {
+export async function deleteCorpusFileAction(corpusId:string, corpusFileId: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    await db.deleteCorpusFile(corpusFileId);
+    await db.deleteCorpusFile(corpusId, corpusFileId);
 }
 
 export async function queryCorpusAction(corpusId: string, corpusQuery: CorpusQuery) {
     const userId = await getUserId();
 
-    // Call DBService instead of AdminService because we want the real experience
-    const db = new DBService();
-    const result = await db.queryCorpus(
+    const ragStrategy = getRAGStrategy(corpusQuery.ragStrategyId);
+    if (!ragStrategy) {
+        throw new Error(`RAG strategy ${corpusQuery.ragStrategyId} not found`);
+    }
+
+    const ctx: RAGStrategyContext = {
         userId,
-        [corpusId],
-        corpusQuery.query,
-        corpusQuery.limit,
-        corpusQuery.similarityThreshold
-    );
+        corpusIds: [corpusId],                  
+        query: corpusQuery.query,
+        limit:  corpusQuery.limit,
+        similarityThreshold: corpusQuery.similarityThreshold,
+        db: prisma,
+    };
+
+    const result = await ragStrategy.function.call(ctx);
     return result;
 }
 

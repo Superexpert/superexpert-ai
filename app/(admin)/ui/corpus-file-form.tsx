@@ -144,7 +144,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
             }
 
             /* Mark as done */
-            await markCorpusFileDoneAction(corpusFileId!);
+            await markCorpusFileDoneAction(corpus.id!, corpusFileId!);
             setCurrentCorpusFiles(prev =>
                 prev.map(cf =>
                   cf.id === corpusFileId ? { ...cf, done: true } : cf
@@ -216,7 +216,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
         if (!confirmed) return; // Do nothing if the user cancels
 
         try {
-            await deleteCorpusFileAction(corpusFileId);
+            await deleteCorpusFileAction(corpus.id!, corpusFileId);
         } catch (error) {
             console.error('Failed to delete corpus file', error);
         }
@@ -300,7 +300,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                                 ref={chunkSizeRef}
                                 min={50}
                                 max={8192}
-                                defaultValue={100}
+                                defaultValue={1000}
                                 disabled={uploading}
                             />
                         </FormField>

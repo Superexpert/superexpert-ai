@@ -22,6 +22,7 @@ model taskDefinitions {
   corpusSimilarityThreshold Int      @default(50)
   corpusIds                 String[]
   contextToolIds            String[]
+  ragStrategyId             String   @default("global")
   serverToolIds             String[]
   clientToolIds             String[]
   modelId                   String
@@ -145,6 +146,7 @@ model corpusFileChunks {
   userId     String
   chunkIndex Int
   chunk      String
+  chunkTSV  Unsupported("TSVECTOR")?
   embedding  Unsupported("vector(1536)")?
 
   /// FK → corpusFiles   (child side has fields/references + cascade)
@@ -154,6 +156,17 @@ model corpusFileChunks {
   /// prevents duplicate inserts when resuming
   @@unique([corpusFileId, chunkIndex])
   @@map("superexpert_ai_corpusFileChunks")
+}
+
+
+model corpusTermFrequencies {
+  corpusId String @map("corpusId") // FK
+  lexeme   String
+  ndoc     Int       // number of chunks that contain the lexeme
+  nentry   Int       // total occurrences (optional — for TF-IDF)
+
+  @@id([corpusId, lexeme])                    // composite PK
+  @@map("superexpert_ai_corpusTermFrequencies")
 }
 
 /// ──────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import CorpusQueryForm from '@/app/(admin)/ui/corpus-query-form';
 import { getCorpusByIdAction } from '@/lib/actions/admin-actions';
+import { getRAGStrategiesList } from '@superexpert-ai/framework';
 
 export default async function EditCorpusPage({
     params,
@@ -9,7 +10,7 @@ export default async function EditCorpusPage({
 }) {
     const { id } = await params;
     const corpus = await getCorpusByIdAction(id);
-
+    const ragStrategies = getRAGStrategiesList();
 
 
     return (
@@ -19,7 +20,7 @@ export default async function EditCorpusPage({
                     fallback={
                         <div className="h-72 w-full animate-pulse bg-gray-100" />
                     }>
-                    <CorpusQueryForm corpus={corpus} />
+                    <CorpusQueryForm corpus={corpus} ragStrategies={ragStrategies} />
                 </Suspense>
             </div>
         </main>

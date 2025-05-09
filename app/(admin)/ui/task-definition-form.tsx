@@ -33,6 +33,13 @@ interface toolItem {
     category?: string;
 }
 
+interface strategyItem {
+    id: string;
+    name: string;
+    description: string;
+    category?: string;
+}
+
 interface TaskDefinitionFormProps {
     agentId: string;
     agentName: string;
@@ -40,6 +47,7 @@ interface TaskDefinitionFormProps {
     attachments: { id: string; fileName: string }[];
     corpora: { id: string; name: string; description: string }[];
     contextTools: toolItem[];
+    ragStrategies: strategyItem[];
     serverTools: toolItem[];
     clientTools: toolItem[];
     llmModels: LLMModelDefinition[];
@@ -52,6 +60,7 @@ export default function TaskDefinitionForm({
     attachments,
     corpora,
     contextTools,
+    ragStrategies,
     serverTools,
     clientTools,
     llmModels,
@@ -280,6 +289,55 @@ export default function TaskDefinitionForm({
                                 id="instructions"
                                 {...register('instructions')}></textarea>
                         </FormField>
+
+                        <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
+                            Attachments
+                        </h2>
+                        <p className="instructions mb-4">
+                            Attach one or more files to this task.
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            {currentAttachments.map((file) => (
+                                <div
+                                    key={file.id}
+                                    className="flex items-center justify-between gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-800">
+                                    <span className="truncate max-w-[180px]">
+                                        {file.fileName}
+                                    </span>
+                                    <button
+                                        onClick={() =>
+                                            handleDeleteAttachment(file.id)
+                                        }
+                                        type="button"
+                                        className="ml-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium px-3 py-1 rounded-full transition">
+                                        Delete
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {isDemoMode ? (
+                            <div className="p-4 bg-gray-100 border border-gray-200 rounded-md">
+                                <p className="text-sm text-gray-700">
+                                    Demo mode enabled: File uploads are
+                                    disabled.
+                                </p>
+                            </div>
+                        ) : (
+                            <label className="inline-flex items-center mt-4 cursor-pointer">
+                                <span className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition">
+                                    Choose File
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".txt,application/json,text/csv"
+                                    onChange={handleUploadAttachment}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
+
                     </CollapsiblePanel>
 
                     <CollapsiblePanel title="Messages">
@@ -484,149 +542,6 @@ export default function TaskDefinitionForm({
                                 );
                             })}
                         </div>
-                    </CollapsiblePanel>
-
-                    <CollapsiblePanel title="Context Data">
-                        <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
-                            Attachments
-                        </h2>
-                        <p className="instructions mb-4">
-                            Attach one or more files to this task.
-                        </p>
-
-                        <div className="flex flex-wrap gap-2 mt-4">
-                            {currentAttachments.map((file) => (
-                                <div
-                                    key={file.id}
-                                    className="flex items-center justify-between gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-800">
-                                    <span className="truncate max-w-[180px]">
-                                        {file.fileName}
-                                    </span>
-                                    <button
-                                        onClick={() =>
-                                            handleDeleteAttachment(file.id)
-                                        }
-                                        type="button"
-                                        className="ml-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium px-3 py-1 rounded-full transition">
-                                        Delete
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-
-                        {isDemoMode ? (
-                            <div className="p-4 bg-gray-100 border border-gray-200 rounded-md">
-                                <p className="text-sm text-gray-700">
-                                    Demo mode enabled: File uploads are
-                                    disabled.
-                                </p>
-                            </div>
-                        ) : (
-                            <label className="inline-flex items-center mt-4 cursor-pointer">
-                                <span className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition">
-                                    Choose File
-                                </span>
-                                <input
-                                    type="file"
-                                    accept=".txt,application/json,text/csv"
-                                    onChange={handleUploadAttachment}
-                                    className="hidden"
-                                />
-                            </label>
-                        )}
-                        <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
-                            Retrieval Augmented Generation
-                        </h2>
-                        <p className="instructions mb-4">
-                            Retrieval Augmented Generation augments each user
-                            chat message with text chunks retrieved from a
-                            corpus.
-                        </p>
-
-                        {corpora.length > 0 ? (
-                            <>
-                                {/* Chunk Settings */}
-                                <FormField
-                                    label="Corpus Limit"
-                                    htmlFor="corpusLimit"
-                                    error={errors.corpusLimit?.message}
-                                    instructions="The maximum number of text chunks to retrieve from the corpus.">
-                                    <input
-                                        id="corpusLimit"
-                                        type="number"
-                                        placeholder="Limit"
-                                        {...register(`corpusLimit`, {
-                                            valueAsNumber: true,
-                                        })}
-                                    />
-                                </FormField>
-
-                                <FormField
-                                    label="Corpus Similarity Threshold"
-                                    htmlFor="corpusSimilarityThreshold"
-                                    error={
-                                        errors.corpusSimilarityThreshold
-                                            ?.message
-                                    }
-                                    instructions="Results are only returned if the similarity score between the user message and the corpus text is above this threshold.">
-                                    <input
-                                        id="corpusSimilarityThreshold"
-                                        type="number"
-                                        placeholder="Threshold"
-                                        {...register(
-                                            `corpusSimilarityThreshold`,
-                                            { valueAsNumber: true }
-                                        )}
-                                    />
-                                </FormField>
-
-                                {/* Corpus Selection */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                    {corpora.map((corpus) => {
-                                        const isSelected = (
-                                            watch('corpusIds') || []
-                                        ).includes(corpus.id);
-                                        return (
-                                            <SelectableCard
-                                                key={corpus.id}
-                                                id={`corpus-${corpus.id}`}
-                                                name={corpus.name}
-                                                description={corpus.description}
-                                                type="checkbox"
-                                                value={corpus.id}
-                                                selected={isSelected}
-                                                onChange={(e) => {
-                                                    const checked =
-                                                        e.target.checked;
-                                                    const current =
-                                                        watch('corpusIds') ||
-                                                        [];
-                                                    const updated = checked
-                                                        ? [
-                                                              ...current,
-                                                              corpus.id,
-                                                          ]
-                                                        : current.filter(
-                                                              (id) =>
-                                                                  id !==
-                                                                  corpus.id
-                                                          );
-                                                    setValue(
-                                                        'corpusIds',
-                                                        updated
-                                                    );
-                                                }}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-sm">
-                                No corpora defined. Please upload a corpus file
-                                before enabling RAG.
-                            </div>
-                        )}
 
                         <h2 className="text-lg font-semibold text-neutral-900 mt-8 mb-2">
                             Context Tools
@@ -674,6 +589,156 @@ export default function TaskDefinitionForm({
                                 );
                             })}
                         </div>
+                    </CollapsiblePanel>
+
+                    <CollapsiblePanel title="Retrieval-Augmented Generation">
+                        <p className="instructions mb-4">
+                            Retrieval Augmented Generation augments each user
+                            chat message with text chunks retrieved from a
+                            corpus.
+                        </p>
+
+                        {corpora.length > 0 ? (
+                            <>
+
+                                {/* Corpus Selection */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                    {corpora.map((corpus) => {
+                                        const isSelected = (
+                                            watch('corpusIds') || []
+                                        ).includes(corpus.id);
+                                        return (
+                                            <SelectableCard
+                                                key={corpus.id}
+                                                id={`corpus-${corpus.id}`}
+                                                name={corpus.name}
+                                                description={corpus.description}
+                                                type="checkbox"
+                                                value={corpus.id}
+                                                selected={isSelected}
+                                                onChange={(e) => {
+                                                    const checked =
+                                                        e.target.checked;
+                                                    const current =
+                                                        watch('corpusIds') ||
+                                                        [];
+                                                    const updated = checked
+                                                        ? [
+                                                              ...current,
+                                                              corpus.id,
+                                                          ]
+                                                        : current.filter(
+                                                              (id) =>
+                                                                  id !==
+                                                                  corpus.id
+                                                          );
+                                                    setValue(
+                                                        'corpusIds',
+                                                        updated
+                                                    );
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </div>
+
+
+                                {/* Chunk Settings */}
+                                <FormField
+                                    label="Corpus Limit"
+                                    htmlFor="corpusLimit"
+                                    error={errors.corpusLimit?.message}
+                                    instructions="The maximum number of text chunks to retrieve from the corpus.">
+                                    <input
+                                        id="corpusLimit"
+                                        type="number"
+                                        placeholder="Limit"
+                                        {...register(`corpusLimit`, {
+                                            valueAsNumber: true,
+                                        })}
+                                    />
+                                </FormField>
+
+                                <FormField
+                                    label="Corpus Similarity Threshold"
+                                    htmlFor="corpusSimilarityThreshold"
+                                    error={
+                                        errors.corpusSimilarityThreshold
+                                            ?.message
+                                    }
+                                    instructions="Results are only returned if the similarity score between the user message and the corpus text is above this threshold.">
+                                    <input
+                                        id="corpusSimilarityThreshold"
+                                        type="number"
+                                        placeholder="Threshold"
+                                        {...register(
+                                            `corpusSimilarityThreshold`,
+                                            { valueAsNumber: true }
+                                        )}
+                                    />
+                                </FormField>
+
+
+                                <hr className="my-6 border-t border-gray-200" />
+
+                                <h3 className="text-base font-bold text-neutral-800">RAG Strategy</h3>
+
+                                {/* RAG Strategy Selection */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                    {taskDefinition.name !== 'global' && (
+                                        <div className="mt-6">
+                                            <label
+                                                htmlFor="strat-global"
+                                                className={cn(
+                                                    'flex items-start gap-3 p-4 border border-gray-200 rounded-2xl cursor-pointer hover:border-gray-300 hover:bg-gray-50',
+                                                    watch('ragStrategyId') === 'global' &&
+                                                        'border-orange-500 bg-orange-50'
+                                                )}>
+                                                <input
+                                                    type="radio"
+                                                    id="strat-global"
+                                                    value="global"
+                                                    {...register('ragStrategyId')}
+                                                    className="mt-1 h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                                                />
+                                                <div>
+                                                    <div className="text-sm font-semibold text-gray-900">
+                                                        global
+                                                    </div>
+                                                    <div className="text-sm text-gray-500">
+                                                        Use the RAG strategy from the global task
+                                                        definition
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {ragStrategies.map((strat) => (
+                                        <SelectableCard
+                                            key={strat.id}
+                                            id={`strat-${strat.id}`}
+                                            name={strat.name}
+                                            description={strat.description}
+                                            provider={""}
+                                            value={strat.id}
+                                            type="radio"
+                                            selected={watch('ragStrategyId') === strat.id}
+                                            onChange={() =>
+                                                setValue('ragStrategyId', strat.id)
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-sm">
+                                No corpora defined. Please upload a corpus file
+                                before enabling RAG.
+                            </div>
+                        )}
+
+
                     </CollapsiblePanel>
 
                     <CollapsiblePanel title="Theme">

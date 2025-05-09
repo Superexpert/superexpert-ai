@@ -6,23 +6,34 @@ import { Corpus } from '@/lib/corpus';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CorpusQuery, corpusQuerySchema } from '@/lib/corpus-query';
-import { CorpusQueryResult } from '@/lib/corpus-query-result';
 import Link from 'next/link';
 import BackButton from '@/app/(admin)/ui/back-button';
 import { FormField } from '@/app/(admin)/ui/form-field';
 import DemoMode from '@/app/(admin)/ui/demo-mode';
+import { SelectableCard } from './selectable-card';
+import { CorpusQueryResult } from '@superexpert-ai/framework';
 
-export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
+interface strategyItem {
+    id: string;
+    name: string;
+    description: string;
+    category?: string;
+}
+
+export default function CorpusQueryForm({ corpus, ragStrategies }: { corpus: Corpus, ragStrategies: strategyItem[] }) {
     const [matches, setMatches] = useState<CorpusQueryResult[] | null>(null);
     const [busyWaiting, setBusyWaiting] = useState(false);
 
     const {
         register,
         handleSubmit,
+        watch,
+        setValue,
         formState: { errors },
     } = useForm<CorpusQuery>({
         resolver: zodResolver(corpusQuerySchema),
         defaultValues: {
+            ragStrategyId: 'semantic',
             query: '',
             limit: 3,
             similarityThreshold: 50,
@@ -32,6 +43,7 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
     const onSubmit = async (corpusQuery: CorpusQuery) => {
         setMatches(null); // Clear previous matches
         setBusyWaiting(true);
+
         const results = await queryCorpusAction(corpus.id!, corpusQuery);
         setMatches(results);
         setBusyWaiting(false);
@@ -72,6 +84,25 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
                         {...register('similarityThreshold')}
                     />
                 </FormField>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    {ragStrategies.map((strat) => (
+                        <SelectableCard
+                            key={strat.id}
+                            id={`strat-${strat.id}`}
+                            name={strat.name}
+                            description={strat.description}
+                            provider={""}
+                            value={strat.id}
+                            type="radio"
+                            selected={watch('ragStrategyId') === strat.id}
+                            onChange={() =>
+                                setValue('ragStrategyId', strat.id)
+                            }
+                        />
+                    ))}
+                </div>
+ 
 
                 <FormField
                     label="Query"

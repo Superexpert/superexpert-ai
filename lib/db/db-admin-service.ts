@@ -127,6 +127,7 @@ export class DBAdminService {
                     'Instructions, data, and tools applied to all tasks.',
                 instructions: '',
                 contextToolIds: [],
+                ragStrategyId: 'semantic',
                 serverToolIds: [],
                 clientToolIds: ['transition'],
                 modelId: 'gpt-4o',
@@ -138,6 +139,7 @@ export class DBAdminService {
                     'The first task when a user starts a new conversation.',
                 instructions: '',
                 contextToolIds: [],
+                ragStrategyId: 'global',
                 serverToolIds: [],
                 clientToolIds: [],
                 modelId: 'global',
@@ -330,13 +332,30 @@ export class DBAdminService {
         return true;
     }
 
-    public async deleteCorpusFile(corpusFileId: string) {
+    public async deleteCorpusFile(corpusId:string, corpusFileId: string) {
         await prisma.corpusFiles.delete({
             where: {
                 userId: this.userId,
                 id: corpusFileId,
             },
         });
+
+        await prisma.$transaction([
+            prisma.$executeRaw`
+              DELETE FROM "superexpert_ai_corpusTermFrequencies"
+              WHERE  "corpusId" = ${corpusId};
+            `,
+            prisma.$executeRaw`
+              INSERT INTO "superexpert_ai_corpusTermFrequencies"( "corpusId", lexeme, ndoc, nentry )
+              SELECT  ${corpusId}, word, ndoc, nentry
+              FROM    ts_stat($$SELECT cfc."chunkTSV"
+                               FROM   "superexpert_ai_corpusFileChunks"  cfc
+                               JOIN   "superexpert_ai_corpusFiles"       cf
+                                      ON cfc."corpusFileId" = cf.id
+                               WHERE  cf."corpusId" = '${corpusId}'  $$);
+            `
+          ]);
+
         return true;
     }
 
@@ -377,7 +396,37 @@ export class DBAdminService {
         return corpusFile.id;
     }
 
-    public async markCorpusFileDone(corpusFileId: string) {
+    public async markCorpusFileDone(corpusId: string, corpusFileId: string) {
+        // Generate tsvector for full-text search
+        await prisma.$executeRaw`
+            UPDATE "superexpert_ai_corpusFileChunks"
+            SET    "chunkTSV" = to_tsvector('english', "chunk");
+        `;
+
+        // Generate term frequencies for the corpus
+        await prisma.$executeRaw`
+            INSERT INTO "superexpert_ai_corpusTermFrequencies" ( "corpusId", lexeme, ndoc, nentry )
+            SELECT  ${corpusId},                       -- ← value bound once
+                    word,
+                    ndoc,
+                    nentry
+            FROM    ts_stat(
+                    /* build the text that ts_stat expects */
+                    format(
+                        $$SELECT cfc."chunkTSV"
+                            FROM "superexpert_ai_corpusFileChunks"  cfc
+                            JOIN "superexpert_ai_corpusFiles"       cf
+                                ON cfc."corpusFileId" = cf.id
+                        WHERE cf."corpusId" = %L$$,             -- %L = literal-escaped
+                        ${corpusId}                                -- ← inserted into %L
+                    )
+                    )
+            ON CONFLICT ( "corpusId", lexeme )
+            DO UPDATE SET ndoc   = EXCLUDED.ndoc,
+                        nentry = EXCLUDED.nentry;
+        `;
+
+        // Update the corpus file to mark it as done
         await prisma.corpusFiles.update({
             where: {
                id:corpusFileId,
@@ -387,6 +436,8 @@ export class DBAdminService {
                 done: true,
             },
         });
+
+
         return true;
     }
 
@@ -429,17 +480,6 @@ export class DBAdminService {
         });
       }
 
-    // public async updateCorpusChunkEmbedding(
-    //     userId: string,
-    //     corpusChunkId: number,
-    //     embedding: number[]
-    // ) {
-    //     await prisma.$executeRaw`
-    //     UPDATE "superexpert_ai_corpusFileChunks"
-    //     SET embedding = ${embedding}::vector
-    //     WHERE id = ${corpusChunkId} AND "userId" = ${userId};
-    // `;
-    // }
 
     public async getCorpusFileProgress(corpusFileId: string) {
         const row = await prisma.corpusFileProgress.findUnique({

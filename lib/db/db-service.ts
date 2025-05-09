@@ -1,9 +1,8 @@
 import { MessageAI } from '@superexpert-ai/framework';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
-import { OpenAIEmbeddingAdapter } from '@/lib/adapters/embedding-adapters/openai-embedding-adapter';
 import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert-ai.config';
-import { CorpusQueryResult } from '../corpus-query-result';
+
 
 export class DBService {
     public async saveMessages(
@@ -141,36 +140,6 @@ export class DBService {
         return agent;
     }
 
-    public async queryCorpus(
-        userId: string,
-        corpusIds: string[],
-        query: string,
-        limit: number,
-        similarityThreshold: number
-    ): Promise<CorpusQueryResult[]> {
-        const adapter = new OpenAIEmbeddingAdapter();
-        const embedding = await adapter.getEmbedding(query);
-
-        // Convert similarity threshold to a value between 0 and 1
-        const decimalSimilarityThreshold = similarityThreshold / 100;
-        const uniqueCorpusIds = [...new Set(corpusIds)];
-
-        const relevantCorpusChunks = (await prisma.$queryRaw`
-            SELECT cfc.id, cfc.chunk, cf."fileName",
-            (1 - (cfc.embedding <=> ${embedding}::vector)) AS similarity
-            FROM "superexpert_ai_corpusFileChunks" AS cfc
-            INNER JOIN "superexpert_ai_corpusFiles" AS cf
-            ON cfc."corpusFileId" = cf.id
-            WHERE cf."corpusId" IN (${uniqueCorpusIds.join(',')})
-            AND cfc."userId" = ${userId}
-            AND (1 - (cfc.embedding <=> ${embedding}::vector)) >= ${decimalSimilarityThreshold}
-            ORDER BY cfc.embedding <=> ${embedding}::vector
-            LIMIT ${limit};
-            `) as { id: number; chunk: string; fileName: string, similarity: number }[];
-
-        return relevantCorpusChunks;
-    }
-
     public async getCorporaList(userId: string) {
         const corpora = await prisma.corpus.findMany({
             where: {
@@ -207,7 +176,10 @@ export class DBService {
         return attachmentList;
     }
 
-    public async getFullAttachments(userId: string, taskDefinitionIds: string[]) {
+    public async getFullAttachments(
+        userId: string,
+        taskDefinitionIds: string[]
+    ) {
         const attachments = await prisma.attachments.findMany({
             where: {
                 userId,
