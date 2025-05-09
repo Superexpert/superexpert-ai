@@ -11,6 +11,9 @@ import Link from 'next/link';
 import BackButton from '@/app/(admin)/ui/back-button';
 import { FormField } from '@/app/(admin)/ui/form-field';
 import DemoMode from '@/app/(admin)/ui/demo-mode';
+import { ragStrategies } from '@/lib/rag-strategy';
+import { SelectableCard } from './selectable-card';
+
 
 export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
     const [matches, setMatches] = useState<CorpusQueryResult[] | null>(null);
@@ -19,10 +22,13 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
     const {
         register,
         handleSubmit,
+        watch,
+        setValue,
         formState: { errors },
     } = useForm<CorpusQuery>({
         resolver: zodResolver(corpusQuerySchema),
         defaultValues: {
+            ragStrategyId: 'semantic',
             query: '',
             limit: 3,
             similarityThreshold: 50,
@@ -32,6 +38,9 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
     const onSubmit = async (corpusQuery: CorpusQuery) => {
         setMatches(null); // Clear previous matches
         setBusyWaiting(true);
+
+        console.dir(corpusQuery, { depth: null });
+
         const results = await queryCorpusAction(corpus.id!, corpusQuery);
         setMatches(results);
         setBusyWaiting(false);
@@ -72,6 +81,25 @@ export default function CorpusQueryForm({ corpus }: { corpus: Corpus }) {
                         {...register('similarityThreshold')}
                     />
                 </FormField>
+
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                             {ragStrategies.map((strat) => (
+                                 <SelectableCard
+                                     key={strat.id}
+                                     id={`strat-${strat.id}`}
+                                     name={strat.name}
+                                     description={strat.description}
+                                     provider={""}
+                                     value={strat.id}
+                                     type="radio"
+                                     selected={watch('ragStrategyId') === strat.id}
+                                     onChange={() =>
+                                         setValue('ragStrategyId', strat.id)
+                                     }
+                                 />
+                             ))}
+                         </div>
+ 
 
                 <FormField
                     label="Query"

@@ -11,6 +11,7 @@ import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
 import { getLLMDefinitions, getServerToolList, getContextToolList, getClientToolList } from '@superexpert-ai/framework';
+import { queryCorpus } from '@/lib/rag-strategy';
 
 //** TaskDefinitionForm **//
 
@@ -214,11 +215,11 @@ export async function saveCorpusFileAction(
     }
 }
 
-export async function markCorpusFileDoneAction(corpusFileId: string) {
+export async function markCorpusFileDoneAction(corpusId:string, corpusFileId: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    await db.markCorpusFileDone(corpusFileId);
+    await db.markCorpusFileDone(corpusId, corpusFileId);
 }
 
 export async function uploadChunkAction(
@@ -309,25 +310,27 @@ export async function deleteCorpusAction(id: string) {
     redirect('/admin/corpora');
 }
 
-export async function deleteCorpusFileAction(corpusFileId: string) {
+export async function deleteCorpusFileAction(corpusId:string, corpusFileId: string) {
     const userId = await getUserId();
 
     const db = new DBAdminService(userId);
-    await db.deleteCorpusFile(corpusFileId);
+    await db.deleteCorpusFile(corpusId, corpusFileId);
 }
 
 export async function queryCorpusAction(corpusId: string, corpusQuery: CorpusQuery) {
     const userId = await getUserId();
 
-    // Call DBService instead of AdminService because we want the real experience
-    const db = new DBService();
-    const result = await db.queryCorpus(
+    console.dir(corpusQuery, { depth: null });
+
+    const result = await queryCorpus(
         userId,
         [corpusId],
+        corpusQuery.ragStrategyId,
         corpusQuery.query,
         corpusQuery.limit,
         corpusQuery.similarityThreshold
     );
+
     return result;
 }
 
