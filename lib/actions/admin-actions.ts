@@ -11,7 +11,8 @@ import { Corpus, corpusSchema } from '@/lib/corpus';
 import { CorpusFile, corpusFileSchema } from '@/lib/corpus-file';
 import { CorpusQuery} from '@/lib/corpus-query';
 import { getLLMDefinitions, getServerToolList, getContextToolList, getClientToolList } from '@superexpert-ai/framework';
-import { queryCorpus } from '@/lib/rag-strategy';
+import { getRAGStrategy, RAGStrategyContext, getRAGStrategiesList } from '@superexpert-ai/framework';
+import { prisma } from '@/lib/db/prisma';
 
 //** TaskDefinitionForm **//
 
@@ -28,6 +29,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
     const corpora = await db.getCorporaList(userId);
 
     const contextTools = getContextToolList();
+    const ragStrategies = getRAGStrategiesList();
     const serverTools = getServerToolList();
     const clientTools = getClientToolList();
     const llmModels = getLLMDefinitions();
@@ -36,6 +38,7 @@ export async function getTaskDefinitionFormDataAction(taskId?: string) {
         attachments,
         corpora,
         contextTools,
+        ragStrategies,
         serverTools,
         clientTools,
         llmModels,
@@ -320,17 +323,21 @@ export async function deleteCorpusFileAction(corpusId:string, corpusFileId: stri
 export async function queryCorpusAction(corpusId: string, corpusQuery: CorpusQuery) {
     const userId = await getUserId();
 
-    console.dir(corpusQuery, { depth: null });
+    const ragStrategy = getRAGStrategy(corpusQuery.ragStrategyId);
+    if (!ragStrategy) {
+        throw new Error(`RAG strategy ${corpusQuery.ragStrategyId} not found`);
+    }
 
-    const result = await queryCorpus(
+    const ctx: RAGStrategyContext = {
         userId,
-        [corpusId],
-        corpusQuery.ragStrategyId,
-        corpusQuery.query,
-        corpusQuery.limit,
-        corpusQuery.similarityThreshold
-    );
+        corpusIds: [corpusId],                  
+        query: corpusQuery.query,
+        limit:  corpusQuery.limit,
+        similarityThreshold: corpusQuery.similarityThreshold,
+        db: prisma,
+    };
 
+    const result = await ragStrategy.function.call(ctx);
     return result;
 }
 

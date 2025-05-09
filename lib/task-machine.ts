@@ -3,6 +3,7 @@ import { MessageAI, ToolAI, User, LLMModelConfiguration, callContextTool, Contex
 import { TaskDefinition } from './task-definition';
 import { buildTools } from './build-tools';
 import { prisma } from '@/lib/db/prisma';
+import { getRAGStrategy, RAGStrategyContext } from '@superexpert-ai/framework';
 
 export class TaskMachine {
     private db: DBService;
@@ -235,14 +236,25 @@ File Name: ${attachment.fileName}
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role !== 'user') return;
 
-        // Let's loop through the corpora
-        const chunks = await this.db.queryCorpus(
+        const strategyId = taskDefinition.ragStrategyId == 'global' ? globalTaskDefinition.ragStrategyId : taskDefinition.ragStrategyId;
+
+        const ragStrategy = getRAGStrategy(strategyId);
+        if (!ragStrategy) {
+            throw new Error(`RAG strategy ${strategyId} not found`);
+        }
+
+        const uniqueCorpusIds = [...new Set( [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds])];
+    
+        const ctx: RAGStrategyContext = {
             userId,
-            [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds],
-            lastMessage.content,
-            taskDefinition.corpusLimit,
-            taskDefinition.corpusSimilarityThreshold
-        );
+            corpusIds: uniqueCorpusIds,                  
+            query: lastMessage.content,
+            limit:   taskDefinition.corpusLimit,
+            similarityThreshold: taskDefinition.corpusSimilarityThreshold,
+            db: prisma,
+        };
+    
+        const chunks = await ragStrategy.function.call(ctx);
 
         for (const chunk of chunks) {
             lastMessage.content += `\n\Retrieved information:\n${chunk.chunk}\n\nSource: ${chunk.fileName}`;

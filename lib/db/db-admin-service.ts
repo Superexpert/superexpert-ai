@@ -127,6 +127,7 @@ export class DBAdminService {
                     'Instructions, data, and tools applied to all tasks.',
                 instructions: '',
                 contextToolIds: [],
+                ragStrategyId: 'semantic',
                 serverToolIds: [],
                 clientToolIds: ['transition'],
                 modelId: 'gpt-4o',
@@ -138,6 +139,7 @@ export class DBAdminService {
                     'The first task when a user starts a new conversation.',
                 instructions: '',
                 contextToolIds: [],
+                ragStrategyId: 'global',
                 serverToolIds: [],
                 clientToolIds: [],
                 modelId: 'global',
@@ -478,17 +480,6 @@ export class DBAdminService {
         });
       }
 
-    // public async updateCorpusChunkEmbedding(
-    //     userId: string,
-    //     corpusChunkId: number,
-    //     embedding: number[]
-    // ) {
-    //     await prisma.$executeRaw`
-    //     UPDATE "superexpert_ai_corpusFileChunks"
-    //     SET embedding = ${embedding}::vector
-    //     WHERE id = ${corpusChunkId} AND "userId" = ${userId};
-    // `;
-    // }
 
     public async getCorpusFileProgress(corpusFileId: string) {
         const row = await prisma.corpusFileProgress.findUnique({

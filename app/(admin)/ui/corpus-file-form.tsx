@@ -300,7 +300,7 @@ export default function CorpusFileForm({ corpus }: { corpus: Corpus }) {
                                 ref={chunkSizeRef}
                                 min={50}
                                 max={8192}
-                                defaultValue={100}
+                                defaultValue={1000}
                                 disabled={uploading}
                             />
                         </FormField>

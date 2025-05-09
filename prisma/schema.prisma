@@ -22,6 +22,7 @@ model taskDefinitions {
   corpusSimilarityThreshold Int      @default(50)
   corpusIds                 String[]
   contextToolIds            String[]
+  ragStrategyId             String   @default("global")
   serverToolIds             String[]
   clientToolIds             String[]
   modelId                   String
