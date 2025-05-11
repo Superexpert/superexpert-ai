@@ -10,15 +10,25 @@ type Row = {
 };
 
 export default function LogsClient({ agentName }: { agentName: string }) {
-    const [rows, setRows] = useState<Row[]>(() => [
-        {
-            time: Date.now(),
-            level: 'info',
-            msg: 'Realtime logging started…',
-            banner: true,
-        },
-    ]);
     const bottom = useRef<HTMLDivElement>(null);
+    const [rows, setRows] = useState<Row[]>([]);
+
+    useEffect(() => {
+        setRows((prev) => [
+            {
+                time: Date.now(),
+                level: 'info',
+                msg: 'Realtime logging started…',
+                banner: true,
+            },
+            ...prev,
+        ]);
+
+        const es = new EventSource(`/api/logs/stream?agentName=${agentName}`);
+        es.onmessage = (e) =>
+            setRows((prev) => [...prev.slice(-999), JSON.parse(e.data)]);
+        return () => es.close();
+    }, [agentName]);
 
     useEffect(() => {
         const es = new EventSource(`/api/logs/stream?agentName=${agentName}`);
@@ -33,7 +43,7 @@ export default function LogsClient({ agentName }: { agentName: string }) {
 
     const stripInlineKeys = (row: Record<string, unknown>) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const {time, createdAt, level, msg, userId, agentId, component,
+        const { time, createdAt, level, msg, userId, agentId, component,
             ...rest
         } = row;
         return rest;
