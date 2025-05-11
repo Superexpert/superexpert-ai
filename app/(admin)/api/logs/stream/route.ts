@@ -1,4 +1,5 @@
 export const runtime = 'nodejs';
+export const maxDuration = 300; 
 
 import '@/lib/log-events-bus'; // side-effect: registers bus
 import { logBus } from '@/lib/log-events-bus';
