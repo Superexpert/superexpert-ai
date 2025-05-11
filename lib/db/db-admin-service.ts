@@ -199,6 +199,7 @@ export class DBAdminService {
         const agent = await prisma.agents.findUnique({
             where: {
                 name: name,
+                userId: this.userId,
             },
         });
         return agent;

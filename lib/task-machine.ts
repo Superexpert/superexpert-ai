@@ -4,6 +4,7 @@ import { TaskDefinition } from './task-definition';
 import { buildTools } from './build-tools';
 import { prisma } from '@/lib/db/prisma';
 import { getRAGStrategy, RAGStrategyContext } from '@superexpert-ai/framework';
+//import { baseLog } from '@superexpert-ai/framework/server';
 
 export class TaskMachine {
     private db: DBService;
@@ -26,6 +27,22 @@ export class TaskMachine {
         modelId: string;
         modelConfiguration: LLMModelConfiguration;
     }> {
+        // // Create logger
+        // const log = baseLog.child({
+        //     userId: user.id,
+        //     agentId: agentId,
+        //     component: '@superexpert-ai',
+        // });
+
+        // log.info('getAIPayload', {
+        //     userId: user.id,
+        //     agentId: agentId,
+        //     task: task,
+        //     thread: thread,
+        //     messages: messages,
+        // });
+
+
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
         let taskDefinition = taskDefinitions.find((td) => td.name === task);

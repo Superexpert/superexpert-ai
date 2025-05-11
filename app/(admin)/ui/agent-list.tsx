@@ -49,6 +49,12 @@ export default function AgentList({
                                     Tasks
                                 </Link>
                                 <Link
+                                    href={`/admin/${agent.name}/logs`}
+                                    target='logs'
+                                    className="btnSecondary">
+                                    Logs
+                                </Link>
+                                <Link
                                     href={`${agent.name}`}
                                     target="_blank"
                                     className="btnSecondary">
