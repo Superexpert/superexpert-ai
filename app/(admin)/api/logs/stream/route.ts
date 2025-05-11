@@ -38,7 +38,14 @@ export async function GET(req: NextRequest) {
                     controller.enqueue(`data:${JSON.stringify(row)}\n\n`);
                 };
                 logBus.on('row', send);
+
+                const hb = setInterval(() => {
+                    controller.enqueue(':\n\n');          // SSE comment = heartbeat
+                }, 15_000);
+
+
                 req.signal.addEventListener('abort', () => {
+                    clearInterval(hb);
                     logBus.off('row', send);
                     controller.close();
                 });
