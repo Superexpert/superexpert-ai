@@ -1,10 +1,13 @@
 import '@/superexpert-ai.plugins.server'; // Ensure plugins are loaded
 import { NextRequest } from 'next/server';
-import { MessageAI, User } from '@superexpert-ai/framework';
+import { MessageAI, User, ChunkAI } from '@superexpert-ai/framework';
 import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
-import { DBAdminService } from '@/lib/db/db-admin-service';
+import { DBService } from '@/lib/db/db-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
+import { getServerLogger } from '@superexpert-ai/framework/server';
+import '@/lib/log-events-bus'; 
+
 
 interface RequestBody {
     nowString: string;
@@ -27,11 +30,15 @@ export async function POST(
 
     // Get agent
     const { agentName } = await context.params;
-    const db = new DBAdminService(user.id);
+    const db = new DBService();
     const agent = await db.getAgentByName(agentName);
     if (!agent) {
         throw new Error('Agent not found');
     }
+
+    // Create logger
+    const log = getServerLogger({ userId: session.user.id, agentId: agent.id, component: 'ai-route' });
+    log.info('LLM call started');
 
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
@@ -48,7 +55,14 @@ export async function POST(
         tools,
         modelId: initialModelId,
         modelConfiguration: initialModelConfiguration,
-    } = await taskMachine.getAIPayload(user, agent.id, agentName, task, thread, messages);
+    } = await taskMachine.getAIPayload(
+        user,
+        agent.id,
+        agentName,
+        task,
+        thread,
+        messages
+    );
     let modelId = initialModelId;
     let modelConfiguration = initialModelConfiguration;
 
@@ -63,42 +77,59 @@ export async function POST(
     }
 
     // Create a new AI Model
-    const model = LLMModelFactory.createModel(modelId, modelConfiguration);
+    const model = LLMModelFactory.createModel(modelId, modelConfiguration, log);
 
-    const response = model.generateResponse(
-        instructions,
-        currentMessages,
-        tools
-    );
+    let response: AsyncIterable<ChunkAI>;
+    try {
+        response = model.generateResponse(instructions, currentMessages, tools);
+    } catch (err) {
+        log.error(err as Error, 'LLM call failed');
+    }
 
     const readableStream = new ReadableStream({
         async start(controller) {
             let fullMessage = ''; // Buffer to store the full message
             const toolCalls = []; // Store tool call IDs
             const encoder = new TextEncoder();
-            for await (const chunk of response) {
-                controller.enqueue(
-                    encoder.encode(
-                        `event: message\ndata: ${JSON.stringify(chunk)}\n\n`
-                    )
-                );
-                if (chunk.text) {
-                    fullMessage += chunk.text;
-                }
-                if (chunk.toolCall) {
-                    toolCalls.push(chunk.toolCall);
-                }
-            }
-            controller.close();
 
-            // Save the full message
-            await taskMachine.saveMessages(user.id, agent!.id, task, thread, [
-                {
-                    role: 'assistant',
-                    content: fullMessage,
-                    tool_calls: toolCalls,
-                },
-            ]);
+            try {
+                for await (const chunk of response) {
+                    controller.enqueue(
+                        encoder.encode(
+                            `event: message\ndata: ${JSON.stringify(chunk)}\n\n`
+                        )
+                    );
+                    if (chunk.text) {
+                        fullMessage += chunk.text;
+                    }
+                    if (chunk.toolCall) {
+                        toolCalls.push(chunk.toolCall);
+                    }
+                }
+                controller.close();
+
+                // Save the full message
+                await taskMachine.saveMessages(
+                    user.id,
+                    agent!.id,
+                    task,
+                    thread,
+                    [
+                        {
+                            role: 'assistant',
+                            content: fullMessage,
+                            tool_calls: toolCalls,
+                        },
+                    ]
+                );
+            } catch (err) {
+                log.error(err as Error, 'LLM call failed');
+
+                controller.enqueue(
+                    encoder.encode(`event: error\ndata: "LLM failed"\n\n`)
+                );
+                controller.close();
+            }
         },
     });
 

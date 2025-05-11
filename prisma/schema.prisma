@@ -192,3 +192,6 @@ model attachments {
 
   @@map("superexpert_ai_attachments")
 }
+
+
+
