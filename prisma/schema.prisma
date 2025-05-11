@@ -194,4 +194,21 @@ model attachments {
 }
 
 
+model LogEvents {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  createdAt DateTime @default(now())               @db.Timestamptz(3)
+
+  userId    String?  @db.VarChar(36)
+  agentId   String?  @db.VarChar(36)
+  component String?  @db.VarChar(50)
+  level     String   @db.VarChar(10)
+  msg       String
+
+  data      Json?
+
+  @@index([agentId, createdAt])
+  @@map("superexpert_ai_logEvents")
+}
+
+
 

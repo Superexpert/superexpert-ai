@@ -7,6 +7,8 @@ import { DBService } from '@/lib/db/db-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 import { getServerLogger } from '@superexpert-ai/framework/server';
 import '@/lib/log-events-bus'; 
+import '@/lib/log-to-db'; // side-effect: registers db logger
+
 
 
 interface RequestBody {
