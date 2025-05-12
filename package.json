@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--disable-warning=DEP0040' next dev --turbopack",
-    "dev:pretty": "NODE_OPTIONS='--disable-warning=DEP0040' npm run dev | npx pino-pretty --colorize --singleLine --translateTime 'HH:MM:ss'",
+    "dev:pretty": "NODE_OPTIONS='--disable-warning=DEP0040' npm run dev | npx pino-pretty --colorize --translateTime 'HH:MM:ss' --expand --indent 2",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
