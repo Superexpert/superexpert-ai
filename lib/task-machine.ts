@@ -1,15 +1,22 @@
 import { DBService } from '@/lib/db/db-service';
-import { MessageAI, ToolAI, User, LLMModelConfiguration, callContextTool, ContextToolContext } from '@superexpert-ai/framework';
+import {
+    MessageAI,
+    ToolAI,
+    User,
+    LLMModelConfiguration,
+    callContextTool,
+    ContextToolContext,
+} from '@superexpert-ai/framework';
 import { TaskDefinition } from './task-definition';
 import { buildTools } from './build-tools';
 import { prisma } from '@/lib/db/prisma';
 import { getRAGStrategy, RAGStrategyContext } from '@superexpert-ai/framework';
-//import { baseLog } from '@superexpert-ai/framework/server';
+import { getServerLogger } from '@superexpert-ai/framework/server';
 
 export class TaskMachine {
     private db: DBService;
 
-    constructor() {
+    constructor(protected readonly log: ReturnType<typeof getServerLogger>) {
         this.db = new DBService();
     }
 
@@ -27,7 +34,6 @@ export class TaskMachine {
         modelId: string;
         modelConfiguration: LLMModelConfiguration;
     }> {
-
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
         let taskDefinition = taskDefinitions.find((td) => td.name === task);
@@ -127,14 +133,13 @@ export class TaskMachine {
             ]),
         ];
 
-
         const tools = buildTools(toolIds);
         return tools;
     }
 
     private async getContextToolData(
         user: User,
-        agent: {id:string, name:string},
+        agent: { id: string; name: string },
         taskDefinition: TaskDefinition,
         globalTaskDefinition: TaskDefinition,
         messages: MessageAI[]
@@ -175,7 +180,7 @@ export class TaskMachine {
         globalTaskDefinition: TaskDefinition,
         messages: MessageAI[]
     ): Promise<string> {
-        const agent = {id: agentId, name: agentName};
+        const agent = { id: agentId, name: agentName };
         const contextToolData = await this.getContextToolData(
             user,
             agent,
@@ -235,7 +240,12 @@ File Name: ${attachment.fileName}
         messages: MessageAI[]
     ) {
         // Only proceed if there are corpus ids
-        const uniqueCorpusIds = [...new Set( [...taskDefinition.corpusIds, ...globalTaskDefinition.corpusIds])];
+        const uniqueCorpusIds = [
+            ...new Set([
+                ...taskDefinition.corpusIds,
+                ...globalTaskDefinition.corpusIds,
+            ]),
+        ];
         if (uniqueCorpusIds.length === 0) {
             return;
         }
@@ -244,27 +254,61 @@ File Name: ${attachment.fileName}
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role !== 'user') return;
 
-        const strategyId = taskDefinition.ragStrategyId == 'global' ? globalTaskDefinition.ragStrategyId : taskDefinition.ragStrategyId;
+        const strategyId =
+            taskDefinition.ragStrategyId == 'global'
+                ? globalTaskDefinition.ragStrategyId
+                : taskDefinition.ragStrategyId;
 
         const ragStrategy = getRAGStrategy(strategyId);
         if (!ragStrategy) {
             throw new Error(`RAG strategy ${strategyId} not found`);
         }
 
-    
         const ctx: RAGStrategyContext = {
             userId,
-            corpusIds: uniqueCorpusIds,                  
+            corpusIds: uniqueCorpusIds,
             query: lastMessage.content,
-            limit:   taskDefinition.corpusLimit,
+            limit: taskDefinition.corpusLimit,
             similarityThreshold: taskDefinition.corpusSimilarityThreshold,
             db: prisma,
         };
-    
+
         const chunks = await ragStrategy.function.call(ctx);
 
         for (const chunk of chunks) {
             lastMessage.content += `\n\Retrieved information:\n${chunk.chunk}\n\nSource: ${chunk.fileName}`;
         }
+
+        this.log.info(`LLM call augmented with RAG`, {
+            strategy: ragStrategy.name,
+            corpusIds: uniqueCorpusIds,
+            limit: taskDefinition.corpusLimit,
+            similarityThreshold: taskDefinition.corpusSimilarityThreshold,
+            chunks: this.truncateChunks(chunks),
+        });
+    }
+
+    private truncateChunks<T extends { chunk: string }>(
+        chunks: T[],
+        maxLength = 120,
+        keepStart = 60,
+        keepEnd = 60
+    ): T[] {
+        // Make sure the keep segments can actually fit
+        const maxPayload = maxLength - 3; // 3 chars for "..."
+        if (keepStart + keepEnd > maxPayload) {
+            const half = Math.floor(maxPayload / 2);
+            keepStart = half;
+            keepEnd = maxPayload - half;
+        }
+
+        return chunks.map((chunkObj) => {
+            const { chunk } = chunkObj;
+            if (chunk.length <= maxLength) return chunkObj; // Nothing to do
+
+            const head = chunk.slice(0, keepStart).trimEnd();
+            const tail = chunk.slice(-keepEnd).trimStart();
+            return { ...chunkObj, chunk: `${head} ... ${tail}` }; // New object
+        });
     }
 }

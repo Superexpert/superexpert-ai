@@ -16,10 +16,7 @@ registerRAGStrategy({
             this.query,
             this.corpusIds
         );
-    
-        console.log('query', this.query);
-        console.log('tsQuery', tsQuery);
-    
+        
         const rows = await this.db.$queryRaw<
             {
                 id: number;
@@ -34,8 +31,9 @@ registerRAGStrategy({
             )
             SELECT  cfc.id,
                     cfc.chunk,
+                    cf."fileName", 
                     (
-                    SELECT COUNT(*)                    -- hits = coverage
+                    SELECT COUNT(*)::int                    -- hits = coverage
                     FROM (
                         SELECT unnest((SELECT arr FROM q_terms))
                         INTERSECT
@@ -52,9 +50,7 @@ registerRAGStrategy({
             ORDER  BY hits DESC, rank DESC
             LIMIT  ${this.limit};
         `;
-    
-        console.log('rows', rows);
-    
+        
         const max = Math.max(0, ...rows.map((r) => r.rank));
         return rows.map((r) => ({ ...r, similarity: max ? r.rank / max : 0 }));       
     },

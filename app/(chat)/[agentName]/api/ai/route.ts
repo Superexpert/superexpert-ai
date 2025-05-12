@@ -6,9 +6,7 @@ import { auth } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
 import { getServerLogger } from '@superexpert-ai/framework/server';
-import '@/lib/log-events-bus'; 
 import '@/lib/log-to-db'; // side-effect: registers db logger
-
 
 
 interface RequestBody {
@@ -40,7 +38,6 @@ export async function POST(
 
     // Create logger
     const log = getServerLogger({ userId: session.user.id, agentId: agent.id, component: 'ai-route' });
-    log.info('LLM call started');
 
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
@@ -50,7 +47,13 @@ export async function POST(
     user.now = new Date(nowString);
     user.timeZone = timeZone;
 
-    const taskMachine = new TaskMachine();
+    log.info(
+        `LLM call started for agent ${agentName} and task ${task}`,
+        {thread, messages}
+    );
+
+
+    const taskMachine = new TaskMachine(log);
     const {
         instructions,
         currentMessages,
@@ -80,6 +83,8 @@ export async function POST(
 
     // Create a new AI Model
     const model = LLMModelFactory.createModel(modelId, modelConfiguration, log);
+
+
 
     let response: AsyncIterable<ChunkAI>;
     try {
@@ -123,6 +128,10 @@ export async function POST(
                             tool_calls: toolCalls,
                         },
                     ]
+                );
+                log.info(
+                    `LLM call completed for agent ${agentName} and task ${task}`,
+                    { thread, modelId, toolCalls, response: fullMessage }
                 );
             } catch (err) {
                 log.error(err as Error, 'LLM call failed');
