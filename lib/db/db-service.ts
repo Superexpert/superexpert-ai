@@ -1,8 +1,12 @@
 import { MessageAI } from '@superexpert-ai/framework';
+import { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert-ai.config';
+import { getServerLogger } from '@superexpert-ai/framework/server';
 
+/* create once, shared by every instance in this process */
+const log = getServerLogger({ component: 'db-service' });
 
 export class DBService {
     public async saveMessages(
@@ -195,5 +199,55 @@ export class DBService {
             },
         });
         return attachments;
+    }
+
+    /** logging */
+
+    /* ───────── configuration ───────── */
+    private static readonly PURGE_INTERVAL_MS = 5 * 60_000; // every 5 min
+    private static readonly TTL_HOURS = 3; // keep 3 h
+    private static readonly BATCH_LIMIT = 5_000;
+
+    /* timestamp of last purge in this process */
+    private static lastPurge = 0;
+
+    /* ───────── public API ───────── */
+
+    /** insert log row + opportunistic purge */
+    public async createLogEvent(
+        data: Prisma.LogEventsCreateInput
+    ): Promise<void> {
+        await prisma.logEvents.create({ data });
+
+        const now = Date.now();
+        if (now - DBService.lastPurge > DBService.PURGE_INTERVAL_MS) {
+            DBService.lastPurge = now;
+            await this.purgeExpiredRows().catch((err) =>
+                log.error(err as Error, 'log purge failed')
+            );
+        }
+    }
+
+    /* ───────── private helpers ───────── */
+
+    private async purgeExpiredRows() {
+        const deleted: number = await prisma.$executeRawUnsafe(`
+            WITH doomed AS (
+            SELECT "id"
+                FROM "superexpert_ai_logEvents"
+            WHERE "createdAt" < NOW() - INTERVAL '${DBService.TTL_HOURS} hours'
+            ORDER BY "id"
+            LIMIT  ${DBService.BATCH_LIMIT}
+            )
+            DELETE FROM "superexpert_ai_logEvents"
+            WHERE "id" IN (SELECT "id" FROM doomed);
+        `);
+
+        if (deleted > 0) {
+            log.info('old log rows purged', {
+                deleted,
+                ttlHours: DBService.TTL_HOURS,
+            });
+        }
     }
 }
