@@ -133,6 +133,7 @@ export async function POST(
                     `LLM call completed for agent ${agentName} and task ${task}`,
                     { thread, modelId, toolCalls, response: fullMessage }
                 );
+                await log.flush();
             } catch (err) {
                 log.error(err as Error, 'LLM call failed');
 
