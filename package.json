@@ -22,7 +22,7 @@
     "@anthropic-ai/sdk": "^0.37.0",
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^3.10.0",
-    "@superexpert-ai/framework": "^1.0.18",
+    "@superexpert-ai/framework": "^1.0.19",
     "@typescript-eslint/parser": "^8.23.0",
     "bcryptjs": "^2.4.3",
     "bottleneck": "^2.19.5",
