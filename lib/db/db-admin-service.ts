@@ -333,7 +333,7 @@ export class DBAdminService {
         return true;
     }
 
-    public async deleteCorpusFile(corpusId:string, corpusFileId: string) {
+    public async deleteCorpusFile(corpusId: string, corpusFileId: string) {
         await prisma.corpusFiles.delete({
             where: {
                 userId: this.userId,
@@ -354,8 +354,8 @@ export class DBAdminService {
                                JOIN   "superexpert_ai_corpusFiles"       cf
                                       ON cfc."corpusFileId" = cf.id
                                WHERE  cf."corpusId" = '${corpusId}'  $$);
-            `
-          ]);
+            `,
+        ]);
 
         return true;
     }
@@ -430,44 +430,43 @@ export class DBAdminService {
         // Update the corpus file to mark it as done
         await prisma.corpusFiles.update({
             where: {
-               id:corpusFileId,
-               userId: this.userId,
+                id: corpusFileId,
+                userId: this.userId,
             },
             data: {
                 done: true,
             },
         });
 
-
         return true;
     }
 
     public async createCorpusFileChunk(
-        userId       : string,
-        corpusFileId : string,
-        chunkIndex   : number,
-        chunkText    : string,
-        embedding    : number[]
-      ) {
-        const vec = pgvector.toSql(embedding);   
-      
+        userId: string,
+        corpusFileId: string,
+        chunkIndex: number,
+        chunkText: string,
+        embedding: number[]
+    ) {
+        const vec = pgvector.toSql(embedding);
+
         await prisma.$transaction(async (tx) => {
-          /* 1️⃣  insert chunk, skip if already present */
-          await tx.$executeRawUnsafe(
-            `INSERT INTO "superexpert_ai_corpusFileChunks"
+            /* 1️⃣  insert chunk, skip if already present */
+            await tx.$executeRawUnsafe(
+                `INSERT INTO "superexpert_ai_corpusFileChunks"
                ("userId","corpusFileId","chunkIndex","chunk","embedding")
              VALUES ($1,$2,$3,$4,$5::vector)
              ON CONFLICT ("corpusFileId","chunkIndex") DO NOTHING`,
-            userId,
-            corpusFileId,
-            chunkIndex,
-            chunkText,
-            vec
-          );
-      
-          /* 2️⃣  bump checkpoint monotonically */
-          await tx.$executeRawUnsafe(
-            `INSERT INTO "superexpert_ai_corpusFileProgress"
+                userId,
+                corpusFileId,
+                chunkIndex,
+                chunkText,
+                vec
+            );
+
+            /* 2️⃣  bump checkpoint monotonically */
+            await tx.$executeRawUnsafe(
+                `INSERT INTO "superexpert_ai_corpusFileProgress"
                      ("corpusFileId","lastChunk")
              VALUES ($1,$2)
              ON CONFLICT ("corpusFileId")
@@ -475,19 +474,33 @@ export class DBAdminService {
                  EXCLUDED."lastChunk",
                  "superexpert_ai_corpusFileProgress"."lastChunk"
              )`,
-            corpusFileId,
-            chunkIndex
-          );
+                corpusFileId,
+                chunkIndex
+            );
         });
-      }
-
+    }
 
     public async getCorpusFileProgress(corpusFileId: string) {
         const row = await prisma.corpusFileProgress.findUnique({
             where: { corpusFileId },
             select: { lastChunk: true },
-          });
-          return row?.lastChunk ?? -1;    
+        });
+        return row?.lastChunk ?? -1;
     }
-      
+
+    //** Logs **//
+
+    public async getLogStream(lastId: bigint, agentId: string, limit: number) {
+        const rows = await prisma.logEvents.findMany({
+            where: {
+                id: { gt: lastId },
+                agentId: agentId,
+            },
+            orderBy: { id: 'asc' },
+            take: limit,
+        });
+        return rows;
+    }
+
+
 }

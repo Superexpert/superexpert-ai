@@ -2,7 +2,6 @@
 export const runtime = 'nodejs';
 export const maxDuration = 300;       // 5-minute window on Vercel
 
-import { prisma } from '@/lib/db/prisma';
 import { auth }   from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { DBAdminService } from '@/lib/db/db-admin-service';
@@ -38,13 +37,11 @@ export async function GET(req: NextRequest) {
     async start(controller) {
       // poll loop
       const tick = async () => {
-        const rows = await prisma.logEvents.findMany({
-          where: {
-            id:    { gt: lastId },
-            agentId: agent.id,
-          },
-          orderBy: { id: 'asc' },
-        });
+        const rows = await db.getLogStream(
+          lastId,
+          agent.id,
+          100,                  // max rows per poll
+        );
 
 for (const r of rows) {
   lastId = r.id;

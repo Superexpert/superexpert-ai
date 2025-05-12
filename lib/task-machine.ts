@@ -27,21 +27,6 @@ export class TaskMachine {
         modelId: string;
         modelConfiguration: LLMModelConfiguration;
     }> {
-        // // Create logger
-        // const log = baseLog.child({
-        //     userId: user.id,
-        //     agentId: agentId,
-        //     component: '@superexpert-ai',
-        // });
-
-        // log.info('getAIPayload', {
-        //     userId: user.id,
-        //     agentId: agentId,
-        //     task: task,
-        //     thread: thread,
-        //     messages: messages,
-        // });
-
 
         // Get task definition
         const taskDefinitions = await this.getTaskDefinitions(user.id, agentId);
