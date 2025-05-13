@@ -3,10 +3,10 @@ import { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
 import { MAX_MESSAGES, MESSAGE_RETENTION_HOURS } from '@/superexpert-ai.config';
-import { getServerLogger } from '@superexpert-ai/framework/server';
+import { Logger } from '@/lib/logger';
 
 /* create once, shared by every instance in this process */
-const log = getServerLogger({ component: 'db-service' });
+const log = new Logger({ component: 'db-service' });
 
 export class DBService {
     public async saveMessages(
