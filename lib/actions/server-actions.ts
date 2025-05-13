@@ -8,6 +8,8 @@ import { collapseErrors } from '@/lib/validation';
 import { getUserId } from '../user';
 import { prisma } from '@/lib/db/prisma';
 import { signOut } from '@/auth';
+import { Logger } from '@/lib/logger';
+
 
 export async function executeServerTool(
     agentId: string,
@@ -24,6 +26,17 @@ export async function executeServerTool(
     }
     const user = session.user;
 
+    // Create logger
+    const log = new Logger({
+        userId  : session.user.id,
+        agentId : agentId,
+        component: 'server-tool',
+    });
+    await log.info(`Calling server tool ${functionName}`, {
+        functionName,
+        functionArgs,
+    });
+
     // Execute server tool
     const context: ServerToolContext = {
         user: {
@@ -35,7 +48,8 @@ export async function executeServerTool(
             id: agentId,
             name: agentName,
         },
-        db: prisma
+        db: prisma,
+        log,
     };
 
     const result = callServerTool(functionName, context, functionArgs);
