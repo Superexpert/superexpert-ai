@@ -5,8 +5,6 @@ import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
-// import { getServerLogger } from '@superexpert-ai/framework/server';
-//import '@/lib/log-to-db'; // side-effect: registers db logger
 import {Logger} from '@/lib/logger';
 
 interface RequestBody {
@@ -37,7 +35,6 @@ export async function POST(
     }
 
     // Create logger
-    //const log = getServerLogger({ userId: session.user.id, agentId: agent.id, component: 'ai-route' });
     const log = new Logger({
         userId  : session.user.id,
         agentId : agent.id,

@@ -1,6 +1,4 @@
-// apps/superexpert-ai/lib/logger.ts
 import { Prisma } from '@prisma/client';
-//import { prisma } from '@/lib/db/prisma';
 import { DBService } from '@/lib/db/db-service';
 
 export interface LogMeta {
@@ -58,16 +56,6 @@ export class Logger {
         createdAt: new Date(line.time),
         data     : line as unknown as Prisma.JsonObject,
       });
-    // await prisma.logEvents.create({
-    //   data: {
-    //     userId   : line.userId,
-    //     agentId  : line.agentId,
-    //     component: line.component,
-    //     level,
-    //     msg,
-    //     createdAt: new Date(line.time),
-    //     data     : line as unknown as Prisma.JsonObject,
-    //   },
-    // });
+
   }
 }

@@ -144,7 +144,7 @@ export class TaskMachine {
         globalTaskDefinition: TaskDefinition,
         messages: MessageAI[]
     ): Promise<string> {
-        // merge server data ids
+        // merge context tool ids
         const contextToolIds: string[] = [
             ...new Set([
                 ...taskDefinition.contextToolIds,
@@ -164,8 +164,17 @@ export class TaskMachine {
             },
             messages: messages,
             db: prisma,
+            log: this.log.child({
+                userId: user.id,
+                agentId: agent.id,
+                component: 'context-tool',
+            }),
         };
         for (const contextToolId of contextToolIds) {
+            await this.log.info(
+                `Calling context tool ${contextToolId}`
+            );
+            // Call the context tool
             const data = await callContextTool(contextToolId, context, {});
             result += `${data}\n`;
         }

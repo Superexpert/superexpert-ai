@@ -5,7 +5,8 @@ registerContextTool({
     name: 'whichAgent',
     category: 'sample',
     description: 'This tool returns the current agent id and name',
-    function() {
+    async function() {
+        await this.log.info('whichAgent tool called');
         return `My agent id is ${this.agent.id} and my agent name is ${this.agent.name} and I am awesome`;
     },
 });
