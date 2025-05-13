@@ -1,44 +1,36 @@
-// lib/log-to-db.ts
-import { logStream } from '@superexpert-ai/framework/server';  // export from logger.ts
+import { logStream } from '@superexpert-ai/framework/server';
 import { Prisma }    from '@prisma/client';
 import { DBService } from '@/lib/db/db-service';
 
-/** one DB helper per process */
+type LS = typeof logStream & { __pending?: number };
+const ls = logStream as LS;
+ls.__pending ??= 0;                          // initialise counter once
+
 const db = new DBService();
 
-/* ------------------------------------------------------------------ */
-/* Listener: every log row written by getServerLogger() arrives here  */
-/* ------------------------------------------------------------------ */
+// one listener per process
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-logStream.on('data', async (row: any) => {
-  /* 1️⃣  skip anything that isn’t a normal log row -------------------- */
-  if (typeof row !== 'object' || row === null) return;   // e.g. flush() dummy
-  if (!row.msg) return;                                  // rows with no message
+ls.on('data', async (row: any) => {
+  if (typeof row !== 'object' || row === null) return;   // skip dummy
+  if (!row.msg) return;                                  // skip blanks
 
-  /* 2️⃣  destructure; fall back to safe defaults ---------------------- */
-  const {
-    time,
-    userId,
-    agentId,
-    component,
-    level = 'info',
-    msg   = '(no message)',
-    ...rest
-  } = row;
-
+  ls.__pending!++;                                       // ++ before insert
   try {
-    /* 3️⃣  persist ---------------------------------------------------- */
     await db.createLogEvent({
-      userId,
-      agentId,
-      component,
-      level,
-      msg,
-      createdAt: time ? new Date(time as number) : undefined,
-      data: rest as Prisma.JsonObject,
+      userId   : row.userId,
+      agentId  : row.agentId,
+      component: row.component,
+      level    : row.level ?? 'info',
+      msg      : row.msg,
+      createdAt: row.time ? new Date(row.time as number) : undefined,
+      data     : row as Prisma.JsonObject,
     });
-  } catch /* istanbul ignore next */ {
-    /* never let log problems break the user flow */
-    console.warn('log-to-db: insert skipped', (row?.msg ?? 'unknown row'));
+  } catch {
+    /* swallow DB errors to avoid breaking user flow */
+  } finally {
+    if (--ls.__pending! === 0) {
+      // notify any waiters that all inserts are done
+      ls.emit('db-drain');
+    }
   }
 });
