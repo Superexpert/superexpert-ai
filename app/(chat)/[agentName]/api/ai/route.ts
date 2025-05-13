@@ -118,7 +118,6 @@ export async function POST(
                         toolCalls.push(chunk.toolCall);
                     }
                 }
-                controller.close();
 
                 // Save the full message
                 await taskMachine.saveMessages(
@@ -138,6 +137,9 @@ export async function POST(
                     `LLM call completed for agent ${agentName} and task ${task}`,
                     { thread, modelId, toolCalls, response: fullMessage }
                 );
+
+                controller.close();
+
             } catch (err) {
                 await log.error(err as Error, 'LLM call failed');
 
