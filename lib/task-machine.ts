@@ -11,12 +11,12 @@ import { TaskDefinition } from './task-definition';
 import { buildTools } from './build-tools';
 import { prisma } from '@/lib/db/prisma';
 import { getRAGStrategy, RAGStrategyContext } from '@superexpert-ai/framework';
-import { getServerLogger } from '@superexpert-ai/framework/server';
+import { LoggerContract } from '@superexpert-ai/framework/server';
 
 export class TaskMachine {
     private db: DBService;
 
-    constructor(protected readonly log: ReturnType<typeof getServerLogger>) {
+    constructor(protected readonly log: LoggerContract) {
         this.db = new DBService();
     }
 

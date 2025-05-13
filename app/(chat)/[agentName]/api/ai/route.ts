@@ -5,9 +5,9 @@ import { TaskMachine } from '@/lib/task-machine';
 import { auth } from '@/auth';
 import { DBService } from '@/lib/db/db-service';
 import { LLMModelFactory } from '@/lib/adapters/llm-adapters/llm-model-factory';
-import { getServerLogger } from '@superexpert-ai/framework/server';
-import '@/lib/log-to-db'; // side-effect: registers db logger
-
+// import { getServerLogger } from '@superexpert-ai/framework/server';
+//import '@/lib/log-to-db'; // side-effect: registers db logger
+import {Logger} from '@/lib/logger';
 
 interface RequestBody {
     nowString: string;
@@ -37,7 +37,12 @@ export async function POST(
     }
 
     // Create logger
-    const log = getServerLogger({ userId: session.user.id, agentId: agent.id, component: 'ai-route' });
+    //const log = getServerLogger({ userId: session.user.id, agentId: agent.id, component: 'ai-route' });
+    const log = new Logger({
+        userId  : session.user.id,
+        agentId : agent.id,
+        component: 'ai-route',
+    });
 
     // Await the JSON response and type it accordingly
     const body: RequestBody = await request.json();
@@ -90,7 +95,7 @@ export async function POST(
     try {
         response = model.generateResponse(instructions, currentMessages, tools);
     } catch (err) {
-        log.error(err as Error, 'LLM call failed');
+        await log.error(err as Error, 'LLM call failed');
     }
 
     const readableStream = new ReadableStream({
@@ -129,13 +134,12 @@ export async function POST(
                         },
                     ]
                 );
-                log.info(
+                await log.info(
                     `LLM call completed for agent ${agentName} and task ${task}`,
                     { thread, modelId, toolCalls, response: fullMessage }
                 );
-                await log.flush();
             } catch (err) {
-                log.error(err as Error, 'LLM call failed');
+                await log.error(err as Error, 'LLM call failed');
 
                 controller.enqueue(
                     encoder.encode(`event: error\ndata: "LLM failed"\n\n`)

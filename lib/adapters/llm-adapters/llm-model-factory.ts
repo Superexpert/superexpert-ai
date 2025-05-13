@@ -1,10 +1,10 @@
 
 import { getLLM, LLMModelConfiguration, LLMAdapter } from '@superexpert-ai/framework';
-import { getServerLogger } from '@superexpert-ai/framework/server';
+import { LoggerContract } from '@superexpert-ai/framework/server';
 
 export class LLMModelFactory {
   /** Create an AI model instance based on the selected id */
-  static createModel(modelId: string, modelConfiguration: LLMModelConfiguration | undefined, log:ReturnType<typeof getServerLogger>): LLMAdapter {
+  static createModel(modelId: string, modelConfiguration: LLMModelConfiguration | undefined, log:LoggerContract): LLMAdapter {
     const plugin = getLLM(modelId);
     if (!plugin) {
       throw new Error(`Unsupported AI model ID: ${modelId}`);
