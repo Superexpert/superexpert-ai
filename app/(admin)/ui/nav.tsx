@@ -3,8 +3,9 @@ import React from 'react';
 import Link from 'next/link';
 import SignOutButton from './sign-out-button';
 import Image from 'next/image';
+import { User } from 'next-auth';
 
-export default function Navbar() {
+export default function Navbar({user}: {user: User | null}) {
     return (
         <nav className="w-full">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,7 +41,11 @@ export default function Navbar() {
                             className="text-gray-600 hover:text-gray-900 text-base font-medium">
                             Docs
                         </Link>
-                        <SignOutButton />
+                        {user && (
+                            <>
+                                <SignOutButton />
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Hamburger */}
