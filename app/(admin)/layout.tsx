@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/app/(admin)/admin.css';
 import Nav from './ui/nav';
 import '@/superexpert-ai.plugins.server';
+import { auth } from '@/auth';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
     subsets: ['latin'],
@@ -16,16 +17,18 @@ export const metadata: Metadata = {
     description: 'Build powerful AI agents in minutes',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const session = await auth();
+
     return (
         <html lang="en">
             <body
                 className={plusJakartaSans.className}>
-                <Nav />
+                <Nav user={session?.user ?? null} />
                 {children}
             </body>
         </html>
